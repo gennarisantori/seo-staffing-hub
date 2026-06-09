@@ -608,7 +608,7 @@ const avgB=ms.length?ms.reduce((a,m)=>a+mEfBill(m.id),0)/ms.length:0;
 const dem={},sup={};PLkeys.forEach(k=>{dem[k]=0;sup[k]=0});ps.forEach(p=>PLkeys.forEach(k=>dem[k]+=(p.daysByRole[k]||0)));ms.forEach(m=>{const pk='PL'+rPL(m.role);if(sup[pk]!==undefined)sup[pk]+=m.cap});
 
 var _uHtml=_user?('<div style="display:flex;align-items:center;gap:8px">'+'<span style="font-size:11px;color:var(--t2)">'+((_profile&&_profile.displayName)||_user.email)+'</span>'+'<button class="b bo" onclick="fbSignOut()" style="font-size:10px;padding:4px 8px">Esci</button></div>'):'';
-let h=`<div class="hdr"><div><h1><span style="color:var(--ac);font-weight:800;letter-spacing:-.02em">JAKALA</span> <span style="color:var(--t2);font-weight:400;font-size:13px">Staffing Hub</span></h1>
+let h=`<div class="hdr"><div><h1 style="display:flex;align-items:center;gap:9px"><img src="jakala-logo.svg" alt="JAKALA" style="height:26px;width:auto;display:block"><span style="color:#15171c;font-weight:700;font-size:17px;letter-spacing:-.01em">SEO Staffing Hub</span></h1>
 <div class="hs"><span>${ms.length} persone</span><span>·</span><span>${ps.length} progetti</span><span>·</span>
 <span>Utilization rate: <b style="color:${sc(avgB)}">${avgB.toFixed(0)}%</b></span><span>·</span>
 <span>Effort tot. medio: <b style="color:${sc(avgE)}">${avgE.toFixed(0)}%</b></span><span>·</span>

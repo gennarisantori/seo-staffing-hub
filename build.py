@@ -206,9 +206,9 @@ uhtml_decl = (
 anchor = 'let h=`<div class="hdr"><div><h1>'
 hi = html.index(anchor)
 h1end = html.index('</h1>', hi)
-new_h1 = ('let h=`<div class="hdr"><div><h1>'
-          '<span style="color:var(--ac);font-weight:800;letter-spacing:-.02em">JAKALA</span> '
-          '<span style="color:var(--t2);font-weight:400;font-size:13px">Staffing Hub</span></h1>')
+new_h1 = ('let h=`<div class="hdr"><div><h1 style="display:flex;align-items:center;gap:9px">'
+          '<img src="jakala-logo.svg" alt="JAKALA" style="height:26px;width:auto;display:block">'
+          '<span style="color:#15171c;font-weight:700;font-size:17px;letter-spacing:-.01em">SEO Staffing Hub</span></h1>')
 html = html[:hi] + uhtml_decl + new_h1 + html[h1end + len('</h1>'):]
 
 # Insert user chip into header actions
