@@ -312,7 +312,8 @@ theme_css = (
     # Top navigation bar — identical to the Quotation Hub
     ".topnav{display:flex;align-items:center;justify-content:space-between;padding:10px 24px;background:#fff;border-bottom:1px solid #e5e5e0;position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:10px}"
     ".topnav-left{display:flex;align-items:center;gap:16px;flex-wrap:wrap}"
-    ".topnav-logo{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600;color:#1a1a1a;white-space:nowrap}"
+    ".topnav-logo{display:flex;align-items:center;gap:6px;font-size:16px;font-weight:600;color:#1a1a1a;white-space:nowrap}"
+    ".brand-mark{height:30px;width:auto;display:block;object-fit:contain}"
     ".topnav-nav{display:flex;gap:4px;flex-wrap:wrap}"
     ".nav-item{padding:6px 14px;border-radius:8px;font-size:13px;color:#595959;text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}"
     ".nav-item:hover{background:#f5f4f0;color:#1a1a1a}"
@@ -354,9 +355,9 @@ hend = html.index(hend_marker, hstart) + len(hend_marker)
 new_header = r"""var _nm=_user?((_profile&&_profile.displayName)||_user.email):'';
 var _ini=_nm?_nm.split(/[ ._-]+/).filter(Boolean).slice(0,2).map(function(s){return s.charAt(0).toUpperCase();}).join(''):'';
 var _uHtml=_user?('<div class="avatar">'+_ini+'</div><span class="topnav-user">'+esc(_nm)+'</span><button class="signout-btn" onclick="fbSignOut()">Esci</button>'):'';
-const TABS=[["team","👥 Team"],["projects","📁 Progetti"],["matrix","⊞ Matrice"],["assign","⚡ Assegna"]];
-if(isAdmin())TABS.push(["admin","⚙ Admin"]);
-let h=`<div class="topnav"><div class="topnav-left"><div class="topnav-logo"><img src="jakala-logo.png" alt="JAKALA" style="height:26px;width:auto;display:block"><span>SEO Staffing Hub</span></div><div class="topnav-nav">${TABS.map(([k,l])=>`<a class="nav-item${S.vw===k?' active':''}" onclick="sw('${k}')">${l}</a>`).join('')}</div>${S.vw!=='admin'?`<input class="topsearch" placeholder="Cerca..." value="${esc(S.q)}" oninput="S.q=this.value;R()">`:''}</div><div class="topnav-right">${_uHtml}</div></div>`;
+const TABS=[["team","👥 Team"],["projects","📁 Progetti"],["matrix","🔢 Matrice"],["assign","⚡️ Assegna"]];
+if(isAdmin())TABS.push(["admin","⚙️ Admin"]);
+let h=`<div class="topnav"><div class="topnav-left"><span class="topnav-logo"><img class="brand-mark" src="jakala-logo.png" alt="JAKALA"><span>SEO Staffing Hub</span></span><div class="topnav-nav">${TABS.map(([k,l])=>`<a class="nav-item${S.vw===k?' active':''}" onclick="sw('${k}')">${l}</a>`).join('')}</div>${S.vw!=='admin'?`<input class="topsearch" placeholder="Cerca..." value="${esc(S.q)}" oninput="S.q=this.value;R()">`:''}</div><div class="topnav-right">${_uHtml}</div></div>`;
 h+=`<div class="ct">`;"""
 html = html[:hstart] + new_header + html[hend:]
 
