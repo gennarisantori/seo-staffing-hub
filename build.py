@@ -309,25 +309,73 @@ theme_css = (
     ".utbl tbody tr:nth-child(even){background:#f7f8fa}"
     ".utbl select{padding:5px 8px;border:1px solid var(--bd);border-radius:6px;background:#fff;color:var(--tx);font-size:12px;font-family:inherit}"
     ".utbl .ctr{text-align:center}"
+    # Top navigation bar — identical to the Quotation Hub
+    ".topnav{display:flex;align-items:center;justify-content:space-between;padding:10px 24px;background:#fff;border-bottom:1px solid #e5e5e0;position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:10px}"
+    ".topnav-left{display:flex;align-items:center;gap:16px;flex-wrap:wrap}"
+    ".topnav-logo{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600;color:#1a1a1a;white-space:nowrap}"
+    ".topnav-nav{display:flex;gap:4px;flex-wrap:wrap}"
+    ".nav-item{padding:6px 14px;border-radius:8px;font-size:13px;color:#595959;text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}"
+    ".nav-item:hover{background:#f5f4f0;color:#1a1a1a}"
+    ".nav-item.active{background:#e6f1fb;color:#185fa5;font-weight:500}"
+    ".topnav-right{display:flex;align-items:center;gap:8px}"
+    ".avatar{width:28px;height:28px;border-radius:50%;background:#e6f1fb;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#185fa5;text-transform:uppercase}"
+    ".topnav-user{font-size:13px;color:#595959;white-space:nowrap}"
+    ".signout-btn{padding:4px 10px;border-radius:6px;border:1px solid #ddd;background:transparent;font-size:12px;color:#6e6e6e;cursor:pointer}"
+    ".signout-btn:hover{background:#f5f4f0;color:#1a1a1a}"
+    ".subbar{display:flex;justify-content:flex-end;padding:12px 24px 0}"
+    ".subbar .si{width:240px}"
+    # Admin view — enlarged overview metrics + Price-Level capacity
+    ".ametrics{display:flex;gap:12px;flex-wrap:wrap}"
+    ".ametric{flex:1;min-width:130px;background:#f8f9fb;border:1px solid var(--bd);border-radius:10px;padding:13px 15px}"
+    ".aml{font-size:11px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}"
+    ".amv{font-size:25px;font-weight:700;color:#15171c;font-variant-numeric:tabular-nums;line-height:1.1}"
+    ".acapgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}"
+    ".acap{background:#f8f9fb;border:1px solid var(--bd);border-radius:10px;padding:14px 16px}"
+    ".acl{font-size:12px;color:var(--t2);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}"
+    ".acv{font-size:21px;font-weight:700;margin-bottom:8px;font-variant-numeric:tabular-nums}"
+    ".acv span{font-size:12px;color:var(--t3);font-weight:500}"
+    ".acbar{height:6px;background:#e9e8e2;border-radius:3px;overflow:hidden;margin-bottom:6px}"
+    ".acbar>div{height:100%;border-radius:3px;transition:width .5s}"
+    ".acp{font-size:12px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}"
 )
 html = html.replace('</style>', theme_css + '</style>', 1)
 
 # ── I. ACCESS MANAGEMENT: "Utenti" tab + invite-based user activation (Quotation Hub model) ──
 
-# I1. Add the nav tab
-assert '["assign","⚡ Assegna"]]' in html, 'nav tabs anchor not found'
-html = html.replace('["assign","⚡ Assegna"]]',
-                    '["assign","⚡ Assegna"],["users","⚙ Utenti"]]', 1)
+# I1. Rebuild the header as a Quotation-Hub-style top nav (logo + title + inline tabs + user).
+#     The overview stats and Price-Level tiles move out of the header into the Admin tab.
+hstart = html.index('var _uHtml=')
+hend_marker = '<div class="ct">`;'
+hend = html.index(hend_marker, hstart) + len(hend_marker)
+new_header = r"""var _nm=_user?((_profile&&_profile.displayName)||_user.email):'';
+var _ini=_nm?_nm.split(/[ ._-]+/).filter(Boolean).slice(0,2).map(function(s){return s.charAt(0).toUpperCase();}).join(''):'';
+var _uHtml=_user?('<div class="avatar">'+_ini+'</div><span class="topnav-user">'+esc(_nm)+'</span><button class="signout-btn" onclick="fbSignOut()">Esci</button>'):'';
+const TABS=[["team","👥 Team"],["projects","📁 Progetti"],["matrix","⊞ Matrice"],["assign","⚡ Assegna"]];
+if(isAdmin())TABS.push(["admin","⚙ Admin"]);
+let h=`<div class="topnav"><div class="topnav-left"><div class="topnav-logo"><img src="jakala-logo.png" alt="JAKALA" style="height:26px;width:auto;display:block"><span>SEO Staffing Hub</span></div><div class="topnav-nav">${TABS.map(([k,l])=>`<a class="nav-item${S.vw===k?' active':''}" onclick="sw('${k}')">${l}</a>`).join('')}</div></div><div class="topnav-right">${_uHtml}</div></div>`;
+if(S.vw!=='admin'){h+=`<div class="subbar"><input class="si" placeholder="Cerca globale..." value="${esc(S.q)}" oninput="S.q=this.value;R()"></div>`;}
+h+=`<div class="ct">`;"""
+html = html[:hstart] + new_header + html[hend:]
 
 # I2. Route the new view (load Firestore data, then render)
 assert 'function sw(v){S.vw=v;S.sm=null;S.sp=null;R()}' in html, 'sw() anchor not found'
 html = html.replace('function sw(v){S.vw=v;S.sm=null;S.sp=null;R()}',
-                    "function sw(v){S.vw=v;S.sm=null;S.sp=null;if(v==='users'){uLoad();return;}R()}", 1)
+                    "function sw(v){S.vw=v;S.sm=null;S.sp=null;if(v==='admin'){uLoad();return;}R()}", 1)
 
-# I3. Render the view inside the content area
+# I3. Render the Admin view inside the content area (admins only; nothing for others)
 anchor_ap = 'h+=`</div>`;document.getElementById("AP").innerHTML=h;'
 assert anchor_ap in html, 'AP render anchor not found'
-html = html.replace(anchor_ap, "if(S.vw==='users'){h+=renderUsers();}\n" + anchor_ap, 1)
+admin_branch = r"""if(S.vw==='admin'&&isAdmin()){
+var _totD=ps.reduce(function(a,p){return a+p.totalDays;},0);
+h+='<div style="flex:1;min-width:0;max-width:1000px;margin:0 auto;width:100%">';
+h+='<div class="ucard"><div class="uct">Panoramica team</div><div class="ametrics">'+amCard('Persone',ms.length,'')+amCard('Progetti',ps.length,'')+amCard('Utilization rate',avgB.toFixed(0)+'%',sc(avgB))+amCard('Effort tot. medio',avgE.toFixed(0)+'%',sc(avgE))+amCard('GG PQ',_totD.toLocaleString('it'),'#185fa5')+'</div></div>';
+h+='<div class="ucard"><div class="uct">Capacità per Price Level</div><div class="acapgrid">'+PLkeys.map(function(k){var dd=dem[k]||0;var ss=sup[k]||0;var p=ss>0?(dd/ss)*100:dd>0?999:0;var n=k.replace('PL','Price Level ');return '<div class="acap"><div class="acl">'+n+'</div><div class="acv"><b style="color:'+sc(p)+'">'+dd.toFixed(0)+'d</b> <span>/ '+ss+'d</span></div><div class="acbar"><div style="width:'+Math.min(p/1.2,100)+'%;background:'+sc(p)+'"></div></div><div class="acp" style="color:'+sc(p)+'">'+(p>900?'oltre 100%':p.toFixed(0)+'%')+'</div></div>';}).join('')+'</div></div>';
+h+=renderUsers();
+h+='<div class="ucard"><div class="uct">Manutenzione</div><div class="ucs">Ripristina persone e progetti ai valori iniziali. Operazione irreversibile.</div><button class="b br" onclick="rst()">↺ Reset dati</button></div>';
+h+='</div>';
+}
+"""
+html = html.replace(anchor_ap, admin_branch + anchor_ap, 1)
 
 # I4. Append the access-management UI + actions before the closing </script>
 users_js = r"""
@@ -352,12 +400,10 @@ function renderUsers(){
     var act=(adm&&!isMe)?(active?'<button class="b br" onclick="uDisable(\''+u.uid+'\')">Disabilita</button>':'<button class="b bg" onclick="uEnable(\''+u.uid+'\')">Riattiva</button>'):(isMe?'<span style="font-size:10px;color:var(--t3)">(tu)</span>':'');
     return '<tr style="'+(active?'':'opacity:.55')+'"><td>'+esc(u.displayName||'')+'</td><td>'+esc(u.email||'')+'</td><td>'+roleCell+'</td><td>'+statusCell+'</td><td class="ctr">'+act+'</td></tr>';
   }).join(''):'<tr><td colspan="5" style="text-align:center;color:var(--t3);padding:18px">Nessun utente ancora.</td></tr>';
-  return '<div style="flex:1;min-width:0;max-width:960px;margin:0 auto;width:100%">'
-    +'<div class="ucard"><div class="uct">Email invitate (lista accessi)</div><div class="ucs">Solo le email invitate possono registrarsi e accedere. Scegli il ruolo al momento dell\'invito: la persona lo riceve al primo accesso. Poi condividi il link dell\'app: l\'invitato si registra impostando la propria password.</div>'+inviteForm+'<table class="utbl"><thead><tr><th>Email</th><th>Ruolo al primo accesso</th><th class="ctr">Azione</th></tr></thead><tbody>'+invRows+'</tbody></table></div>'
-    +'<div class="ucard"><div class="uct">Utenti</div><div class="ucs">Gli utenti compaiono qui automaticamente dopo il primo accesso. Da qui puoi cambiarne il ruolo o disabilitarne l\'accesso.</div><table class="utbl"><thead><tr><th>Nome</th><th>Email</th><th>Ruolo</th><th>Stato</th><th class="ctr">Azioni</th></tr></thead><tbody>'+usrRows+'</tbody></table></div>'
-    +(adm?'':'<div style="font-size:12px;color:var(--t3);text-align:center;margin-top:4px">Vista in sola lettura: solo gli amministratori possono invitare o modificare gli utenti.</div>')
-    +'</div>';
+  return '<div class="ucard"><div class="uct">Email invitate (lista accessi)</div><div class="ucs">Solo le email invitate possono registrarsi e accedere. Scegli il ruolo al momento dell\'invito: la persona lo riceve al primo accesso. Poi condividi il link dell\'app: l\'invitato si registra impostando la propria password.</div>'+inviteForm+'<table class="utbl"><thead><tr><th>Email</th><th>Ruolo al primo accesso</th><th class="ctr">Azione</th></tr></thead><tbody>'+invRows+'</tbody></table></div>'
+    +'<div class="ucard"><div class="uct">Utenti</div><div class="ucs">Gli utenti compaiono qui automaticamente dopo il primo accesso. Da qui puoi cambiarne il ruolo o disabilitarne l\'accesso.</div><table class="utbl"><thead><tr><th>Nome</th><th>Email</th><th>Ruolo</th><th>Stato</th><th class="ctr">Azioni</th></tr></thead><tbody>'+usrRows+'</tbody></table></div>';
 }
+function amCard(label,val,color){return '<div class="ametric"><div class="aml">'+label+'</div><div class="amv"'+(color?(' style="color:'+color+'"'):'')+'>'+val+'</div></div>';}
 function uDoInvite(){var e=(document.getElementById('u-email')||{}).value||'';var r=(document.getElementById('u-role')||{}).value||'member';if(!e.trim())return;uAddInvite(e,r).then(uLoad).catch(function(err){alert('Invito fallito: '+(err.message||err));});}
 function uRmInvite(e){if(!confirm('Rimuovere l\'invito per '+e+'?'))return;uRemoveInvite(e).then(uLoad).catch(function(err){alert(err.message||err);});}
 function uChgInviteRole(e,r){uSetInviteRole(e,r).then(uLoad).catch(function(err){alert(err.message||err);});}
