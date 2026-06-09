@@ -1,3 +1,6 @@
 _original.html
 .wrangler/
 node_modules/
+
+_css.txt
+_check.js

@@ -1,6 +1,5 @@
 ﻿<!DOCTYPE html><html lang="it"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style rel="stylesheet" type="text/css">@charset "utf-8";
-
-:root { --bg: #06080f; --sf: #0c1019; --s2: #111827; --bd: rgba(148,163,184,.08); --bh: rgba(24,95,165,.3); --tx: #e2e8f0; --t2: #94a3b8; --t3: #475569; --ac: #185FA5; --a2: #4A9FE0; --gn: #22c55e; --yl: #eab308; --or: #f97316; --rd: #ef4444; --mn: 'JetBrains Mono',monospace; --sn: 'Inter',system-ui,sans-serif; }
+:root { --bg:#f5f4f0; --sf:#ffffff; --s2:#ffffff; --bd:#e3e3dd; --bh:#185fa5; --tx:#1a1a1a; --t2:#595959; --t3:#8a8780; --ac:#185fa5; --a2:#185fa5; --gn:#2f6e12; --yl:#8a5a0c; --or:#c2410c; --rd:#b32a1c; --mn:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace; --sn:'Raleway',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
 
 * { margin: 0px; padding: 0px; box-sizing: border-box; }
 
@@ -12,7 +11,7 @@ input, select, button, textarea { font-family: inherit; }
 
 ::-webkit-scrollbar-track { background: transparent; }
 
-::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 3px; }
 
 #LS { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: radial-gradient(ellipse at 30% 20%,rgba(24,95,165,.10)0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(24,95,165,.05)0%,transparent 50%),var(--bg); }
 
@@ -39,7 +38,7 @@ input, select, button, textarea { font-family: inherit; }
 
 #AP { display: none; }
 
-.hdr { background: linear-gradient(135deg, rgb(15, 23, 42), rgba(30, 27, 75, 0.6)); border-bottom: 1px solid var(--bd); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.hdr { background:#ffffff; border-bottom: 1px solid var(--bd); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
 
 .hdr h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
 
@@ -53,23 +52,23 @@ input, select, button, textarea { font-family: inherit; }
 
 .b { padding: 6px 12px; border-radius: 7px; border: none; font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.15s; white-space: nowrap; }
 
-.b:hover { filter: brightness(1.2); }
+.b:hover { filter: brightness(0.96); }
 
 .bg { background: rgba(34, 197, 94, 0.12); color: var(--gn); }
 
-.ba { background: rgba(99, 102, 241, 0.12); color: var(--a2); }
+.ba { background: rgba(24, 95, 165, 0.12); color: var(--a2); }
 
 .br { background: rgba(239, 68, 68, 0.12); color: var(--rd); }
 
-.bo { background: rgba(255, 255, 255, 0.05); color: var(--t2); }
+.bo { background:#fff; border:1px solid #d8d6cd; color:#595959; }
 
 .tb { padding: 8px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bd); gap: 8px; flex-wrap: wrap; }
 
-.nt { display: flex; gap: 2px; background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 2px; }
+.nt { display: flex; gap: 2px; background: rgba(0,0,0,0.03); border-radius: 8px; padding: 2px; }
 
 .ntb { padding: 6px 16px; border-radius: 6px; border: none; background: none; color: var(--t3); font-size: 12px; font-weight: 500; cursor: pointer; transition: 0.15s; }
 
-.ntb.a { background: rgba(99, 102, 241, 0.15); color: var(--a2); font-weight: 600; }
+.ntb.a { background: rgba(24, 95, 165, 0.15); color: var(--a2); font-weight: 600; }
 
 .si { background: var(--s2); border: 1px solid var(--bd); border-radius: 7px; padding: 6px 10px; color: var(--tx); font-size: 12px; outline: none; width: 180px; }
 
@@ -87,7 +86,7 @@ input, select, button, textarea { font-family: inherit; }
 
 .di .dv span { font-size: 9px; color: var(--t3); }
 
-.dt { height: 3px; background: rgba(255, 255, 255, 0.05); border-radius: 2px; overflow: hidden; }
+.dt { height: 3px; background: rgba(0,0,0,0.05); border-radius: 2px; overflow: hidden; }
 
 .df { height: 100%; border-radius: 2px; transition: width 0.5s; }
 
@@ -116,7 +115,7 @@ input, select, button, textarea { font-family: inherit; }
 
 .xtbl th .flt { display: block; padding: 2px 10px 5px; border-top: 1px solid var(--bd); }
 
-.xtbl th .flt input, .xtbl th .flt select { width: 100%; padding: 3px 6px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--bd); border-radius: 4px; color: var(--tx); font-size: 10px; outline: none; }
+.xtbl th .flt input, .xtbl th .flt select { width: 100%; padding: 3px 6px; background: rgba(0,0,0,0.04); border: 1px solid var(--bd); border-radius: 4px; color: var(--tx); font-size: 10px; outline: none; }
 
 .xtbl th .flt input:focus, .xtbl th .flt select:focus { border-color: var(--ac); }
 
@@ -124,9 +123,9 @@ input, select, button, textarea { font-family: inherit; }
 
 .xtbl tbody tr { transition: background 0.1s; cursor: pointer; }
 
-.xtbl tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+.xtbl tbody tr:hover { background: rgba(0,0,0,0.02); }
 
-.xtbl tbody tr.sel { background: rgba(99, 102, 241, 0.06); }
+.xtbl tbody tr.sel { background: rgba(24, 95, 165, 0.06); }
 
 .xtbl .num { font-family: var(--mn); text-align: right; font-weight: 500; }
 
@@ -134,17 +133,17 @@ input, select, button, textarea { font-family: inherit; }
 
 .efb { display: inline-flex; align-items: center; gap: 5px; }
 
-.efbr { width: 60px; height: 4px; background: rgba(255, 255, 255, 0.06); border-radius: 2px; overflow: hidden; position: relative; }
+.efbr { width: 60px; height: 4px; background: rgba(0,0,0,0.06); border-radius: 2px; overflow: hidden; position: relative; }
 
 .efbr .f { height: 100%; border-radius: 2px; transition: width 0.3s; }
 
-.efbr .m { position: absolute; top: 0px; bottom: 0px; width: 1px; background: rgba(255, 255, 255, 0.15); }
+.efbr .m { position: absolute; top: 0px; bottom: 0px; width: 1px; background: rgba(0,0,0,0.15); }
 
 .epct { font-family: var(--mn); font-size: 11px; font-weight: 600; min-width: 32px; text-align: right; }
 
 .sb { font-size: 8px; font-weight: 700; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
 
-.tchip { background: rgba(255, 255, 255, 0.06); padding: 1px 5px; border-radius: 3px; font-size: 10px; color: var(--t2); display: inline-block; margin: 0px 1px 1px 0px; }
+.tchip { background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 3px; font-size: 10px; color: var(--t2); display: inline-block; margin: 0px 1px 1px 0px; }
 
 .ph { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
 
@@ -154,15 +153,15 @@ input, select, button, textarea { font-family: inherit; }
 
 .psc { font-size: 9px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: 0.06em; margin: 12px 0px 5px; }
 
-.pr2 { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: rgba(255, 255, 255, 0.03); border-radius: 5px; margin-bottom: 2px; font-size: 11px; }
+.pr2 { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: rgba(0,0,0,0.03); border-radius: 5px; margin-bottom: 2px; font-size: 11px; }
 
 .rb { background: none; border: none; color: var(--rd); cursor: pointer; font-size: 13px; padding: 1px; }
 
 .ac { display: flex; flex-wrap: wrap; gap: 3px; max-height: 120px; overflow-y: auto; }
 
-.ach { background: rgba(99, 102, 241, 0.06); border: 1px solid rgba(99, 102, 241, 0.12); color: rgb(199, 210, 254); padding: 2px 7px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 500; }
+.ach { background: rgba(24, 95, 165, 0.06); border: 1px solid rgba(24, 95, 165, 0.12); color: rgb(13, 74, 130); padding: 2px 7px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 500; }
 
-.ach:hover { background: rgba(99, 102, 241, 0.15); }
+.ach:hover { background: rgba(24, 95, 165, 0.15); }
 
 .pi { width: 48px; background: var(--s2); border: 1px solid var(--bd); border-radius: 3px; color: var(--tx); font-family: var(--mn); font-size: 10px; padding: 2px 3px; text-align: center; outline: none; }
 
@@ -172,7 +171,7 @@ input, select, button, textarea { font-family: inherit; }
 
 .rl { width: 85px; text-align: right; color: var(--t3); font-size: 9px; }
 
-.rt { flex: 1 1 0%; height: 4px; background: rgba(255, 255, 255, 0.04); border-radius: 2px; overflow: hidden; }
+.rt { flex: 1 1 0%; height: 4px; background: rgba(0,0,0,0.04); border-radius: 2px; overflow: hidden; }
 
 .rfl { height: 100%; border-radius: 2px; opacity: 0.7; }
 
@@ -190,11 +189,11 @@ input, select, button, textarea { font-family: inherit; }
 
 .mx { width: 34px; height: 20px; border-radius: 3px; margin: 0px auto; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 600; transition: 0.12s; user-select: none; }
 
-.mx.on { background: rgba(99, 102, 241, 0.4); border: 1px solid rgba(129, 140, 248, 0.6); color: rgb(255, 255, 255); cursor: pointer; }
+.mx.on { background: rgba(24, 95, 165, 0.4); border: 1px solid rgba(24, 95, 165, 0.6); color: rgb(255, 255, 255); cursor: pointer; }
 
-.mx.off { background: rgba(255, 255, 255, 0.016); border: 1px solid rgba(255, 255, 255, 0.04); color: rgba(255, 255, 255, 0.12); cursor: pointer; }
+.mx.off { background: rgba(0,0,0,0.016); border: 1px solid rgba(0,0,0,0.04); color: rgba(0,0,0,0.12); cursor: pointer; }
 
-.mx.off:hover { background: rgba(99, 102, 241, 0.08); border-color: rgba(99, 102, 241, 0.25); }
+.mx.off:hover { background: rgba(24, 95, 165, 0.08); border-color: rgba(24, 95, 165, 0.25); }
 
 .mxi { width: 38px; background: var(--s2); border: 1px solid var(--ac); border-radius: 3px; color: var(--tx); font-family: var(--mn); font-size: 9px; padding: 2px; text-align: center; outline: none; display: block; margin: 0px auto; }
 
@@ -238,9 +237,9 @@ input, select, button, textarea { font-family: inherit; }
 
 .ap { padding: 8px 12px; border: 1px solid var(--bd); border-radius: 7px; margin-bottom: 3px; cursor: pointer; transition: 0.15s; background: var(--sf); }
 
-.ap:hover { border-color: rgba(255, 255, 255, 0.1); }
+.ap:hover { border-color: rgba(0,0,0,0.1); }
 
-.ap.sel { background: rgba(99, 102, 241, 0.06); border-color: var(--bh); }
+.ap.sel { background: rgba(24, 95, 165, 0.06); border-color: var(--bh); }
 
 .ap .an { font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
@@ -262,7 +261,7 @@ input, select, button, textarea { font-family: inherit; }
 
 .cand { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 5px; margin-bottom: 2px; font-size: 11px; transition: 0.1s; cursor: pointer; }
 
-.cand:hover { background: rgba(255, 255, 255, 0.03); }
+.cand:hover { background: rgba(0,0,0,0.03); }
 
 .cand .ck { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--bd); display: flex; align-items: center; justify-content: center; font-size: 10px; transition: 0.15s; flex-shrink: 0; }
 
@@ -280,24 +279,24 @@ input, select, button, textarea { font-family: inherit; }
 
 .rev-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 
-.rev-bar { height: 5px; background: rgba(255, 255, 255, 0.04); border-radius: 3px; overflow: hidden; margin-bottom: 8px; position: relative; }
+.rev-bar { height: 5px; background: rgba(0,0,0,0.04); border-radius: 3px; overflow: hidden; margin-bottom: 8px; position: relative; }
 
 .rev-bar .f { height: 100%; border-radius: 3px; }
 
-.rev-bar .m { position: absolute; top: 0px; bottom: 0px; width: 1px; background: rgba(255, 255, 255, 0.15); }
+.rev-bar .m { position: absolute; top: 0px; bottom: 0px; width: 1px; background: rgba(0,0,0,0.15); }
 
 .rev-row { display: flex; align-items: center; gap: 6px; padding: 3px 0px; font-size: 11px; }
 
-.rev-row .rng { flex: 1 1 0%; appearance: none; height: 4px; background: rgba(255, 255, 255, 0.08); border-radius: 2px; outline: none; cursor: pointer; }
+.rev-row .rng { flex: 1 1 0%; appearance: none; height: 4px; background: rgba(0,0,0,0.08); border-radius: 2px; outline: none; cursor: pointer; }
 
 .rev-row .rng::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--ac); cursor: pointer; }
 
-.abar { padding: 10px 16px; background: rgba(99, 102, 241, 0.06); border: 1px solid rgba(99, 102, 241, 0.12); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.abar { padding: 10px 16px; background: rgba(24, 95, 165, 0.06); border: 1px solid rgba(24, 95, 165, 0.12); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
 
 @media (max-width: 900px) {
   .asgn-wrap { flex-direction: column; }
   .asgn-list { width: 100%; max-height: 200px; }
-}#LS{background:#f5f4f0!important}.login-card{background:#fff;border:1px solid #e5e5e0;border-radius:16px;padding:40px 48px;width:380px;text-align:center;box-shadow:0 2px 16px rgba(0,0,0,.06);animation:fu .6s ease}.login-jk{font-size:11px;font-weight:800;color:#185FA5;letter-spacing:.08em;margin-bottom:14px;display:block}.login-logo{font-size:20px;font-weight:700;margin-bottom:8px;color:#1a1a1a}.login-subtitle{font-size:13px;color:#6e6e6e;margin-bottom:32px}.login-field{text-align:left;margin-bottom:12px}.login-field label{display:block;font-size:12px;color:#595959;margin-bottom:4px}.login-field input{width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;color:#1a1a1a;background:#fff}.login-field input:focus{outline:none;border-color:#185fa5}.login-submit{width:100%;margin-top:6px;padding:10px;border-radius:8px;background:#185FA5;color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer}.login-submit:hover{background:#1256a0}.login-footer{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:14px;font-size:12px}.login-footer a{color:#185fa5;text-decoration:none;cursor:pointer}.login-footer a:hover{text-decoration:underline}.login-footer .dot{color:#767676}.login-error{background:#fff3f3;border:1px solid #f5c6c6;border-radius:8px;padding:10px 14px;font-size:13px;color:#c0392b;margin-bottom:16px;text-align:left}.login-info{background:#effbf3;border:1px solid #c6f0d2;border-radius:8px;padding:10px 14px;font-size:13px;color:#1e7a3a;margin-bottom:16px;text-align:left}.login-hint{font-size:11px;color:#6e6e6e;margin:-4px 0 8px;text-align:left}.login-note{font-size:11px;color:#767676;margin-top:16px}</style>
+}#LS{background:#f5f4f0!important}.login-card{background:#fff;border:1px solid #e5e5e0;border-radius:16px;padding:40px 48px;width:380px;text-align:center;box-shadow:0 2px 16px rgba(0,0,0,.06);animation:fu .6s ease}.login-jk{font-size:11px;font-weight:800;color:#185FA5;letter-spacing:.08em;margin-bottom:14px;display:block}.login-logo{font-size:20px;font-weight:700;margin-bottom:8px;color:#1a1a1a}.login-subtitle{font-size:13px;color:#6e6e6e;margin-bottom:32px}.login-field{text-align:left;margin-bottom:12px}.login-field label{display:block;font-size:12px;color:#595959;margin-bottom:4px}.login-field input{width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;color:#1a1a1a;background:#fff}.login-field input:focus{outline:none;border-color:#185fa5}.login-submit{width:100%;margin-top:6px;padding:10px;border-radius:8px;background:#185FA5;color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer}.login-submit:hover{background:#1256a0}.login-footer{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:14px;font-size:12px}.login-footer a{color:#185fa5;text-decoration:none;cursor:pointer}.login-footer a:hover{text-decoration:underline}.login-footer .dot{color:#767676}.login-error{background:#fff3f3;border:1px solid #f5c6c6;border-radius:8px;padding:10px 14px;font-size:13px;color:#c0392b;margin-bottom:16px;text-align:left}.login-info{background:#effbf3;border:1px solid #c6f0d2;border-radius:8px;padding:10px 14px;font-size:13px;color:#1e7a3a;margin-bottom:16px;text-align:left}.login-hint{font-size:11px;color:#6e6e6e;margin:-4px 0 8px;text-align:left}.login-note{font-size:11px;color:#767676;margin-top:16px}.xtbl th{background:#faf9f5}.xtbl th .flt{background:#faf9f5}.sc,.sh{background:var(--bg)}.di{box-shadow:0 1px 2px rgba(0,0,0,.04)}.hdr{box-shadow:0 1px 2px rgba(0,0,0,.05)}.pn,.md{box-shadow:0 2px 16px rgba(0,0,0,.06)}.mx.off{color:rgba(0,0,0,.18)}</style>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SEO Staffing Hub</title>
@@ -307,7 +306,7 @@ input, select, button, textarea { font-family: inherit; }
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-</head>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700;800&display=swap"></head>
 <body>
 <div id="LS"></div><div id="AP"></div><div id="mr"></div>
 <script>
@@ -338,8 +337,8 @@ const PLnames=["Price Level 4","Price Level 3","Price Level 2","Price Level 1"];
 const PLkeys=["PL4","PL3","PL2","PL1"];
 // Rank → PL mapping
 function rPL(role){for(const[pl,roles]of Object.entries(PL))if(roles.includes(role))return+pl;return 1}
-const RC={Director:"#dc2626","Senior Expert Lead":"#f87171","Senior Manager":"#818cf8",Manager:"#60a5fa","Expert Lead":"#38bdf8","Associate Manager":"#34d399","Senior Consultant":"#fbbf24","Senior Associate":"#a3e635",Associate:"#a78bfa",Consultant:"#c084fc","Junior Associate":"#f472b6","Junior Consultant":"#fb923c",Analyst:"#94a3b8"};
-const PLC={4:"#f87171",3:"#60a5fa",2:"#34d399",1:"#a78bfa"};
+const RC={Director:"#b32a1c","Senior Expert Lead":"#c0392b","Senior Manager":"#185fa5",Manager:"#1d6fb8","Expert Lead":"#0e7490","Associate Manager":"#2f6e12","Senior Consultant":"#8a5a0c","Senior Associate":"#5a7d0a",Associate:"#6d4ba8",Consultant:"#8a3fb0","Junior Associate":"#a83a6f","Junior Consultant":"#c2410c",Analyst:"#5f6b7a"};
+const PLC={4:"#b32a1c",3:"#185fa5",2:"#2f6e12",1:"#6d4ba8"};
 const IM=[
 {id:"m1",name:"Chiara Fossati",role:"Associate Manager",cap:220},{id:"m2",name:"Laura Ireland",role:"Senior Manager",cap:220},
 {id:"m3",name:"Andrea Carlucci",role:"Associate",cap:220},{id:"m4",name:"Ella Chesnaye",role:"Consultant",cap:220},
@@ -473,7 +472,7 @@ function mEfNB(mid){let t=0;S.p.forEach(p=>{if(p.nb)t+=(p.asgn?.[mid]||0)});retu
 function mDays(mid){const m=S.m.find(x=>x.id===mid);return m?Math.round(mEf(mid)/100*m.cap*10)/10:0}
 function pAsg(pid){const p=S.p.find(x=>x.id===pid);if(!p?.asgn)return[];return Object.entries(p.asgn).filter(([_,v])=>v>0).map(([mid,pct])=>({mid,pct,m:S.m.find(m=>m.id===mid)})).filter(x=>x.m)}
 function pAlD(pid){return pAsg(pid).reduce((t,a)=>t+a.pct/100*(a.m.cap||220),0)}
-function sc(p){return p>100?"#dc2626":p>90?"#ef4444":p>75?"#f97316":p>50?"#eab308":"#22c55e"}
+function sc(p){return p>100?"#b32a1c":p>90?"#d24b3a":p>75?"#c2410c":p>50?"#a16207":"#2f6e12"}
 function sl(p){return p>100?"SOVRACCARICO":p>90?"CRITICO":p>75?"ALTO":p>50?"MEDIO":"DISPONIBILE"}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
@@ -682,7 +681,7 @@ h+=`<tr class="${S.sp===p.id?'sel':''}" onclick="selP('${p.id}')"${nbStyle}>
 <td class="ctr">${p.nTeam>0?`<span style="font-family:var(--mn);font-weight:600">${p.nTeam}</span>`:'<span style="color:rgba(239,68,68,.4)">—</span>'}</td>
 <td class="num" style="color:${p.totalDays>200?'var(--or)':p.totalDays>100?'var(--yl)':'var(--t2)'}">${p.totalDays}</td>
 <td class="num">${p.ad.toFixed(0)}</td>
-<td class="ctr"><span class="sb" style="background:${p.cov>=90?'rgba(34,197,94,.12)':p.cov>0?'rgba(234,179,8,.12)':'rgba(255,255,255,.04)'};color:${p.cov>=90?'var(--gn)':p.cov>0?'var(--yl)':'var(--t3)'}">${p.cov.toFixed(0)}%</span></td>
+<td class="ctr"><span class="sb" style="background:${p.cov>=90?'rgba(34,197,94,.12)':p.cov>0?'rgba(234,179,8,.12)':'rgba(0,0,0,.04)'};color:${p.cov>=90?'var(--gn)':p.cov>0?'var(--yl)':'var(--t3)'}">${p.cov.toFixed(0)}%</span></td>
 <td style="font-size:10px;color:var(--t3)">${p.startDate?.slice(0,7)||''}</td>
 <td style="font-size:10px;color:var(--t3)">${p.endDate?.slice(0,7)||''}</td>
 </tr>`});
@@ -694,9 +693,9 @@ const asg=pAsg(p.id),ad=Math.round(pAlD(p.id)*10)/10,cov=p.totalDays>0?(ad/p.tot
 h+=`<div class="pn"><div class="ph"><div style="flex:1;min-width:0"><div class="pt">${esc(p.name)}</div><div class="ps2">${esc(p.client)} · #${p.jobId}</div></div>
 <div style="display:flex;gap:4px"><button class="b ba" onclick="epM('${p.id}')">✎</button><button class="b br" onclick="dP('${p.id}')">✕</button><button class="b bo" onclick="S.sp=null;R()">←</button></div></div>
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
-<div style="background:rgba(255,255,255,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:var(--a2)">${p.totalDays}</div><div style="font-size:9px;color:var(--t3)">GG venduti</div></div>
-<div style="background:rgba(255,255,255,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:${cov>=90?'var(--gn)':'var(--yl)'}">${ad.toFixed(0)}</div><div style="font-size:9px;color:var(--t3)">GG allocati</div></div>
-<div style="background:rgba(255,255,255,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:${cov>=90?'var(--gn)':cov>0?'var(--yl)':'var(--t3)'}">${cov.toFixed(0)}%</div><div style="font-size:9px;color:var(--t3)">copertura</div></div></div>
+<div style="background:rgba(0,0,0,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:var(--a2)">${p.totalDays}</div><div style="font-size:9px;color:var(--t3)">GG venduti</div></div>
+<div style="background:rgba(0,0,0,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:${cov>=90?'var(--gn)':'var(--yl)'}">${ad.toFixed(0)}</div><div style="font-size:9px;color:var(--t3)">GG allocati</div></div>
+<div style="background:rgba(0,0,0,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:${cov>=90?'var(--gn)':cov>0?'var(--yl)':'var(--t3)'}">${cov.toFixed(0)}%</div><div style="font-size:9px;color:var(--t3)">copertura</div></div></div>
 <div class="psc">GG PQ per Price Level</div>`;
 PLkeys.forEach(k=>{const v=p.daysByRole[k]||0;if(v>0)h+=`<div class="rr"><span class="rl">${k.replace('PL','PL ')}</span><div class="rt"><div class="rfl" style="width:${(v/mx)*100}%;background:${PLC[k.replace('PL','')]||'#999'}"></div></div><span class="rv">${v}</span></div>`});
 if(p.startDate)h+=`<div style="font-size:10px;color:var(--t3);margin-top:6px">📅 ${p.startDate} → ${p.endDate}</div>`;
@@ -800,7 +799,7 @@ h+=`<div class="ap${S.aM===m.id?' sel':''}" onclick="S.aM='${m.id}';S.aStep='ass
 <span class="sb" style="background:${sc(ef)}18;color:${sc(ef)};font-size:8px">${sl(ef)}</span></div>
 <div class="ac2" style="color:${RC[m.role]||'#999'}">${m.role}</div>
 <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-<div style="flex:1;height:3px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.min(ef/1.2,100)}%;background:${sc(ef)};border-radius:2px"></div></div>
+<div style="flex:1;height:3px;background:rgba(0,0,0,.05);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.min(ef/1.2,100)}%;background:${sc(ef)};border-radius:2px"></div></div>
 <span style="font-family:var(--mn);font-size:10px;color:${sc(ef)}">${ef.toFixed(0)}%</span>
 <span style="font-size:9px;color:var(--t3)">${pc} prog.</span>
 </div></div>`});
@@ -913,8 +912,8 @@ h+=`<tr><td class="sc" style="padding:4px 8px;font-size:10px;border-bottom:1px s
 <div style="font-size:8px;color:var(--t3)">${esc(p.client)} · ${p.totalDays}d</div></td>`;
 mm.forEach(m=>{const pc=(p.asgn?.[m.id])||0;const on=pc>0;
 const ed=S._ec&&S._ec.pid===p.id&&S._ec.mid===m.id;
-if(ed)h+=`<td style="border-bottom:1px solid rgba(255,255,255,.02);padding:1px"><input class="mxi" id="mxe" type="number" min="0" max="100" step="5" value="${pc}" onblur="cMx('${p.id}','${m.id}')" onkeydown="kMx(event,'${p.id}','${m.id}')"></td>`;
-else h+=`<td style="border-bottom:1px solid rgba(255,255,255,.02)" onclick="oMx('${p.id}','${m.id}')"><div class="mx ${on?'on':'off'}">${on?pc+'%':''}</div></td>`});
+if(ed)h+=`<td style="border-bottom:1px solid rgba(0,0,0,.02);padding:1px"><input class="mxi" id="mxe" type="number" min="0" max="100" step="5" value="${pc}" onblur="cMx('${p.id}','${m.id}')" onkeydown="kMx(event,'${p.id}','${m.id}')"></td>`;
+else h+=`<td style="border-bottom:1px solid rgba(0,0,0,.02)" onclick="oMx('${p.id}','${m.id}')"><div class="mx ${on?'on':'off'}">${on?pc+'%':''}</div></td>`});
 h+=`</tr>`});
 h+=`<tr><td class="sc" style="padding:6px 8px;border-top:2px solid var(--bh);font-weight:700;font-size:10px;color:var(--t2);text-align:left">EFFORT TOT.</td>`;
 mm.forEach(m=>{const ef=mEf(m.id);h+=`<td style="border-top:2px solid var(--bh);text-align:center;font-family:var(--mn);font-size:9px;font-weight:700;color:${sc(ef)}">${ef.toFixed(0)}%</td>`});
