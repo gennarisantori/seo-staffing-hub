@@ -322,8 +322,12 @@ theme_css = (
     ".topnav-user{font-size:13px;color:#595959;white-space:nowrap}"
     ".signout-btn{padding:4px 10px;border-radius:6px;border:1px solid #ddd;background:transparent;font-size:12px;color:#6e6e6e;cursor:pointer}"
     ".signout-btn:hover{background:#f5f4f0;color:#1a1a1a}"
-    ".subbar{display:flex;justify-content:flex-end;padding:12px 24px 0}"
-    ".subbar .si{width:240px}"
+    # Search lives in the top nav (next to the tabs)
+    ".topsearch{width:170px;padding:6px 11px;border:1px solid #d7d6ce;border-radius:8px;font-size:13px;color:#1a1a1a;background:#fff;font-family:inherit;outline:none}"
+    ".topsearch:focus{border-color:#185fa5}"
+    ".topsearch::placeholder{color:#9a9aa0}"
+    # Tighten the gap between the top nav and the content
+    ".ct{margin-top:6px!important;padding-top:8px!important}"
     # Admin view — enlarged overview metrics + Price-Level capacity
     ".ametrics{display:flex;gap:12px;flex-wrap:wrap}"
     ".ametric{flex:1;min-width:130px;background:#f8f9fb;border:1px solid var(--bd);border-radius:10px;padding:13px 15px}"
@@ -352,8 +356,7 @@ var _ini=_nm?_nm.split(/[ ._-]+/).filter(Boolean).slice(0,2).map(function(s){ret
 var _uHtml=_user?('<div class="avatar">'+_ini+'</div><span class="topnav-user">'+esc(_nm)+'</span><button class="signout-btn" onclick="fbSignOut()">Esci</button>'):'';
 const TABS=[["team","👥 Team"],["projects","📁 Progetti"],["matrix","⊞ Matrice"],["assign","⚡ Assegna"]];
 if(isAdmin())TABS.push(["admin","⚙ Admin"]);
-let h=`<div class="topnav"><div class="topnav-left"><div class="topnav-logo"><img src="jakala-logo.png" alt="JAKALA" style="height:26px;width:auto;display:block"><span>SEO Staffing Hub</span></div><div class="topnav-nav">${TABS.map(([k,l])=>`<a class="nav-item${S.vw===k?' active':''}" onclick="sw('${k}')">${l}</a>`).join('')}</div></div><div class="topnav-right">${_uHtml}</div></div>`;
-if(S.vw!=='admin'){h+=`<div class="subbar"><input class="si" placeholder="Cerca globale..." value="${esc(S.q)}" oninput="S.q=this.value;R()"></div>`;}
+let h=`<div class="topnav"><div class="topnav-left"><div class="topnav-logo"><img src="jakala-logo.png" alt="JAKALA" style="height:26px;width:auto;display:block"><span>SEO Staffing Hub</span></div><div class="topnav-nav">${TABS.map(([k,l])=>`<a class="nav-item${S.vw===k?' active':''}" onclick="sw('${k}')">${l}</a>`).join('')}</div>${S.vw!=='admin'?`<input class="topsearch" placeholder="Cerca..." value="${esc(S.q)}" oninput="S.q=this.value;R()">`:''}</div><div class="topnav-right">${_uHtml}</div></div>`;
 h+=`<div class="ct">`;"""
 html = html[:hstart] + new_header + html[hend:]
 
@@ -376,6 +379,14 @@ h+='</div>';
 }
 """
 html = html.replace(anchor_ap, admin_branch + anchor_ap, 1)
+
+# I3b. Move the "+ Persona" / "+ Progetto" add buttons to the left, above the first column
+html = html.replace(
+    '<div style="display:flex;justify-content:flex-end;margin-bottom:6px;flex-shrink:0"><button class="b bg" onclick="amM()">+ Persona</button></div>',
+    '<div style="display:flex;justify-content:flex-start;margin-bottom:8px;flex-shrink:0"><button class="b bg" onclick="amM()">+ Persona</button></div>', 1)
+html = html.replace(
+    '<div style="display:flex;justify-content:flex-end;margin-bottom:6px;flex-shrink:0"><button class="b ba" onclick="amP()">+ Progetto</button></div>',
+    '<div style="display:flex;justify-content:flex-start;margin-bottom:8px;flex-shrink:0"><button class="b ba" onclick="amP()">+ Progetto</button></div>', 1)
 
 # I4. Append the access-management UI + actions before the closing </script>
 users_js = r"""
