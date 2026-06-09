@@ -412,12 +412,12 @@ function renderUsers(){
     var act=(adm&&!isMe)?(active?'<button class="b br" onclick="uDisable(\''+u.uid+'\')">Disabilita</button>':'<button class="b bg" onclick="uEnable(\''+u.uid+'\')">Riattiva</button>'):(isMe?'<span style="font-size:10px;color:var(--t3)">(tu)</span>':'');
     return '<tr style="'+(active?'':'opacity:.55')+'"><td>'+esc(u.displayName||'')+'</td><td>'+esc(u.email||'')+'</td><td>'+roleCell+'</td><td>'+statusCell+'</td><td class="ctr">'+act+'</td></tr>';
   }).join(''):'<tr><td colspan="5" style="text-align:center;color:var(--t3);padding:18px">Nessun utente ancora.</td></tr>';
-  return '<div class="ucard"><div class="uct">Email invitate (lista accessi)</div><div class="ucs">Solo le email invitate possono registrarsi e accedere. Scegli il ruolo al momento dell\'invito: la persona lo riceve al primo accesso. Poi condividi il link dell\'app: l\'invitato si registra impostando la propria password.</div>'+inviteForm+'<table class="utbl"><thead><tr><th>Email</th><th>Ruolo al primo accesso</th><th class="ctr">Azione</th></tr></thead><tbody>'+invRows+'</tbody></table></div>'
-    +'<div class="ucard"><div class="uct">Utenti</div><div class="ucs">Gli utenti compaiono qui automaticamente dopo il primo accesso. Da qui puoi cambiarne il ruolo o disabilitarne l\'accesso.</div><table class="utbl"><thead><tr><th>Nome</th><th>Email</th><th>Ruolo</th><th>Stato</th><th class="ctr">Azioni</th></tr></thead><tbody>'+usrRows+'</tbody></table></div>';
+  return '<div class="ucard"><div class="uct">Invited emails (access list)</div><div class="ucs">Only invited emails can register and sign in. Choose the role at invite time: the person receives it on first login. Then share the app link and the invited person registers, setting their own password.</div>'+inviteForm+'<table class="utbl"><thead><tr><th>Email</th><th>Role on first login</th><th class="ctr">Action</th></tr></thead><tbody>'+invRows+'</tbody></table></div>'
+    +'<div class="ucard"><div class="uct">Users</div><div class="ucs">Users appear here automatically after their first login. From here you can change their role or disable their access.</div><table class="utbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th class="ctr">Actions</th></tr></thead><tbody>'+usrRows+'</tbody></table></div>';
 }
 function amCard(label,val,color){return '<div class="ametric"><div class="aml">'+label+'</div><div class="amv"'+(color?(' style="color:'+color+'"'):'')+'>'+val+'</div></div>';}
 function uDoInvite(){var e=(document.getElementById('u-email')||{}).value||'';var r=(document.getElementById('u-role')||{}).value||'member';if(!e.trim())return;uAddInvite(e,r).then(uLoad).catch(function(err){alert('Invito fallito: '+(err.message||err));});}
-function uRmInvite(e){if(!confirm('Rimuovere l\'invito per '+e+'?'))return;uRemoveInvite(e).then(uLoad).catch(function(err){alert(err.message||err);});}
+function uRmInvite(e){if(!confirm('Remove the invite for '+e+'?'))return;uRemoveInvite(e).then(uLoad).catch(function(err){alert(err.message||err);});}
 function uChgInviteRole(e,r){uSetInviteRole(e,r).then(uLoad).catch(function(err){alert(err.message||err);});}
 function uChgUserRole(uid,r){uSetUserRole(uid,r).then(uLoad).catch(function(err){alert(err.message||err);});}
 function uDisable(uid){uSetUserActive(uid,false).then(uLoad).catch(function(err){alert(err.message||err);});}
@@ -425,6 +425,112 @@ function uEnable(uid){uSetUserActive(uid,true).then(uLoad).catch(function(err){a
 """
 cut = html.rindex('</script>')
 html = html[:cut] + users_js + '\n' + html[cut:]
+
+# ── J. Status column visible to admins only (Team table) ──
+html = html.replace('<th>Stato</th>', "${isAdmin()?'<th>Status</th>':''}", 1)
+html = html.replace(
+    '<td><span class="sb" style="background:${c}18;color:${c}">${m.status}</span></td>',
+    '${isAdmin()?`<td><span class="sb" style="background:${c}18;color:${c}">${m.status}</span></td>`:``}', 1)
+
+# ── K. Translate the whole UI to English ──
+TR = [
+    # Long sentences (most specific first)
+    ("Solo le email invitate possono registrarsi e accedere. Scegli il ruolo al momento dell'invito: la persona lo riceve al primo accesso. Poi condividi il link dell'app: l'invitato si registra impostando la propria password.",
+     "Only invited emails can register and sign in. Choose the role at invite time: the person receives it on first login. Then share the app link and the invited person registers, setting their own password."),
+    ("Gli utenti compaiono qui automaticamente dopo il primo accesso. Da qui puoi cambiarne il ruolo o disabilitarne l'accesso.",
+     "Users appear here automatically after their first login. From here you can change their role or disable their access."),
+    ("Ripristina persone e progetti ai valori iniziali. Operazione irreversibile.",
+     "Reset people and projects to their initial values. This cannot be undone."),
+    ("Questo indirizzo non risulta invitato. Chiedi a un amministratore di aggiungerti.",
+     "This email has not been invited. Ask an administrator to add you."),
+    ("Il tuo account è stato disabilitato. Contatta un amministratore.",
+     "Your account has been disabled. Contact an administrator."),
+    ("Solo indirizzi @jakala.com possono essere invitati.", "Only @jakala.com addresses can be invited."),
+    ("Attenzione: effort totale sarà ", "Warning: total effort will be "),
+    ("Il sovraccarico verrà evidenziato. Procedere?", "The overload will be highlighted. Proceed?"),
+    ("(supera 100%).", "(over 100%)."),
+    ("Rimuovere l'invito per ", "Remove the invite for "),
+    ("Invito fallito: ", "Invite failed: "),
+    ("Resettare tutto?", "Reset everything?"),
+    # Panels / cards / view titles
+    ("Email invitate (lista accessi)", "Invited emails (access list)"),
+    ("Capacità per Price Level", "Capacity by Price Level"),
+    ("GG PQ per Price Level", "Quoted days per Price Level"),
+    ("Ruolo al primo accesso", "Role on first login"),
+    ("Nessuna email invitata.", "No invited emails."),
+    ("Nessun utente ancora.", "No users yet."),
+    ("Caricamento utenti...", "Loading users..."),
+    ("Caricamento dati...", "Loading data..."),
+    ("Seleziona un progetto", "Select a project"),
+    ("Seleziona una persona", "Select a person"),
+    ("Panoramica team", "Team overview"),
+    ("Capacità gg/anno", "Capacity (days/year)"),
+    ("Aggiungi Persona", "Add person"), ("Modifica Persona", "Edit person"),
+    ("Aggiungi Progetto", "Add project"), ("Modifica Progetto", "Edit project"),
+    ("Tutti i clienti", "All clients"),
+    ("Effort tot. medio", "Avg total effort"),
+    ("Effort totale:", "Total effort:"),
+    ("EFFORT TOT.", "TOTAL EFFORT"),
+    ("Reset dati", "Reset data"), ("Manutenzione", "Maintenance"),
+    # Assign view
+    ("Per Progetto", "By project"), ("Per Persona", "By person"),
+    ("Cerca progetto...", "Search project..."), ("Cerca persona...", "Search person..."),
+    ("Filtra progetto...", "Filter project..."),
+    ("Progetti che richiedono ", "Projects requiring "),
+    ("Altri progetti (", "Other projects ("),
+    ("Progetti assegnati (", "Assigned projects ("),
+    ("Ricalcola", "Recalculate"), ("Calcola %", "Calculate %"),
+    ("Revisione", "Review"), ("← Associa", "← Link"), ("Altri (", "Other ("),
+    # Status labels
+    ("SOVRACCARICO", "OVERLOADED"), ("CRITICO", "CRITICAL"),
+    ('"ALTO"', '"HIGH"'), ('"MEDIO"', '"MEDIUM"'), ("DISPONIBILE", "AVAILABLE"),
+    # Tabs
+    ("📁 Progetti", "📁 Projects"), ("🔢 Matrice", "🔢 Matrix"), ("⚡️ Assegna", "⚡️ Assign"),
+    # Day units / GG
+    ("GG allocati", "Allocated days"), ("GG venduti", "Sold days"),
+    ("GG Alloc.", "Alloc. days"), ("GG Alloc", "Alloc. days"), ("GG PQ", "Quoted days"),
+    (" gg/anno", " days/yr"),
+    # Table headers (anchored to avoid touching code)
+    (">Nome ", ">Name "), (">Ruolo ", ">Role "), (">Cliente ", ">Client "),
+    (">Inizio ", ">Start "), (">Fine ", ">End "), (">Progetti ", ">Projects "),
+    (">Progetto ", ">Project "),
+    ("Effort Tot.", "Total effort"), ("Disponib.", "Available"),
+    ("Non Bill.", "Non-bill."), ("Copertura", "Coverage"), ("copertura", "coverage"),
+    # Filters / options / placeholders
+    (">Tutti</option>", ">All</option>"), ("Filtra...", "Filter..."),
+    ("Cerca...", "Search..."),
+    # Matrix sort + footer
+    ("Nome A→Z", "Name A→Z"), ("Cliente A→Z", "Client A→Z"),
+    ("N° Persone ↓", "# People ↓"), ("Ruolo (rank)", "Role (rank)"),
+    ("Persone:", "People:"), ("Progetti:", "Projects:"),
+    ("} progetti · ", "} projects · "), ("} persone</span>", "} people</span>"),
+    # Add buttons
+    ("+ Persona", "+ Person"), ("+ Progetto", "+ Project"),
+    # Users / admin labels
+    (">Utenti<", ">Users<"), (">Invita<", ">Invite<"),
+    ("Rimuovi", "Remove"), ("Disabilitato", "Disabled"), ("Disabilita", "Disable"),
+    ("Riattiva", "Re-enable"), (">Attivo<", ">Active<"),
+    (">Azioni<", ">Actions<"), (">Azione<", ">Action<"), ("oltre 100%", "over 100%"),
+    (">Persone<", ">People<"), (">Progetti<", ">Projects<"),
+    # Modals
+    (">Nome</label>", ">Name</label>"), (">Cliente</label>", ">Client</label>"),
+    (">Inizio</label>", ">Start</label>"), (">Fine</label>", ">End</label>"),
+    (">Ruolo</label>", ">Role</label>"),
+    ("Annulla", "Cancel"), (">Aggiungi<", ">Add<"), (">Salva<", ">Save<"),
+    ('"Nome!"', '"Name!"'),
+    # Person panel + day units
+    (" gg · Disp:", " d · Avail:"), ("}gg", "}d"), ("'gg'", "'d'"), (" GG ", " d "),
+    ("Progetti (", "Projects ("), ("Esci", "Sign out"), ("(tu)", "(you)"),
+    ("Non billable", "Non-billable"),
+    # Admin metric labels + matrix project header
+    ("amCard('Persone'", "amCard('People'"), ("amCard('Progetti'", "amCard('Projects'"),
+    (">Progetto</th>", ">Project</th>"),
+    ('"Rimuovere?"', '"Remove?"'),
+    (">Assegna</div>", ">Assign</div>"),
+    ("nome.cognome@jakala.com", "name.surname@jakala.com"),
+]
+for it, en in TR:
+    html = html.replace(it, en)
 
 with io.open(OUT, 'w', encoding='utf-8') as f:
     f.write(html)

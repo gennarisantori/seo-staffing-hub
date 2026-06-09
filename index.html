@@ -473,7 +473,7 @@ function mDays(mid){const m=S.m.find(x=>x.id===mid);return m?Math.round(mEf(mid)
 function pAsg(pid){const p=S.p.find(x=>x.id===pid);if(!p?.asgn)return[];return Object.entries(p.asgn).filter(([_,v])=>v>0).map(([mid,pct])=>({mid,pct,m:S.m.find(m=>m.id===mid)})).filter(x=>x.m)}
 function pAlD(pid){return pAsg(pid).reduce((t,a)=>t+a.pct/100*(a.m.cap||220),0)}
 function sc(p){return p>100?"#b32a1c":p>90?"#d24b3a":p>75?"#c2410c":p>50?"#a16207":"#2f6e12"}
-function sl(p){return p>100?"SOVRACCARICO":p>90?"CRITICO":p>75?"ALTO":p>50?"MEDIO":"DISPONIBILE"}
+function sl(p){return p>100?"OVERLOADED":p>90?"CRITICAL":p>75?"HIGH":p>50?"MEDIUM":"AVAILABLE"}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
 // === Firebase Auth (identical model to SEO Quotation Hub) ===
@@ -547,7 +547,7 @@ async function uGetInvites(){
 async function uSaveInvites(invites){await _fs.collection('config').doc('access').set({invites,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});}
 async function uAddInvite(email,role){
   const e=String(email).trim().toLowerCase();
-  if(!e.endsWith('@jakala.com'))throw new Error('Solo indirizzi @jakala.com possono essere invitati.');
+  if(!e.endsWith('@jakala.com'))throw new Error('Only @jakala.com addresses can be invited.');
   const r=role==='admin'?'admin':'member';
   const inv=await uGetInvites();const i=inv.findIndex(x=>x.email===e);
   if(i>=0)inv[i].role=r;else inv.push({email:e,role:r});
@@ -575,7 +575,7 @@ _auth.onAuthStateChanged(async function(fu){
       // First appearance: gate by the invite allowlist (bootstrap admins always allowed)
       let invitedRole=null;
       if(!isBoot){const inv=await uGetInvites();const f=inv.find(x=>x.email===fu.email.toLowerCase());invitedRole=f?f.role:null;}
-      if(!(isBoot||invitedRole!=null)){await _auth.signOut();liRender('Questo indirizzo non risulta invitato. Chiedi a un amministratore di aggiungerti.','');return;}
+      if(!(isBoot||invitedRole!=null)){await _auth.signOut();liRender('This email has not been invited. Ask an administrator to add you.','');return;}
       const profile={email:fu.email,displayName:autoName,role:isBoot?'admin':(invitedRole||'member'),active:true,createdAt:TS(),updatedAt:TS()};
       await ref.set(profile);_profile=profile;
     }else{
@@ -591,7 +591,7 @@ _auth.onAuthStateChanged(async function(fu){
   _user=fu;
   document.getElementById('LS').style.display='none';
   document.getElementById('AP').style.display='block';
-  document.getElementById('AP').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:80vh;color:var(--t2);font-size:16px">Caricamento dati...</div>';
+  document.getElementById('AP').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:80vh;color:var(--t2);font-size:16px">Loading data...</div>';
   ld(function(){R();});
 });
 liRender('','');
@@ -609,10 +609,10 @@ const dem={},sup={};PLkeys.forEach(k=>{dem[k]=0;sup[k]=0});ps.forEach(p=>PLkeys.
 
 var _nm=_user?((_profile&&_profile.displayName)||_user.email):'';
 var _ini=_nm?_nm.split(/[ ._-]+/).filter(Boolean).slice(0,2).map(function(s){return s.charAt(0).toUpperCase();}).join(''):'';
-var _uHtml=_user?('<div class="avatar">'+_ini+'</div><span class="topnav-user">'+esc(_nm)+'</span><button class="signout-btn" onclick="fbSignOut()">Esci</button>'):'';
-const TABS=[["team","👥 Team"],["projects","📁 Progetti"],["matrix","🔢 Matrice"],["assign","⚡️ Assegna"]];
+var _uHtml=_user?('<div class="avatar">'+_ini+'</div><span class="topnav-user">'+esc(_nm)+'</span><button class="signout-btn" onclick="fbSignOut()">Sign out</button>'):'';
+const TABS=[["team","👥 Team"],["projects","📁 Projects"],["matrix","🔢 Matrix"],["assign","⚡️ Assign"]];
 if(isAdmin())TABS.push(["admin","⚙️ Admin"]);
-let h=`<div class="topnav"><div class="topnav-left"><span class="topnav-logo"><img class="brand-mark" src="jakala-logo.png" alt="JAKALA"><span>SEO Staffing Hub</span></span><div class="topnav-nav">${TABS.map(([k,l])=>`<a class="nav-item${S.vw===k?' active':''}" onclick="sw('${k}')">${l}</a>`).join('')}</div>${S.vw!=='admin'?`<input class="topsearch" placeholder="Cerca..." value="${esc(S.q)}" oninput="S.q=this.value;R()">`:''}</div><div class="topnav-right">${_uHtml}</div></div>`;
+let h=`<div class="topnav"><div class="topnav-left"><span class="topnav-logo"><img class="brand-mark" src="jakala-logo.png" alt="JAKALA"><span>SEO Staffing Hub</span></span><div class="topnav-nav">${TABS.map(([k,l])=>`<a class="nav-item${S.vw===k?' active':''}" onclick="sw('${k}')">${l}</a>`).join('')}</div>${S.vw!=='admin'?`<input class="topsearch" placeholder="Search..." value="${esc(S.q)}" oninput="S.q=this.value;R()">`:''}</div><div class="topnav-right">${_uHtml}</div></div>`;
 h+=`<div class="ct">`;
 
 // ══════════ TEAM TABLE ══════════
@@ -633,18 +633,18 @@ return ts.dir*((va||0)-(vb||0))};
 fm.sort(cmp);
 
 const roles=[...new Set(ms.map(m=>m.role))];
-const statuses=["DISPONIBILE","MEDIO","ALTO","CRITICO","SOVRACCARICO"];
-h+=`<div style="flex:1;min-width:0;display:flex;flex-direction:column"><div style="display:flex;justify-content:flex-start;margin-bottom:8px;flex-shrink:0"><button class="b bg" onclick="amM()">+ Persona</button></div><div class="mn"><table class="xtbl"><thead>
+const statuses=["AVAILABLE","MEDIUM","HIGH","CRITICAL","OVERLOADED"];
+h+=`<div style="flex:1;min-width:0;display:flex;flex-direction:column"><div style="display:flex;justify-content:flex-start;margin-bottom:8px;flex-shrink:0"><button class="b bg" onclick="amM()">+ Person</button></div><div class="mn"><table class="xtbl"><thead>
 <tr>
-<th${ts.col==='name'?' class="sorted"':''}><div class="thw" ${thH('t','name')}>Nome ${arrI('t','name')}</div><div class="flt"><input placeholder="Filtra..." value="${esc(tf.name)}" oninput="S.tFlt.name=this.value;R()" onclick="event.stopPropagation()"></div></th>
-<th${ts.col==='role'?' class="sorted"':''}><div class="thw" ${thH('t','role')}>Ruolo ${arrI('t','role')}</div><div class="flt"><select onchange="S.tFlt.role=this.value;R()" onclick="event.stopPropagation()"><option value="">Tutti</option>${roles.map(r=>`<option value="${esc(r)}"${tf.role===r?' selected':''}>${esc(r)}</option>`).join('')}</select></div></th>
-<th${ts.col==='ef'?' class="sorted"':''}><div class="thw" ${thH('t','ef')}>Effort Tot. ${arrI('t','ef')}</div><div class="flt"><select onchange="S.tFlt.status=this.value;R()" onclick="event.stopPropagation()"><option value="">Tutti</option>${statuses.map(s=>`<option value="${s}"${tf.status===s?' selected':''}>${s}</option>`).join('')}</select></div></th>
+<th${ts.col==='name'?' class="sorted"':''}><div class="thw" ${thH('t','name')}>Name ${arrI('t','name')}</div><div class="flt"><input placeholder="Filter..." value="${esc(tf.name)}" oninput="S.tFlt.name=this.value;R()" onclick="event.stopPropagation()"></div></th>
+<th${ts.col==='role'?' class="sorted"':''}><div class="thw" ${thH('t','role')}>Role ${arrI('t','role')}</div><div class="flt"><select onchange="S.tFlt.role=this.value;R()" onclick="event.stopPropagation()"><option value="">All</option>${roles.map(r=>`<option value="${esc(r)}"${tf.role===r?' selected':''}>${esc(r)}</option>`).join('')}</select></div></th>
+<th${ts.col==='ef'?' class="sorted"':''}><div class="thw" ${thH('t','ef')}>Total effort ${arrI('t','ef')}</div><div class="flt"><select onchange="S.tFlt.status=this.value;R()" onclick="event.stopPropagation()"><option value="">All</option>${statuses.map(s=>`<option value="${s}"${tf.status===s?' selected':''}>${s}</option>`).join('')}</select></div></th>
 <th${ts.col==='eb'?' class="sorted"':''}><div class="thw" ${thH('t','eb')}>Billable ${arrI('t','eb')}</div></th>
-<th${ts.col==='enb'?' class="sorted"':''}><div class="thw" ${thH('t','enb')}>Non Bill. ${arrI('t','enb')}</div></th>
-<th${ts.col==='d'?' class="sorted"':''}><div class="thw" ${thH('t','d')}>GG Alloc. ${arrI('t','d')}</div></th>
-<th${ts.col==='avail'?' class="sorted"':''}><div class="thw" ${thH('t','avail')}>Disponib. ${arrI('t','avail')}</div></th>
-<th${ts.col==='pc'?' class="sorted"':''}><div class="thw" ${thH('t','pc')}>Progetti ${arrI('t','pc')}</div></th>
-<th>Stato</th>
+<th${ts.col==='enb'?' class="sorted"':''}><div class="thw" ${thH('t','enb')}>Non-bill. ${arrI('t','enb')}</div></th>
+<th${ts.col==='d'?' class="sorted"':''}><div class="thw" ${thH('t','d')}>Alloc. days ${arrI('t','d')}</div></th>
+<th${ts.col==='avail'?' class="sorted"':''}><div class="thw" ${thH('t','avail')}>Available ${arrI('t','avail')}</div></th>
+<th${ts.col==='pc'?' class="sorted"':''}><div class="thw" ${thH('t','pc')}>Projects ${arrI('t','pc')}</div></th>
+${isAdmin()?'<th>Status</th>':''}
 </tr></thead><tbody>`;
 fm.forEach(m=>{
 const c=sc(m.ef),av=100-m.ef;
@@ -657,23 +657,23 @@ h+=`<tr class="${S.sm===m.id?'sel':''}" onclick="selM('${m.id}')">
 <td class="num">${m.d}</td>
 <td class="num" style="color:${av>=0?'var(--gn)':'var(--rd)'}">${av.toFixed(0)}%</td>
 <td class="num">${m.pc}</td>
-<td><span class="sb" style="background:${c}18;color:${c}">${m.status}</span></td>
+${isAdmin()?`<td><span class="sb" style="background:${c}18;color:${c}">${m.status}</span></td>`:``}
 </tr>`});
 h+=`</tbody></table></div></div>`;
 
 // Panel
 if(S.sm){const m=ms.find(x=>x.id===S.sm);if(m){
 const ef=mEf(m.id),eb=mEfBill(m.id),enb=mEfNB(m.id),d=mDays(m.id),mp=ps.filter(p=>p.asgn?.[m.id]>0),efC=sc(ef);
-h+=`<div class="pn"><div class="ph"><div><div class="pt">${esc(m.name)}</div><div class="ps2" style="color:${RC[m.role]||'#999'}">${m.role} · ${m.cap} gg/anno</div></div>
+h+=`<div class="pn"><div class="ph"><div><div class="pt">${esc(m.name)}</div><div class="ps2" style="color:${RC[m.role]||'#999'}">${m.role} · ${m.cap} days/yr</div></div>
 <div style="display:flex;gap:4px"><button class="b ba" onclick="emM('${m.id}')">✎</button><button class="b br" onclick="dM('${m.id}')">✕</button><button class="b bo" onclick="S.sm=null;R()">←</button></div></div>
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:11px;color:var(--t2)">Effort totale:</span><span style="font-family:var(--mn);font-size:16px;font-weight:700;color:${efC}">${ef.toFixed(0)}%</span><span style="font-size:10px;color:var(--t3)">· ${d} gg · Disp: ${(100-ef).toFixed(0)}%</span></div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:11px;color:var(--t2)">Total effort:</span><span style="font-family:var(--mn);font-size:16px;font-weight:700;color:${efC}">${ef.toFixed(0)}%</span><span style="font-size:10px;color:var(--t3)">· ${d} d · Avail: ${(100-ef).toFixed(0)}%</span></div>
 <div style="display:flex;gap:12px;font-size:10px;margin-bottom:8px"><span style="color:var(--a2)">Billable: <b>${eb.toFixed(0)}%</b></span><span style="color:var(--t3)">Non bill.: <b>${enb.toFixed(0)}%</b></span></div>
-<div class="psc">Progetti (${mp.length})</div>`;
+<div class="psc">Projects (${mp.length})</div>`;
 mp.sort((a,b)=>(b.asgn[m.id]||0)-(a.asgn[m.id]||0)).forEach(p=>{const pe=p.asgn[m.id]||0,de=(pe/100)*m.cap;
 h+=`<div class="pr2" ${p.nb?'style="border-left:2px solid var(--t3)"':''}><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nb?'<span style="font-size:8px;color:var(--t3)">NB </span>':''}${esc(p.client||p.name)}</div>
 <div style="font-size:9px;color:var(--t3)">${esc(p.name)}</div></div>
-<div style="display:flex;align-items:center;gap:4px"><input class="pi" type="number" min="0" max="100" step="5" value="${pe}" onchange="setE('${p.id}','${m.id}',parseFloat(this.value)||0)"><span style="font-size:9px;color:var(--t3)">%</span><span style="font-family:var(--mn);font-size:9px;color:var(--a2)">${de.toFixed(0)}gg</span><button class="rb" onclick="rmE('${p.id}','${m.id}')">×</button></div></div>`});
-h+=`<div class="psc">Assegna</div><div class="ac">`;
+<div style="display:flex;align-items:center;gap:4px"><input class="pi" type="number" min="0" max="100" step="5" value="${pe}" onchange="setE('${p.id}','${m.id}',parseFloat(this.value)||0)"><span style="font-size:9px;color:var(--t3)">%</span><span style="font-family:var(--mn);font-size:9px;color:var(--a2)">${de.toFixed(0)}d</span><button class="rb" onclick="rmE('${p.id}','${m.id}')">×</button></div></div>`});
+h+=`<div class="psc">Assign</div><div class="ac">`;
 const av=100-ef;
 ps.filter(p=>!(p.asgn?.[m.id]>0)).sort((a,b)=>b.totalDays-a.totalDays).forEach(p=>{h+=`<span class="ach" onclick="setE('${p.id}','${m.id}',10)"${av<=0?' style="opacity:.5"':''}>+ ${esc(p.client||p.name)}</span>`});
 h+=`</div></div>`}}}
@@ -693,20 +693,20 @@ return pps.dir*((va||0)-(vb||0))};
 fp.sort(pcmp);
 const clients=[...new Set(ps.map(p=>p.client).filter(Boolean))].sort();
 
-h+=`<div style="flex:1;min-width:0;display:flex;flex-direction:column"><div style="display:flex;justify-content:flex-start;margin-bottom:8px;flex-shrink:0"><button class="b ba" onclick="amP()">+ Progetto</button></div><div class="mn"><table class="xtbl"><thead><tr>
-<th${pps.col==='name'?' class="sorted"':''}><div class="thw" ${thH('p','name')}>Progetto ${arrI('p','name')}</div><div class="flt"><input placeholder="Filtra..." value="${esc(pf.name)}" oninput="S.pFlt.name=this.value;R()" onclick="event.stopPropagation()"></div></th>
-<th${pps.col==='client'?' class="sorted"':''}><div class="thw" ${thH('p','client')}>Cliente ${arrI('p','client')}</div><div class="flt"><select onchange="S.pFlt.client=this.value;R()" onclick="event.stopPropagation()"><option value="">Tutti</option>${clients.map(c=>`<option value="${esc(c)}"${pf.client===c?' selected':''}>${esc(c)}</option>`).join('')}</select></div></th>
+h+=`<div style="flex:1;min-width:0;display:flex;flex-direction:column"><div style="display:flex;justify-content:flex-start;margin-bottom:8px;flex-shrink:0"><button class="b ba" onclick="amP()">+ Project</button></div><div class="mn"><table class="xtbl"><thead><tr>
+<th${pps.col==='name'?' class="sorted"':''}><div class="thw" ${thH('p','name')}>Project ${arrI('p','name')}</div><div class="flt"><input placeholder="Filter..." value="${esc(pf.name)}" oninput="S.pFlt.name=this.value;R()" onclick="event.stopPropagation()"></div></th>
+<th${pps.col==='client'?' class="sorted"':''}><div class="thw" ${thH('p','client')}>Client ${arrI('p','client')}</div><div class="flt"><select onchange="S.pFlt.client=this.value;R()" onclick="event.stopPropagation()"><option value="">All</option>${clients.map(c=>`<option value="${esc(c)}"${pf.client===c?' selected':''}>${esc(c)}</option>`).join('')}</select></div></th>
 <th${pps.col==='nTeam'?' class="sorted"':''}><div class="thw" ${thH('p','nTeam')}>Team ${arrI('p','nTeam')}</div></th>
-<th${pps.col==='totalDays'?' class="sorted"':''}><div class="thw" ${thH('p','totalDays')}>GG PQ ${arrI('p','totalDays')}</div></th>
-<th${pps.col==='ad'?' class="sorted"':''}><div class="thw" ${thH('p','ad')}>GG Alloc ${arrI('p','ad')}</div></th>
-<th${pps.col==='cov'?' class="sorted"':''}><div class="thw" ${thH('p','cov')}>Copertura ${arrI('p','cov')}</div></th>
-<th${pps.col==='start'?' class="sorted"':''}><div class="thw" ${thH('p','start')}>Inizio ${arrI('p','start')}</div></th>
-<th${pps.col==='end'?' class="sorted"':''}><div class="thw" ${thH('p','end')}>Fine ${arrI('p','end')}</div></th>
+<th${pps.col==='totalDays'?' class="sorted"':''}><div class="thw" ${thH('p','totalDays')}>Quoted days ${arrI('p','totalDays')}</div></th>
+<th${pps.col==='ad'?' class="sorted"':''}><div class="thw" ${thH('p','ad')}>Alloc. days ${arrI('p','ad')}</div></th>
+<th${pps.col==='cov'?' class="sorted"':''}><div class="thw" ${thH('p','cov')}>Coverage ${arrI('p','cov')}</div></th>
+<th${pps.col==='start'?' class="sorted"':''}><div class="thw" ${thH('p','start')}>Start ${arrI('p','start')}</div></th>
+<th${pps.col==='end'?' class="sorted"':''}><div class="thw" ${thH('p','end')}>End ${arrI('p','end')}</div></th>
 </tr></thead><tbody>`;
 fp.forEach(p=>{
 const nbStyle=p.nb?' style="background:rgba(24,95,165,.05);border-left:2px solid var(--t3)"':'';
 h+=`<tr class="${S.sp===p.id?'sel':''}" onclick="selP('${p.id}')"${nbStyle}>
-<td><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px">${p.nb?'<span style="font-size:9px;color:var(--t3);margin-right:3px">NB</span>':''}${esc(p.name)}</div><div style="font-family:var(--mn);font-size:9px;color:var(--t3)">${p.nb?'Non billable':'#'+p.jobId}</div></td>
+<td><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px">${p.nb?'<span style="font-size:9px;color:var(--t3);margin-right:3px">NB</span>':''}${esc(p.name)}</div><div style="font-family:var(--mn);font-size:9px;color:var(--t3)">${p.nb?'Non-billable':'#'+p.jobId}</div></td>
 <td style="font-size:11px;color:var(--t2)">${esc(p.client)}</td>
 <td class="ctr">${p.nTeam>0?`<span style="font-family:var(--mn);font-weight:600">${p.nTeam}</span>`:'<span style="color:rgba(239,68,68,.4)">—</span>'}</td>
 <td class="num" style="color:${p.totalDays>200?'var(--or)':p.totalDays>100?'var(--yl)':'var(--t2)'}">${p.totalDays}</td>
@@ -723,17 +723,17 @@ const asg=pAsg(p.id),ad=Math.round(pAlD(p.id)*10)/10,cov=p.totalDays>0?(ad/p.tot
 h+=`<div class="pn"><div class="ph"><div style="flex:1;min-width:0"><div class="pt">${esc(p.name)}</div><div class="ps2">${esc(p.client)} · #${p.jobId}</div></div>
 <div style="display:flex;gap:4px"><button class="b ba" onclick="epM('${p.id}')">✎</button><button class="b br" onclick="dP('${p.id}')">✕</button><button class="b bo" onclick="S.sp=null;R()">←</button></div></div>
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
-<div style="background:rgba(0,0,0,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:var(--a2)">${p.totalDays}</div><div style="font-size:9px;color:var(--t3)">GG venduti</div></div>
-<div style="background:rgba(0,0,0,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:${cov>=90?'var(--gn)':'var(--yl)'}">${ad.toFixed(0)}</div><div style="font-size:9px;color:var(--t3)">GG allocati</div></div>
-<div style="background:rgba(0,0,0,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:${cov>=90?'var(--gn)':cov>0?'var(--yl)':'var(--t3)'}">${cov.toFixed(0)}%</div><div style="font-size:9px;color:var(--t3)">copertura</div></div></div>
-<div class="psc">GG PQ per Price Level</div>`;
+<div style="background:rgba(0,0,0,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:var(--a2)">${p.totalDays}</div><div style="font-size:9px;color:var(--t3)">Sold days</div></div>
+<div style="background:rgba(0,0,0,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:${cov>=90?'var(--gn)':'var(--yl)'}">${ad.toFixed(0)}</div><div style="font-size:9px;color:var(--t3)">Allocated days</div></div>
+<div style="background:rgba(0,0,0,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:${cov>=90?'var(--gn)':cov>0?'var(--yl)':'var(--t3)'}">${cov.toFixed(0)}%</div><div style="font-size:9px;color:var(--t3)">coverage</div></div></div>
+<div class="psc">Quoted days per Price Level</div>`;
 PLkeys.forEach(k=>{const v=p.daysByRole[k]||0;if(v>0)h+=`<div class="rr"><span class="rl">${k.replace('PL','PL ')}</span><div class="rt"><div class="rfl" style="width:${(v/mx)*100}%;background:${PLC[k.replace('PL','')]||'#999'}"></div></div><span class="rv">${v}</span></div>`});
 if(p.startDate)h+=`<div style="font-size:10px;color:var(--t3);margin-top:6px">📅 ${p.startDate} → ${p.endDate}</div>`;
 h+=`<div class="psc">Team (${asg.length})</div>`;
 asg.forEach(a=>{const de=(a.pct/100)*(a.m.cap||220);
 h+=`<div class="pr2"><div style="flex:1"><span style="font-weight:600;font-size:11px">${esc(a.m.name)}</span> <span style="font-size:9px;color:${RC[a.m.role]||'#999'}">${a.m.role}</span></div>
-<div style="display:flex;align-items:center;gap:3px"><input class="pi" type="number" min="0" max="100" step="5" value="${a.pct}" onchange="setE('${p.id}','${a.mid}',parseFloat(this.value)||0)"><span style="font-size:8px;color:var(--t3)">%</span><span style="font-family:var(--mn);font-size:8px;color:var(--a2)">${de.toFixed(0)}gg</span><button class="rb" onclick="rmE('${p.id}','${a.mid}')">×</button></div></div>`});
-h+=`<div class="psc">Aggiungi</div><div class="ac">`;
+<div style="display:flex;align-items:center;gap:3px"><input class="pi" type="number" min="0" max="100" step="5" value="${a.pct}" onchange="setE('${p.id}','${a.mid}',parseFloat(this.value)||0)"><span style="font-size:8px;color:var(--t3)">%</span><span style="font-family:var(--mn);font-size:8px;color:var(--a2)">${de.toFixed(0)}d</span><button class="rb" onclick="rmE('${p.id}','${a.mid}')">×</button></div></div>`});
+h+=`<div class="psc">Add</div><div class="ac">`;
 ms.filter(m=>!asg.find(a=>a.mid===m.id)).map(m=>({...m,av:100-mEf(m.id)})).forEach(m=>{h+=`<span class="ach" onclick="setE('${p.id}','${m.id}',10)"${m.av<=0?' style="opacity:.5"':''}>+ ${esc(m.name)} <span style="font-size:7px;opacity:.5">${m.av.toFixed(0)}%</span></span>`});
 h+=`</div></div>`}}}
 
@@ -744,10 +744,10 @@ const aq=(S.aQ||'').toLowerCase();
 
 h+=`<div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap">
 <div class="nt">
-<button class="ntb${aMode==='project'?' a':''}" onclick="S.aMode='project';S.aM=null;S.aP=null;S.aStep='assign';R()">📁 Per Progetto</button>
-<button class="ntb${aMode==='person'?' a':''}" onclick="S.aMode='person';S.aM=null;S.aP=null;S.aStep='assign';R()">👤 Per Persona</button>
+<button class="ntb${aMode==='project'?' a':''}" onclick="S.aMode='project';S.aM=null;S.aP=null;S.aStep='assign';R()">📁 By project</button>
+<button class="ntb${aMode==='person'?' a':''}" onclick="S.aMode='person';S.aM=null;S.aP=null;S.aStep='assign';R()">👤 By person</button>
 </div>
-<input class="si" style="width:220px" placeholder="${aMode==='project'?'Cerca progetto...':'Cerca persona...'}" value="${esc(S.aQ)}" oninput="S.aQ=this.value;R()">
+<input class="si" style="width:220px" placeholder="${aMode==='project'?'Search project...':'Search person...'}" value="${esc(S.aQ)}" oninput="S.aQ=this.value;R()">
 </div>
 <div class="asgn-wrap">`;
 
@@ -773,41 +773,41 @@ h+=`</div><div class="asgn-main">`;
 
 if(!ap){
 h+=`<div style="text-align:center;padding:60px 20px;color:var(--t3)"><div style="font-size:28px;margin-bottom:10px">←</div>
-<div style="font-size:13px;font-weight:600;color:var(--t2)">Seleziona un progetto</div></div>`;
+<div style="font-size:13px;font-weight:600;color:var(--t2)">Select a project</div></div>`;
 } else if(S.aStep==='assign'){
 const rn=PLkeys.filter(k=>(ap.daysByRole[k]||0)>0);const ca=pAsg(ap.id);
-h+=`<div class="abar"><div><span style="font-weight:700;font-size:14px">${esc(ap.name)}</span><br><span style="font-size:11px;color:var(--t3)">${esc(ap.client)} · ${ap.totalDays} GG PQ</span></div>
-<div style="display:flex;gap:6px"><button class="b ba" onclick="autoCalc('${ap.id}')">⚡ Calcola %</button><button class="b bo" onclick="S.aStep='review';R()">📋 Revisione</button></div></div>`;
+h+=`<div class="abar"><div><span style="font-weight:700;font-size:14px">${esc(ap.name)}</span><br><span style="font-size:11px;color:var(--t3)">${esc(ap.client)} · ${ap.totalDays} Quoted days</span></div>
+<div style="display:flex;gap:6px"><button class="b ba" onclick="autoCalc('${ap.id}')">⚡ Calculate %</button><button class="b bo" onclick="S.aStep='review';R()">📋 Review</button></div></div>`;
 rn.forEach(k=>{
 const plNum=+k.replace('PL','');const plRoles=PL[plNum]||[];
 const dr=ap.daysByRole[k]||0;const cands=ms.filter(m=>plRoles.includes(m.role)).sort((a,b)=>(100-mEf(a.id))-(100-mEf(b.id))).reverse();
 const adr=ca.filter(a=>plRoles.includes(a.m.role)).reduce((t,a)=>t+(a.pct/100)*(a.m.cap||220),0);
-h+=`<div class="role-sec"><div class="role-hdr"><span style="color:${PLC[plNum]||'#999'}">Price Level ${plNum} <span style="font-weight:400;color:var(--t3)">· ${dr} GG · ${adr.toFixed(0)} alloc.</span></span>
+h+=`<div class="role-sec"><div class="role-hdr"><span style="color:${PLC[plNum]||'#999'}">Price Level ${plNum} <span style="font-weight:400;color:var(--t3)">· ${dr} d · ${adr.toFixed(0)} alloc.</span></span>
 <span style="font-size:10px;color:${adr>=dr?'var(--gn)':'var(--yl)'}">${dr>0?(adr/dr*100).toFixed(0):0}%</span></div>`;
 cands.forEach(m=>{const ef=mEf(m.id);const av=100-ef;const isOn=ap.asgn?.[m.id]>0;
 h+=`<div class="cand" onclick="togLink('${ap.id}','${m.id}')"><div class="ck${isOn?' on':''}">${isOn?'✓':''}</div>
 <div class="cn2"><b>${esc(m.name)}</b> <span style="font-size:9px;color:${RC[m.role]||'#999'}">${m.role}</span><br><span>Effort: ${ef.toFixed(0)}%</span></div><div class="cavail" style="color:${sc(ef)}">${av.toFixed(0)}%</div></div>`});
 h+=`</div>`});
 const usedPLs=rn.map(k=>+k.replace('PL',''));const othr=ms.filter(m=>!usedPLs.includes(rPL(m.role)));
-if(othr.length){h+=`<details style="margin-top:8px"><summary style="font-size:10px;color:var(--t3);cursor:pointer;font-weight:600">Altri (${othr.length})</summary>`;
+if(othr.length){h+=`<details style="margin-top:8px"><summary style="font-size:10px;color:var(--t3);cursor:pointer;font-weight:600">Other (${othr.length})</summary>`;
 othr.forEach(m=>{const ef=mEf(m.id);const av=100-ef;const isOn=ap.asgn?.[m.id]>0;
 h+=`<div class="cand" onclick="togLink('${ap.id}','${m.id}')"><div class="ck${isOn?' on':''}">${isOn?'✓':''}</div>
 <div class="cn2"><b>${esc(m.name)}</b> <span style="color:${RC[m.role]||'#999'};font-size:9px">${m.role}</span><br><span>Effort: ${ef.toFixed(0)}%</span></div>
 <div class="cavail" style="color:${sc(ef)}">${av.toFixed(0)}%</div></div>`});
 h+=`</details>`}
 } else if(S.aStep==='review'){
-h+=`<div class="abar"><div><span style="font-weight:700;font-size:14px">${esc(ap.name)}</span><br><span style="font-size:11px;color:var(--t3)">${esc(ap.client)} · ${ap.totalDays} GG PQ</span></div>
-<div style="display:flex;gap:6px"><button class="b bo" onclick="S.aStep='assign';R()">← Associa</button><button class="b ba" onclick="autoCalc('${ap.id}')">⚡ Ricalcola</button></div></div>`;
+h+=`<div class="abar"><div><span style="font-weight:700;font-size:14px">${esc(ap.name)}</span><br><span style="font-size:11px;color:var(--t3)">${esc(ap.client)} · ${ap.totalDays} Quoted days</span></div>
+<div style="display:flex;gap:6px"><button class="b bo" onclick="S.aStep='assign';R()">← Link</button><button class="b ba" onclick="autoCalc('${ap.id}')">⚡ Recalculate</button></div></div>`;
 const ca=pAsg(ap.id);const plg={};ca.forEach(a=>{const pk='PL'+rPL(a.m.role);if(!plg[pk])plg[pk]=[];plg[pk].push(a)});
 PLkeys.forEach(k=>{const g=plg[k];if(!g)return;const dr=ap.daysByRole[k]||0;const ad=g.reduce((t,a)=>t+(a.pct/100)*(a.m.cap||220),0);
 const plNum=k.replace('PL','');
 h+=`<div style="margin-bottom:12px"><div style="font-size:10px;font-weight:700;color:${PLC[plNum]||'#999'};margin-bottom:4px;display:flex;justify-content:space-between">
-<span>Price Level ${plNum} · ${dr} GG</span><span style="color:${ad>=dr?'var(--gn)':'var(--yl)'}">Alloc: ${ad.toFixed(0)} GG (${dr>0?(ad/dr*100).toFixed(0):0}%)</span></div>`;
+<span>Price Level ${plNum} · ${dr} GG</span><span style="color:${ad>=dr?'var(--gn)':'var(--yl)'}">Alloc: ${ad.toFixed(0)} d (${dr>0?(ad/dr*100).toFixed(0):0}%)</span></div>`;
 g.forEach(a=>{const mef=mEf(a.mid);const av=100-mef+a.pct;const de=(a.pct/100)*(a.m.cap||220);
 h+=`<div class="rev-row"><span style="font-weight:600;min-width:110px;font-size:11px">${esc(a.m.name)} <span style="font-size:8px;color:${RC[a.m.role]||'#999'}">${a.m.role}</span></span>
-<input class="rng" type="range" min="0" max="${Math.min(av,100)}" step="5" value="${a.pct}" oninput="setE('${ap.id}','${a.mid}',+this.value);this.nextElementSibling.value=this.value;this.nextElementSibling.nextElementSibling.textContent=(this.value/100*${a.m.cap||220}).toFixed(0)+'gg'">
-<input class="pi" type="number" min="0" max="${Math.min(av,100)}" step="5" value="${a.pct}" style="width:44px" onchange="const v=Math.min(Math.max(+this.value,0),${Math.min(av,100)});setE('${ap.id}','${a.mid}',v);this.previousElementSibling.value=v;this.nextElementSibling.textContent=(v/100*${a.m.cap||220}).toFixed(0)+'gg'">
-<span style="font-family:var(--mn);font-size:9px;color:var(--t3);min-width:30px">${de.toFixed(0)}gg</span>
+<input class="rng" type="range" min="0" max="${Math.min(av,100)}" step="5" value="${a.pct}" oninput="setE('${ap.id}','${a.mid}',+this.value);this.nextElementSibling.value=this.value;this.nextElementSibling.nextElementSibling.textContent=(this.value/100*${a.m.cap||220}).toFixed(0)+'d'">
+<input class="pi" type="number" min="0" max="${Math.min(av,100)}" step="5" value="${a.pct}" style="width:44px" onchange="const v=Math.min(Math.max(+this.value,0),${Math.min(av,100)});setE('${ap.id}','${a.mid}',v);this.previousElementSibling.value=v;this.nextElementSibling.textContent=(v/100*${a.m.cap||220}).toFixed(0)+'d'">
+<span style="font-family:var(--mn);font-size:9px;color:var(--t3);min-width:30px">${de.toFixed(0)}d</span>
 <button class="rb" onclick="rmE('${ap.id}','${a.mid}')" style="font-size:11px">×</button></div>`});
 h+=`</div>`});
 }
@@ -837,15 +837,15 @@ h+=`</div><div class="asgn-main">`;
 
 if(!am){
 h+=`<div style="text-align:center;padding:60px 20px;color:var(--t3)"><div style="font-size:28px;margin-bottom:10px">←</div>
-<div style="font-size:13px;font-weight:600;color:var(--t2)">Seleziona una persona</div></div>`;
+<div style="font-size:13px;font-weight:600;color:var(--t2)">Select a person</div></div>`;
 } else {
 const ef=mEf(am.id);const av=100-ef;
 h+=`<div class="abar"><div><span style="font-weight:700;font-size:14px">${esc(am.name)}</span><br>
-<span style="font-size:11px;color:${RC[am.role]||'#999'}">${am.role} · ${am.cap} gg/anno</span></div>
+<span style="font-size:11px;color:${RC[am.role]||'#999'}">${am.role} · ${am.cap} days/yr</span></div>
 <div style="display:flex;align-items:center;gap:10px">
 <span style="font-family:var(--mn);font-size:16px;font-weight:700;color:${sc(ef)}">${ef.toFixed(0)}%</span>
 <span style="font-size:10px;color:var(--t3)">usato · <b style="color:${av>=0?'var(--gn)':'var(--rd)'}"> ${av.toFixed(0)}%</b> disp.</span>
-<button class="b ba" onclick="autoCalcPerson('${am.id}')">⚡ Calcola %</button>
+<button class="b ba" onclick="autoCalcPerson('${am.id}')">⚡ Calculate %</button>
 </div></div>`;
 
 if(S.aStep==='assign'){
@@ -854,16 +854,16 @@ const mPL='PL'+rPL(am.role);
 const matchPs=ps.filter(p=>p.totalDays>0&&(p.daysByRole[mPL]||0)>0).sort((a,b)=>(b.daysByRole[mPL]||0)-(a.daysByRole[mPL]||0));
 const otherPs=ps.filter(p=>p.totalDays>0&&(p.daysByRole[mPL]||0)===0).sort((a,b)=>b.totalDays-a.totalDays);
 
-h+=`<div class="psc" style="margin-top:0">Progetti che richiedono ${mPL.replace('PL','Price Level ')} (${matchPs.length})</div>`;
+h+=`<div class="psc" style="margin-top:0">Projects requiring ${mPL.replace('PL','Price Level ')} (${matchPs.length})</div>`;
 matchPs.forEach(p=>{
 const isOn=p.asgn?.[am.id]>0;const dr=p.daysByRole[mPL]||0;
 const plRoles=PL[rPL(am.role)]||[];
 const asg=pAsg(p.id).filter(a=>plRoles.includes(a.m.role));const adr=asg.reduce((t,a)=>t+(a.pct/100)*(a.m.cap||220),0);
 h+=`<div class="cand" onclick="togLink('${p.id}','${am.id}')"><div class="ck${isOn?' on':''}">${isOn?'✓':''}</div>
-<div class="cn2"><b>${esc(p.name)}</b><br><span>${esc(p.client)} · ${dr} GG ${am.role} · ${adr.toFixed(0)} alloc.</span></div>
+<div class="cn2"><b>${esc(p.name)}</b><br><span>${esc(p.client)} · ${dr} d ${am.role} · ${adr.toFixed(0)} alloc.</span></div>
 <div class="cavail" style="font-size:9px;color:${adr>=dr?'var(--gn)':'var(--yl)'}"><div>${dr>0?(adr/dr*100).toFixed(0):0}%</div><div style="color:var(--t3)">${p.totalDays}d</div></div></div>`});
 
-if(otherPs.length){h+=`<details style="margin-top:8px"><summary style="font-size:10px;color:var(--t3);cursor:pointer;font-weight:600">Altri progetti (${otherPs.length})</summary>`;
+if(otherPs.length){h+=`<details style="margin-top:8px"><summary style="font-size:10px;color:var(--t3);cursor:pointer;font-weight:600">Other projects (${otherPs.length})</summary>`;
 otherPs.forEach(p=>{const isOn=p.asgn?.[am.id]>0;
 h+=`<div class="cand" onclick="togLink('${p.id}','${am.id}')"><div class="ck${isOn?' on':''}">${isOn?'✓':''}</div>
 <div class="cn2"><b>${esc(p.name)}</b><br><span>${esc(p.client)} · ${p.totalDays}d</span></div></div>`});
@@ -871,12 +871,12 @@ h+=`</details>`}
 } else {
 // Review mode for person
 const myPs=ps.filter(p=>p.asgn?.[am.id]>0).sort((a,b)=>(b.asgn[am.id]||0)-(a.asgn[am.id]||0));
-h+=`<div class="psc" style="margin-top:0">Progetti assegnati (${myPs.length})</div>`;
+h+=`<div class="psc" style="margin-top:0">Assigned projects (${myPs.length})</div>`;
 myPs.forEach(p=>{const pe=p.asgn[am.id]||0;const de=(pe/100)*am.cap;
 h+=`<div class="rev-row"><span style="font-weight:600;min-width:130px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.client||p.name)}</span>
-<input class="rng" type="range" min="0" max="${Math.min(100-ef+pe,100)}" step="5" value="${pe}" oninput="setE('${p.id}','${am.id}',+this.value);this.nextElementSibling.value=this.value;this.nextElementSibling.nextElementSibling.textContent=(this.value/100*${am.cap}).toFixed(0)+'gg'">
-<input class="pi" type="number" min="0" max="${Math.min(100-ef+pe,100)}" step="5" value="${pe}" style="width:44px" onchange="const v=Math.min(Math.max(+this.value,0),${Math.min(100-ef+pe,100)});setE('${p.id}','${am.id}',v);this.previousElementSibling.value=v;this.nextElementSibling.textContent=(v/100*${am.cap}).toFixed(0)+'gg'">
-<span style="font-family:var(--mn);font-size:9px;color:var(--t3);min-width:30px">${de.toFixed(0)}gg</span>
+<input class="rng" type="range" min="0" max="${Math.min(100-ef+pe,100)}" step="5" value="${pe}" oninput="setE('${p.id}','${am.id}',+this.value);this.nextElementSibling.value=this.value;this.nextElementSibling.nextElementSibling.textContent=(this.value/100*${am.cap}).toFixed(0)+'d'">
+<input class="pi" type="number" min="0" max="${Math.min(100-ef+pe,100)}" step="5" value="${pe}" style="width:44px" onchange="const v=Math.min(Math.max(+this.value,0),${Math.min(100-ef+pe,100)});setE('${p.id}','${am.id}',v);this.previousElementSibling.value=v;this.nextElementSibling.textContent=(v/100*${am.cap}).toFixed(0)+'d'">
+<span style="font-family:var(--mn);font-size:9px;color:var(--t3);min-width:30px">${de.toFixed(0)}d</span>
 <button class="rb" onclick="rmE('${p.id}','${am.id}')" style="font-size:11px">×</button></div>`});
 }
 }
@@ -909,27 +909,27 @@ return mxs.dir*(a.totalDays-b.totalDays);
 const mxClients=[...new Set(fp.map(p=>p.client).filter(Boolean))].sort();
 h+=`<div style="flex:1;min-width:0;display:flex;flex-direction:column">
 <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap;flex-shrink:0">
-<input class="si" style="width:150px" placeholder="Filtra progetto..." value="${esc(mxf.name)}" oninput="S.mxFlt.name=this.value;R()">
-<select class="si" style="width:150px" onchange="S.mxFlt.client=this.value;R()"><option value="">Tutti i clienti</option>${mxClients.map(c=>`<option value="${esc(c)}"${mxf.client===c?' selected':''}>${esc(c)}</option>`).join('')}</select>
-<span style="font-size:10px;color:var(--t3)">Progetti:</span>
+<input class="si" style="width:150px" placeholder="Filter project..." value="${esc(mxf.name)}" oninput="S.mxFlt.name=this.value;R()">
+<select class="si" style="width:150px" onchange="S.mxFlt.client=this.value;R()"><option value="">All clients</option>${mxClients.map(c=>`<option value="${esc(c)}"${mxf.client===c?' selected':''}>${esc(c)}</option>`).join('')}</select>
+<span style="font-size:10px;color:var(--t3)">Projects:</span>
 <select class="si" style="width:120px" onchange="const v=this.value.split('_');S.mxSort.col=v[0];S.mxSort.dir=v[1]==='a'?1:-1;R()">
-<option value="totalDays_d"${mxs.col==='totalDays'&&mxs.dir===-1?' selected':''}>GG PQ ↓</option>
-<option value="totalDays_a"${mxs.col==='totalDays'&&mxs.dir===1?' selected':''}>GG PQ ↑</option>
-<option value="name_a"${mxs.col==='name'&&mxs.dir===1?' selected':''}>Nome A→Z</option>
-<option value="client_a"${mxs.col==='client'&&mxs.dir===1?' selected':''}>Cliente A→Z</option>
-<option value="nTeam_d"${mxs.col==='nTeam'&&mxs.dir===-1?' selected':''}>N° Persone ↓</option>
+<option value="totalDays_d"${mxs.col==='totalDays'&&mxs.dir===-1?' selected':''}>Quoted days ↓</option>
+<option value="totalDays_a"${mxs.col==='totalDays'&&mxs.dir===1?' selected':''}>Quoted days ↑</option>
+<option value="name_a"${mxs.col==='name'&&mxs.dir===1?' selected':''}>Name A→Z</option>
+<option value="client_a"${mxs.col==='client'&&mxs.dir===1?' selected':''}>Client A→Z</option>
+<option value="nTeam_d"${mxs.col==='nTeam'&&mxs.dir===-1?' selected':''}># People ↓</option>
 </select>
-<span style="font-size:10px;color:var(--t3)">Persone:</span>
+<span style="font-size:10px;color:var(--t3)">People:</span>
 <select class="si" style="width:120px" onchange="S.mxMemSort=this.value;R()">
-<option value="name"${S.mxMemSort==='name'?' selected':''}>Nome A→Z</option>
-<option value="role"${S.mxMemSort==='role'?' selected':''}>Ruolo (rank)</option>
+<option value="name"${S.mxMemSort==='name'?' selected':''}>Name A→Z</option>
+<option value="role"${S.mxMemSort==='role'?' selected':''}>Role (rank)</option>
 <option value="effort"${S.mxMemSort==='effort'?' selected':''}>Effort ↓</option>
 </select>
-<span style="font-size:10px;color:var(--t3);margin-left:auto">${fp.length} progetti · ${mm.length} persone</span>
+<span style="font-size:10px;color:var(--t3);margin-left:auto">${fp.length} projects · ${mm.length} people</span>
 </div>
 <div class="mn"><table>
 <thead>
-<tr><th class="sh" rowspan="2" style="text-align:left;padding:5px 8px;color:var(--t3);font-size:9px;min-width:200px;vertical-align:bottom;background:var(--bg)">Progetto</th>
+<tr><th class="sh" rowspan="2" style="text-align:left;padding:5px 8px;color:var(--t3);font-size:9px;min-width:200px;vertical-align:bottom;background:var(--bg)">Project</th>
 ${mm.map(m=>`<th style="text-align:center;padding:2px 1px 0;font-size:7px;font-weight:600;color:${RC[m.role]||'#999'};white-space:nowrap;border-bottom:none;background:var(--bg)">${esc(m.role.replace('Senior ','Sr. ').replace('Consultant','Cons.').replace('Manager','Mgr').replace('Ass. ','A.').replace('Sr. Cons.','Sr.C').replace('J. Cons.','Jr.C'))}</th>`).join('')}
 </tr>
 <tr>
@@ -945,17 +945,17 @@ const ed=S._ec&&S._ec.pid===p.id&&S._ec.mid===m.id;
 if(ed)h+=`<td style="border-bottom:1px solid rgba(0,0,0,.02);padding:1px"><input class="mxi" id="mxe" type="number" min="0" max="100" step="5" value="${pc}" onblur="cMx('${p.id}','${m.id}')" onkeydown="kMx(event,'${p.id}','${m.id}')"></td>`;
 else h+=`<td style="border-bottom:1px solid rgba(0,0,0,.02)" onclick="oMx('${p.id}','${m.id}')"><div class="mx ${on?'on':'off'}">${on?pc+'%':''}</div></td>`});
 h+=`</tr>`});
-h+=`<tr><td class="sc" style="padding:6px 8px;border-top:2px solid var(--bh);font-weight:700;font-size:10px;color:var(--t2);text-align:left">EFFORT TOT.</td>`;
+h+=`<tr><td class="sc" style="padding:6px 8px;border-top:2px solid var(--bh);font-weight:700;font-size:10px;color:var(--t2);text-align:left">TOTAL EFFORT</td>`;
 mm.forEach(m=>{const ef=mEf(m.id);h+=`<td style="border-top:2px solid var(--bh);text-align:center;font-family:var(--mn);font-size:9px;font-weight:700;color:${sc(ef)}">${ef.toFixed(0)}%</td>`});
 h+=`</tr></tbody></table></div></div>`}
 
 if(S.vw==='admin'&&isAdmin()){
 var _totD=ps.reduce(function(a,p){return a+p.totalDays;},0);
 h+='<div style="flex:1;min-width:0;max-width:1000px;margin:0 auto;width:100%">';
-h+='<div class="ucard"><div class="uct">Panoramica team</div><div class="ametrics">'+amCard('Persone',ms.length,'')+amCard('Progetti',ps.length,'')+amCard('Utilization rate',avgB.toFixed(0)+'%',sc(avgB))+amCard('Effort tot. medio',avgE.toFixed(0)+'%',sc(avgE))+amCard('GG PQ',_totD.toLocaleString('it'),'#185fa5')+'</div></div>';
-h+='<div class="ucard"><div class="uct">Capacità per Price Level</div><div class="acapgrid">'+PLkeys.map(function(k){var dd=dem[k]||0;var ss=sup[k]||0;var p=ss>0?(dd/ss)*100:dd>0?999:0;var n=k.replace('PL','Price Level ');return '<div class="acap"><div class="acl">'+n+'</div><div class="acv"><b style="color:'+sc(p)+'">'+dd.toFixed(0)+'d</b> <span>/ '+ss+'d</span></div><div class="acbar"><div style="width:'+Math.min(p/1.2,100)+'%;background:'+sc(p)+'"></div></div><div class="acp" style="color:'+sc(p)+'">'+(p>900?'oltre 100%':p.toFixed(0)+'%')+'</div></div>';}).join('')+'</div></div>';
+h+='<div class="ucard"><div class="uct">Team overview</div><div class="ametrics">'+amCard('People',ms.length,'')+amCard('Projects',ps.length,'')+amCard('Utilization rate',avgB.toFixed(0)+'%',sc(avgB))+amCard('Avg total effort',avgE.toFixed(0)+'%',sc(avgE))+amCard('Quoted days',_totD.toLocaleString('it'),'#185fa5')+'</div></div>';
+h+='<div class="ucard"><div class="uct">Capacity by Price Level</div><div class="acapgrid">'+PLkeys.map(function(k){var dd=dem[k]||0;var ss=sup[k]||0;var p=ss>0?(dd/ss)*100:dd>0?999:0;var n=k.replace('PL','Price Level ');return '<div class="acap"><div class="acl">'+n+'</div><div class="acv"><b style="color:'+sc(p)+'">'+dd.toFixed(0)+'d</b> <span>/ '+ss+'d</span></div><div class="acbar"><div style="width:'+Math.min(p/1.2,100)+'%;background:'+sc(p)+'"></div></div><div class="acp" style="color:'+sc(p)+'">'+(p>900?'over 100%':p.toFixed(0)+'%')+'</div></div>';}).join('')+'</div></div>';
 h+=renderUsers();
-h+='<div class="ucard"><div class="uct">Manutenzione</div><div class="ucs">Ripristina persone e progetti ai valori iniziali. Operazione irreversibile.</div><button class="b br" onclick="rst()">↺ Reset dati</button></div>';
+h+='<div class="ucard"><div class="uct">Maintenance</div><div class="ucs">Reset people and projects to their initial values. This cannot be undone.</div><button class="b br" onclick="rst()">↺ Reset data</button></div>';
 h+='</div>';
 }
 h+=`</div>`;document.getElementById("AP").innerHTML=h;
@@ -967,14 +967,14 @@ if(S._ec){setTimeout(()=>{const el=document.getElementById('mxe');if(el){el.focu
 function sw(v){S.vw=v;S.sm=null;S.sp=null;if(v==='admin'){uLoad();return;}R()}
 function selM(id){S.sm=S.sm===id?null:id;S.sp=null;R()}
 function selP(id){S.sp=S.sp===id?null:id;S.sm=null;R()}
-function setE(pid,mid,pct){const p=S.p.find(x=>x.id===pid);if(!p)return;if(!p.asgn)p.asgn={};const cur=p.asgn[mid]||0;const totO=mEf(mid)-cur;if(pct+totO>100&&pct>cur){const ok=confirm(`Attenzione: effort totale sarà ${(pct+totO).toFixed(0)}% (supera 100%).\nIl sovraccarico verrà evidenziato. Procedere?`);if(!ok)return}if(pct>0)p.asgn[mid]=Math.round(pct*10)/10;else delete p.asgn[mid];sv();R()}
+function setE(pid,mid,pct){const p=S.p.find(x=>x.id===pid);if(!p)return;if(!p.asgn)p.asgn={};const cur=p.asgn[mid]||0;const totO=mEf(mid)-cur;if(pct+totO>100&&pct>cur){const ok=confirm(`Warning: total effort will be ${(pct+totO).toFixed(0)}% (over 100%).\nThe overload will be highlighted. Proceed?`);if(!ok)return}if(pct>0)p.asgn[mid]=Math.round(pct*10)/10;else delete p.asgn[mid];sv();R()}
 function rmE(pid,mid){const p=S.p.find(x=>x.id===pid);if(p?.asgn)delete p.asgn[mid];sv();R()}
 function oMx(pid,mid){S._ec={pid,mid};R()}
 function cMx(pid,mid){const el=document.getElementById('mxe');if(!el)return;const v=parseFloat(el.value)||0;S._ec=null;if(v<=0)rmE(pid,mid);else setE(pid,mid,v)}
 function kMx(e,pid,mid){if(e.key==='Enter'){e.preventDefault();cMx(pid,mid)}if(e.key==='Escape'){S._ec=null;R()}}
-function dM(id){if(!confirm("Rimuovere?"))return;S.m=S.m.filter(m=>m.id!==id);S.p.forEach(p=>{if(p.asgn)delete p.asgn[id]});S.sm=null;sv();R()}
+function dM(id){if(!confirm("Remove?"))return;S.m=S.m.filter(m=>m.id!==id);S.p.forEach(p=>{if(p.asgn)delete p.asgn[id]});S.sm=null;sv();R()}
 function dP(id){if(!confirm("Eliminare?"))return;S.p=S.p.filter(p=>p.id!==id);S.sp=null;sv();R()}
-function rst(){if(!confirm("Resettare tutto?"))return;S.m=JSON.parse(JSON.stringify(IM));S.p=JSON.parse(JSON.stringify(IP));S.sm=null;S.sp=null;sv();R()}
+function rst(){if(!confirm("Reset everything?"))return;S.m=JSON.parse(JSON.stringify(IM));S.p=JSON.parse(JSON.stringify(IP));S.sm=null;S.sp=null;sv();R()}
 
 // Toggle link (associate/disassociate without % yet)
 function togLink(pid,mid){
@@ -1067,13 +1067,13 @@ function autoCalcPerson(mid){
 }
 
 // MODALS
-function amM(){document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Aggiungi Persona</h2><label>Nome</label><input id="xn"><label>Ruolo</label><select id="xr">${RH.map(r=>`<option value="${r}">${r}</option>`).join('')}</select><label>Capacità gg/anno</label><input id="xc" type="number" value="220"><div class="ma"><button class="b bo" onclick="cm()">Annulla</button><button class="b ba" onclick="doAM()">Aggiungi</button></div></div></div>`}
-function doAM(){const n=document.getElementById("xn").value.trim();if(!n)return alert("Nome!");S.m.push({id:"m_"+Math.random().toString(36).slice(2,8),name:n,role:document.getElementById("xr").value,cap:parseInt(document.getElementById("xc").value)||220});cm();sv();R()}
-function emM(id){const m=S.m.find(x=>x.id===id);if(!m)return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Modifica Persona</h2><label>Nome</label><input id="xn" value="${esc(m.name)}"><label>Ruolo</label><select id="xr">${RH.map(r=>`<option value="${r}"${m.role===r?' selected':''}>${r}</option>`).join('')}</select><label>Capacità gg/anno</label><input id="xc" type="number" value="${m.cap}"><div class="ma"><button class="b bo" onclick="cm()">Annulla</button><button class="b ba" onclick="doEM('${id}')">Salva</button></div></div></div>`}
+function amM(){document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Add person</h2><label>Name</label><input id="xn"><label>Role</label><select id="xr">${RH.map(r=>`<option value="${r}">${r}</option>`).join('')}</select><label>Capacity (days/year)</label><input id="xc" type="number" value="220"><div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doAM()">Add</button></div></div></div>`}
+function doAM(){const n=document.getElementById("xn").value.trim();if(!n)return alert("Name!");S.m.push({id:"m_"+Math.random().toString(36).slice(2,8),name:n,role:document.getElementById("xr").value,cap:parseInt(document.getElementById("xc").value)||220});cm();sv();R()}
+function emM(id){const m=S.m.find(x=>x.id===id);if(!m)return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Edit person</h2><label>Name</label><input id="xn" value="${esc(m.name)}"><label>Role</label><select id="xr">${RH.map(r=>`<option value="${r}"${m.role===r?' selected':''}>${r}</option>`).join('')}</select><label>Capacity (days/year)</label><input id="xc" type="number" value="${m.cap}"><div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doEM('${id}')">Save</button></div></div></div>`}
 function doEM(id){const m=S.m.find(x=>x.id===id);if(!m)return;m.name=document.getElementById("xn").value;m.role=document.getElementById("xr").value;m.cap=parseInt(document.getElementById("xc").value)||220;cm();sv();R()}
-function amP(){document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Aggiungi Progetto</h2><label>Nome</label><input id="yn"><label>Cliente</label><input id="yc"><label>Job ID</label><input id="yj"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><label>Inizio</label><input id="ys" type="date"></div><div><label>Fine</label><input id="ye" type="date"></div></div><label>GG PQ per Price Level</label>${PLkeys.map(k=>`<div style="display:flex;align-items:center;gap:6px;margin-top:3px"><span style="width:100px;font-size:10px;color:var(--t2);text-align:right">${k.replace('PL','Price Level ')}</span><input id="yr_${k}" type="number" value="0" min="0" style="width:70px"></div>`).join('')}<div class="ma"><button class="b bo" onclick="cm()">Annulla</button><button class="b ba" onclick="doAP()">Aggiungi</button></div></div></div>`}
-function doAP(){const n=document.getElementById("yn").value.trim();if(!n)return alert("Nome!");const dr={};let t=0;PLkeys.forEach(k=>{const v=parseFloat(document.getElementById("yr_"+k).value)||0;dr[k]=v;t+=v});S.p.push({id:"p_"+Math.random().toString(36).slice(2,8),jobId:document.getElementById("yj").value||String(Date.now()).slice(-6),name:n,client:document.getElementById("yc").value.trim(),startDate:document.getElementById("ys").value,endDate:document.getElementById("ye").value,totalDays:t,daysByRole:dr,asgn:{}});cm();sv();R()}
-function epM(id){const p=S.p.find(x=>x.id===id);if(!p)return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Modifica Progetto</h2><label>Nome</label><input id="yn" value="${esc(p.name)}"><label>Cliente</label><input id="yc" value="${esc(p.client)}"><label>Job ID</label><input id="yj" value="${p.jobId}"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><label>Inizio</label><input id="ys" type="date" value="${p.startDate}"></div><div><label>Fine</label><input id="ye" type="date" value="${p.endDate}"></div></div><label>GG PQ per Price Level</label>${PLkeys.map(k=>`<div style="display:flex;align-items:center;gap:6px;margin-top:3px"><span style="width:100px;font-size:10px;color:var(--t2);text-align:right">${k.replace('PL','Price Level ')}</span><input id="yr_${k}" type="number" value="${p.daysByRole[k]||0}" min="0" style="width:70px"></div>`).join('')}<div class="ma"><button class="b bo" onclick="cm()">Annulla</button><button class="b ba" onclick="doEP('${id}')">Salva</button></div></div></div>`}
+function amP(){document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Add project</h2><label>Name</label><input id="yn"><label>Client</label><input id="yc"><label>Job ID</label><input id="yj"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><label>Start</label><input id="ys" type="date"></div><div><label>End</label><input id="ye" type="date"></div></div><label>Quoted days per Price Level</label>${PLkeys.map(k=>`<div style="display:flex;align-items:center;gap:6px;margin-top:3px"><span style="width:100px;font-size:10px;color:var(--t2);text-align:right">${k.replace('PL','Price Level ')}</span><input id="yr_${k}" type="number" value="0" min="0" style="width:70px"></div>`).join('')}<div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doAP()">Add</button></div></div></div>`}
+function doAP(){const n=document.getElementById("yn").value.trim();if(!n)return alert("Name!");const dr={};let t=0;PLkeys.forEach(k=>{const v=parseFloat(document.getElementById("yr_"+k).value)||0;dr[k]=v;t+=v});S.p.push({id:"p_"+Math.random().toString(36).slice(2,8),jobId:document.getElementById("yj").value||String(Date.now()).slice(-6),name:n,client:document.getElementById("yc").value.trim(),startDate:document.getElementById("ys").value,endDate:document.getElementById("ye").value,totalDays:t,daysByRole:dr,asgn:{}});cm();sv();R()}
+function epM(id){const p=S.p.find(x=>x.id===id);if(!p)return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Edit project</h2><label>Name</label><input id="yn" value="${esc(p.name)}"><label>Client</label><input id="yc" value="${esc(p.client)}"><label>Job ID</label><input id="yj" value="${p.jobId}"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><label>Start</label><input id="ys" type="date" value="${p.startDate}"></div><div><label>End</label><input id="ye" type="date" value="${p.endDate}"></div></div><label>Quoted days per Price Level</label>${PLkeys.map(k=>`<div style="display:flex;align-items:center;gap:6px;margin-top:3px"><span style="width:100px;font-size:10px;color:var(--t2);text-align:right">${k.replace('PL','Price Level ')}</span><input id="yr_${k}" type="number" value="${p.daysByRole[k]||0}" min="0" style="width:70px"></div>`).join('')}<div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doEP('${id}')">Save</button></div></div></div>`}
 function doEP(id){const p=S.p.find(x=>x.id===id);if(!p)return;p.name=document.getElementById("yn").value;p.client=document.getElementById("yc").value;p.jobId=document.getElementById("yj").value;p.startDate=document.getElementById("ys").value;p.endDate=document.getElementById("ye").value;let t=0;PLkeys.forEach(k=>{const v=parseFloat(document.getElementById("yr_"+k).value)||0;p.daysByRole[k]=v;t+=v});p.totalDays=t;cm();sv();R()}
 function cm(){document.getElementById("mr").innerHTML=""}
 
@@ -1083,27 +1083,27 @@ function uLoad(){_uLoading=true;R();Promise.all([uListUsers(),uGetInvites()]).th
 function uRoleBadge(role){return role==='admin'?'<span class="sb" style="background:rgba(24,95,165,.12);color:#185fa5">Admin</span>':'<span class="sb" style="background:rgba(0,0,0,.06);color:#42454c">Member</span>';}
 function renderUsers(){
   var adm=isAdmin();
-  if(_uLoading||_uUsers===null||_uInvites===null)return '<div style="flex:1;text-align:center;padding:50px;color:var(--t2);font-size:14px">Caricamento utenti...</div>';
+  if(_uLoading||_uUsers===null||_uInvites===null)return '<div style="flex:1;text-align:center;padding:50px;color:var(--t2);font-size:14px">Loading users...</div>';
   var me=_user?_user.uid:null;
   var invRows=_uInvites.length?_uInvites.map(function(i){
     var roleCell=adm?'<select onchange="uChgInviteRole(\''+esc(i.email)+'\',this.value)"><option value="member"'+(i.role!=='admin'?' selected':'')+'>Member</option><option value="admin"'+(i.role==='admin'?' selected':'')+'>Admin</option></select>':uRoleBadge(i.role);
-    var act=adm?'<button class="b br" onclick="uRmInvite(\''+esc(i.email)+'\')">Rimuovi</button>':'';
+    var act=adm?'<button class="b br" onclick="uRmInvite(\''+esc(i.email)+'\')">Remove</button>':'';
     return '<tr><td>'+esc(i.email)+'</td><td>'+roleCell+'</td><td class="ctr">'+act+'</td></tr>';
-  }).join(''):'<tr><td colspan="3" style="text-align:center;color:var(--t3);padding:14px">Nessuna email invitata.</td></tr>';
-  var inviteForm=adm?'<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap"><input id="u-email" type="email" placeholder="nome.cognome@jakala.com" class="si" style="flex:1;min-width:240px;width:auto"><select id="u-role" class="si" style="width:120px"><option value="member">Member</option><option value="admin">Admin</option></select><button class="b ba" onclick="uDoInvite()">Invita</button></div>':'';
+  }).join(''):'<tr><td colspan="3" style="text-align:center;color:var(--t3);padding:14px">No invited emails.</td></tr>';
+  var inviteForm=adm?'<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap"><input id="u-email" type="email" placeholder="name.surname@jakala.com" class="si" style="flex:1;min-width:240px;width:auto"><select id="u-role" class="si" style="width:120px"><option value="member">Member</option><option value="admin">Admin</option></select><button class="b ba" onclick="uDoInvite()">Invite</button></div>':'';
   var usrRows=_uUsers.length?_uUsers.map(function(u){
     var active=u.active!==false,isMe=u.uid===me;
     var roleCell=(adm&&!isMe)?'<select onchange="uChgUserRole(\''+u.uid+'\',this.value)"><option value="member"'+(u.role==='member'?' selected':'')+'>Member</option><option value="admin"'+(u.role==='admin'?' selected':'')+'>Admin</option></select>':uRoleBadge(u.role);
-    var statusCell=active?'<span class="sb" style="background:rgba(47,110,18,.12);color:#2f6e12">Attivo</span>':'<span class="sb" style="background:rgba(0,0,0,.06);color:#42454c">Disabilitato</span>';
-    var act=(adm&&!isMe)?(active?'<button class="b br" onclick="uDisable(\''+u.uid+'\')">Disabilita</button>':'<button class="b bg" onclick="uEnable(\''+u.uid+'\')">Riattiva</button>'):(isMe?'<span style="font-size:10px;color:var(--t3)">(tu)</span>':'');
+    var statusCell=active?'<span class="sb" style="background:rgba(47,110,18,.12);color:#2f6e12">Active</span>':'<span class="sb" style="background:rgba(0,0,0,.06);color:#42454c">Disabled</span>';
+    var act=(adm&&!isMe)?(active?'<button class="b br" onclick="uDisable(\''+u.uid+'\')">Disable</button>':'<button class="b bg" onclick="uEnable(\''+u.uid+'\')">Re-enable</button>'):(isMe?'<span style="font-size:10px;color:var(--t3)">(you)</span>':'');
     return '<tr style="'+(active?'':'opacity:.55')+'"><td>'+esc(u.displayName||'')+'</td><td>'+esc(u.email||'')+'</td><td>'+roleCell+'</td><td>'+statusCell+'</td><td class="ctr">'+act+'</td></tr>';
-  }).join(''):'<tr><td colspan="5" style="text-align:center;color:var(--t3);padding:18px">Nessun utente ancora.</td></tr>';
-  return '<div class="ucard"><div class="uct">Email invitate (lista accessi)</div><div class="ucs">Solo le email invitate possono registrarsi e accedere. Scegli il ruolo al momento dell\'invito: la persona lo riceve al primo accesso. Poi condividi il link dell\'app: l\'invitato si registra impostando la propria password.</div>'+inviteForm+'<table class="utbl"><thead><tr><th>Email</th><th>Ruolo al primo accesso</th><th class="ctr">Azione</th></tr></thead><tbody>'+invRows+'</tbody></table></div>'
-    +'<div class="ucard"><div class="uct">Utenti</div><div class="ucs">Gli utenti compaiono qui automaticamente dopo il primo accesso. Da qui puoi cambiarne il ruolo o disabilitarne l\'accesso.</div><table class="utbl"><thead><tr><th>Nome</th><th>Email</th><th>Ruolo</th><th>Stato</th><th class="ctr">Azioni</th></tr></thead><tbody>'+usrRows+'</tbody></table></div>';
+  }).join(''):'<tr><td colspan="5" style="text-align:center;color:var(--t3);padding:18px">No users yet.</td></tr>';
+  return '<div class="ucard"><div class="uct">Invited emails (access list)</div><div class="ucs">Only invited emails can register and sign in. Choose the role at invite time: the person receives it on first login. Then share the app link and the invited person registers, setting their own password.</div>'+inviteForm+'<table class="utbl"><thead><tr><th>Email</th><th>Role on first login</th><th class="ctr">Action</th></tr></thead><tbody>'+invRows+'</tbody></table></div>'
+    +'<div class="ucard"><div class="uct">Users</div><div class="ucs">Users appear here automatically after their first login. From here you can change their role or disable their access.</div><table class="utbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th class="ctr">Actions</th></tr></thead><tbody>'+usrRows+'</tbody></table></div>';
 }
 function amCard(label,val,color){return '<div class="ametric"><div class="aml">'+label+'</div><div class="amv"'+(color?(' style="color:'+color+'"'):'')+'>'+val+'</div></div>';}
-function uDoInvite(){var e=(document.getElementById('u-email')||{}).value||'';var r=(document.getElementById('u-role')||{}).value||'member';if(!e.trim())return;uAddInvite(e,r).then(uLoad).catch(function(err){alert('Invito fallito: '+(err.message||err));});}
-function uRmInvite(e){if(!confirm('Rimuovere l\'invito per '+e+'?'))return;uRemoveInvite(e).then(uLoad).catch(function(err){alert(err.message||err);});}
+function uDoInvite(){var e=(document.getElementById('u-email')||{}).value||'';var r=(document.getElementById('u-role')||{}).value||'member';if(!e.trim())return;uAddInvite(e,r).then(uLoad).catch(function(err){alert('Invite failed: '+(err.message||err));});}
+function uRmInvite(e){if(!confirm('Remove the invite for '+e+'?'))return;uRemoveInvite(e).then(uLoad).catch(function(err){alert(err.message||err);});}
 function uChgInviteRole(e,r){uSetInviteRole(e,r).then(uLoad).catch(function(err){alert(err.message||err);});}
 function uChgUserRole(uid,r){uSetUserRole(uid,r).then(uLoad).catch(function(err){alert(err.message||err);});}
 function uDisable(uid){uSetUserActive(uid,false).then(uLoad).catch(function(err){alert(err.message||err);});}
