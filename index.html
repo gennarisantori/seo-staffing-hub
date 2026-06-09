@@ -1,0 +1,1044 @@
+﻿<!DOCTYPE html><html lang="it"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style rel="stylesheet" type="text/css">@charset "utf-8";
+
+:root { --bg: #06080f; --sf: #0c1019; --s2: #111827; --bd: rgba(148,163,184,.08); --bh: rgba(24,95,165,.3); --tx: #e2e8f0; --t2: #94a3b8; --t3: #475569; --ac: #185FA5; --a2: #4A9FE0; --gn: #22c55e; --yl: #eab308; --or: #f97316; --rd: #ef4444; --mn: 'JetBrains Mono',monospace; --sn: 'Inter',system-ui,sans-serif; }
+
+* { margin: 0px; padding: 0px; box-sizing: border-box; }
+
+body { font-family: var(--sn); background: var(--bg); color: var(--tx); min-height: 100vh; }
+
+input, select, button, textarea { font-family: inherit; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+
+::-webkit-scrollbar-track { background: transparent; }
+
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 3px; }
+
+#LS { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: radial-gradient(ellipse at 30% 20%,rgba(24,95,165,.10)0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(24,95,165,.05)0%,transparent 50%),var(--bg); }
+
+.lb { background: var(--sf); border: 1px solid var(--bd); border-radius: 16px; padding: 48px 40px; width: 380px; text-align: center; animation: 0.6s ease 0s 1 normal none running fu; }
+
+@keyframes fu { 
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0px); }
+}
+
+.lb h1 { font-size: 24px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.03em; }
+
+.lb p { font-size: 13px; color: var(--t2); margin-bottom: 28px; }
+
+.lb input { width: 100%; padding: 12px 16px; background: var(--s2); border: 1px solid var(--bd); border-radius: 10px; color: var(--tx); font-size: 14px; margin-bottom: 16px; outline: none; }
+
+.lb input:focus { border-color: var(--ac); }
+
+.lb button { width: 100%; padding: 12px; background: var(--ac); color: rgb(255, 255, 255); border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+.lb button:hover { background:#1256a0; }
+
+.le { color: var(--rd); font-size: 12px; margin-top: -8px; margin-bottom: 12px; display: none; }
+
+#AP { display: none; }
+
+.hdr { background: linear-gradient(135deg, rgb(15, 23, 42), rgba(30, 27, 75, 0.6)); border-bottom: 1px solid var(--bd); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+
+.hdr h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
+
+.hdr h1 span { font-weight: 400; color: var(--t2); font-size: 12px; }
+
+.hs { display: flex; gap: 14px; font-size: 11px; color: var(--t2); margin-top: 2px; flex-wrap: wrap; }
+
+.hs b { font-family: var(--mn); }
+
+.ha { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.b { padding: 6px 12px; border-radius: 7px; border: none; font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.15s; white-space: nowrap; }
+
+.b:hover { filter: brightness(1.2); }
+
+.bg { background: rgba(34, 197, 94, 0.12); color: var(--gn); }
+
+.ba { background: rgba(99, 102, 241, 0.12); color: var(--a2); }
+
+.br { background: rgba(239, 68, 68, 0.12); color: var(--rd); }
+
+.bo { background: rgba(255, 255, 255, 0.05); color: var(--t2); }
+
+.tb { padding: 8px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bd); gap: 8px; flex-wrap: wrap; }
+
+.nt { display: flex; gap: 2px; background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 2px; }
+
+.ntb { padding: 6px 16px; border-radius: 6px; border: none; background: none; color: var(--t3); font-size: 12px; font-weight: 500; cursor: pointer; transition: 0.15s; }
+
+.ntb.a { background: rgba(99, 102, 241, 0.15); color: var(--a2); font-weight: 600; }
+
+.si { background: var(--s2); border: 1px solid var(--bd); border-radius: 7px; padding: 6px 10px; color: var(--tx); font-size: 12px; outline: none; width: 180px; }
+
+.si:focus { border-color: var(--ac); }
+
+.db { display: flex; gap: 5px; padding: 8px 20px; overflow-x: auto; border-bottom: 1px solid var(--bd); }
+
+.di { background: var(--sf); border: 1px solid var(--bd); border-radius: 7px; padding: 6px 12px; flex: 0 0 auto; }
+
+.di .dl { font-size: 8px; color: var(--t3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+
+.di .dv { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
+
+.di .dv b { font-family: var(--mn); font-size: 12px; font-weight: 700; }
+
+.di .dv span { font-size: 9px; color: var(--t3); }
+
+.dt { height: 3px; background: rgba(255, 255, 255, 0.05); border-radius: 2px; overflow: hidden; }
+
+.df { height: 100%; border-radius: 2px; transition: width 0.5s; }
+
+.ct { padding: 0px 20px 20px; display: flex; gap: 14px; margin-top: 12px; }
+
+.mn { flex: 1 1 0%; min-width: 0px; overflow: auto; max-height: calc(-210px + 100vh); }
+
+.pn { width: 380px; flex-shrink: 0; background: var(--sf); border: 1px solid var(--bd); border-radius: 10px; padding: 16px; max-height: calc(-200px + 100vh); overflow-y: auto; animation: 0.2s ease 0s 1 normal none running si; }
+
+@keyframes si { 
+  0% { opacity: 0; transform: translateX(10px); }
+  100% { opacity: 1; transform: translateX(0px); }
+}
+
+.xtbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+
+.xtbl th { position: sticky; top: 0px; background: var(--bg); border-bottom: 2px solid var(--bd); padding: 0px; z-index: 5; text-align: left; font-weight: 600; font-size: 11px; color: var(--t2); user-select: none; }
+
+.xtbl th .thw { padding: 7px 10px; display: flex; align-items: center; gap: 4px; cursor: pointer; white-space: nowrap; transition: color 0.15s; }
+
+.xtbl th .thw:hover { color: var(--tx); }
+
+.xtbl th .arr { font-size: 9px; opacity: 0.4; transition: opacity 0.15s; }
+
+.xtbl th.sorted .arr { opacity: 1; color: var(--a2); }
+
+.xtbl th .flt { display: block; padding: 2px 10px 5px; border-top: 1px solid var(--bd); }
+
+.xtbl th .flt input, .xtbl th .flt select { width: 100%; padding: 3px 6px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--bd); border-radius: 4px; color: var(--tx); font-size: 10px; outline: none; }
+
+.xtbl th .flt input:focus, .xtbl th .flt select:focus { border-color: var(--ac); }
+
+.xtbl td { padding: 7px 10px; border-bottom: 1px solid var(--bd); vertical-align: middle; }
+
+.xtbl tbody tr { transition: background 0.1s; cursor: pointer; }
+
+.xtbl tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+.xtbl tbody tr.sel { background: rgba(99, 102, 241, 0.06); }
+
+.xtbl .num { font-family: var(--mn); text-align: right; font-weight: 500; }
+
+.xtbl .ctr { text-align: center; }
+
+.efb { display: inline-flex; align-items: center; gap: 5px; }
+
+.efbr { width: 60px; height: 4px; background: rgba(255, 255, 255, 0.06); border-radius: 2px; overflow: hidden; position: relative; }
+
+.efbr .f { height: 100%; border-radius: 2px; transition: width 0.3s; }
+
+.efbr .m { position: absolute; top: 0px; bottom: 0px; width: 1px; background: rgba(255, 255, 255, 0.15); }
+
+.epct { font-family: var(--mn); font-size: 11px; font-weight: 600; min-width: 32px; text-align: right; }
+
+.sb { font-size: 8px; font-weight: 700; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
+
+.tchip { background: rgba(255, 255, 255, 0.06); padding: 1px 5px; border-radius: 3px; font-size: 10px; color: var(--t2); display: inline-block; margin: 0px 1px 1px 0px; }
+
+.ph { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+
+.pt { font-size: 16px; font-weight: 700; }
+
+.ps2 { font-size: 11px; color: var(--t2); margin-top: 2px; }
+
+.psc { font-size: 9px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: 0.06em; margin: 12px 0px 5px; }
+
+.pr2 { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: rgba(255, 255, 255, 0.03); border-radius: 5px; margin-bottom: 2px; font-size: 11px; }
+
+.rb { background: none; border: none; color: var(--rd); cursor: pointer; font-size: 13px; padding: 1px; }
+
+.ac { display: flex; flex-wrap: wrap; gap: 3px; max-height: 120px; overflow-y: auto; }
+
+.ach { background: rgba(99, 102, 241, 0.06); border: 1px solid rgba(99, 102, 241, 0.12); color: rgb(199, 210, 254); padding: 2px 7px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 500; }
+
+.ach:hover { background: rgba(99, 102, 241, 0.15); }
+
+.pi { width: 48px; background: var(--s2); border: 1px solid var(--bd); border-radius: 3px; color: var(--tx); font-family: var(--mn); font-size: 10px; padding: 2px 3px; text-align: center; outline: none; }
+
+.pi:focus { border-color: var(--ac); }
+
+.rr { display: flex; align-items: center; gap: 5px; font-size: 10px; margin-bottom: 2px; }
+
+.rl { width: 85px; text-align: right; color: var(--t3); font-size: 9px; }
+
+.rt { flex: 1 1 0%; height: 4px; background: rgba(255, 255, 255, 0.04); border-radius: 2px; overflow: hidden; }
+
+.rfl { height: 100%; border-radius: 2px; opacity: 0.7; }
+
+.rv { font-family: var(--mn); font-size: 10px; color: var(--t2); min-width: 30px; text-align: right; }
+
+.mw { overflow-x: auto; }
+
+.mw table { border-collapse: separate; border-spacing: 1px; font-size: 10px; width: 100%; }
+
+.mw table thead th { position: sticky; top: 0px; z-index: 4; }
+
+.mw th { padding: 3px; font-weight: 600; }
+
+.mw td { padding: 1px; text-align: center; cursor: pointer; }
+
+.mx { width: 34px; height: 20px; border-radius: 3px; margin: 0px auto; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 600; transition: 0.12s; user-select: none; }
+
+.mx.on { background: rgba(99, 102, 241, 0.4); border: 1px solid rgba(129, 140, 248, 0.6); color: rgb(255, 255, 255); cursor: pointer; }
+
+.mx.off { background: rgba(255, 255, 255, 0.016); border: 1px solid rgba(255, 255, 255, 0.04); color: rgba(255, 255, 255, 0.12); cursor: pointer; }
+
+.mx.off:hover { background: rgba(99, 102, 241, 0.08); border-color: rgba(99, 102, 241, 0.25); }
+
+.mxi { width: 38px; background: var(--s2); border: 1px solid var(--ac); border-radius: 3px; color: var(--tx); font-family: var(--mn); font-size: 9px; padding: 2px; text-align: center; outline: none; display: block; margin: 0px auto; }
+
+.sc { position: sticky; left: 0px; background: var(--bg); z-index: 2; }
+
+.sh { position: sticky; left: 0px; background: var(--bg); z-index: 3; }
+
+.vh { writing-mode: vertical-lr; text-orientation: mixed; transform: rotate(180deg); height: 85px; min-width: 30px; max-width: 30px; text-align: left; font-size: 9px; }
+
+.mo { position: fixed; inset: 0px; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 100; animation: 0.15s ease 0s 1 normal none running fi; }
+
+@keyframes fi { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.md { background: var(--sf); border: 1px solid var(--bd); border-radius: 12px; padding: 24px; width: 420px; max-height: 80vh; overflow-y: auto; animation: 0.2s ease 0s 1 normal none running fu; }
+
+.md h2 { font-size: 17px; font-weight: 700; margin-bottom: 14px; }
+
+.md label { display: block; font-size: 11px; color: var(--t2); margin-bottom: 3px; margin-top: 10px; }
+
+.md input, .md select { width: 100%; padding: 8px 10px; background: var(--s2); border: 1px solid var(--bd); border-radius: 7px; color: var(--tx); font-size: 12px; outline: none; }
+
+.md input:focus, .md select:focus { border-color: var(--ac); }
+
+.md select option { background: var(--s2); }
+
+.ma { display: flex; justify-content: flex-end; gap: 6px; margin-top: 16px; }
+
+@media (max-width: 900px) {
+  .ct { flex-direction: column; }
+  .pn { width: 100%; max-height: none; }
+}
+
+.asgn-wrap { display: flex; gap: 14px; flex: 1 1 0%; min-height: 0px; }
+
+.asgn-list { width: 300px; flex-shrink: 0; overflow-y: auto; max-height: calc(-240px + 100vh); }
+
+.asgn-main { flex: 1 1 0%; min-width: 0px; overflow-y: auto; max-height: calc(-240px + 100vh); }
+
+.ap { padding: 8px 12px; border: 1px solid var(--bd); border-radius: 7px; margin-bottom: 3px; cursor: pointer; transition: 0.15s; background: var(--sf); }
+
+.ap:hover { border-color: rgba(255, 255, 255, 0.1); }
+
+.ap.sel { background: rgba(99, 102, 241, 0.06); border-color: var(--bh); }
+
+.ap .an { font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.ap .ac2 { font-size: 10px; color: var(--t3); }
+
+.ap .aroles { display: flex; gap: 3px; margin-top: 3px; flex-wrap: wrap; }
+
+.ap .ar { font-size: 8px; padding: 1px 5px; border-radius: 3px; font-weight: 600; }
+
+.ar.covered { background: rgba(34, 197, 94, 0.1); color: var(--gn); }
+
+.ar.uncovered { background: rgba(239, 68, 68, 0.1); color: var(--rd); }
+
+.ar.partial { background: rgba(234, 179, 8, 0.1); color: var(--yl); }
+
+.role-sec { margin-bottom: 16px; }
+
+.role-hdr { font-size: 11px; font-weight: 700; padding: 6px 0px 4px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bd); margin-bottom: 6px; }
+
+.cand { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 5px; margin-bottom: 2px; font-size: 11px; transition: 0.1s; cursor: pointer; }
+
+.cand:hover { background: rgba(255, 255, 255, 0.03); }
+
+.cand .ck { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--bd); display: flex; align-items: center; justify-content: center; font-size: 10px; transition: 0.15s; flex-shrink: 0; }
+
+.cand .ck.on { background: var(--ac); border-color: var(--ac); color: rgb(255, 255, 255); }
+
+.cand .cn2 { flex: 1 1 0%; min-width: 0px; }
+
+.cand .cn2 b { font-weight: 600; }
+
+.cand .cn2 span { font-size: 9px; color: var(--t3); }
+
+.cand .cavail { font-family: var(--mn); font-size: 10px; min-width: 40px; text-align: right; }
+
+.rev-card { background: var(--sf); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; margin-bottom: 6px; }
+
+.rev-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+
+.rev-bar { height: 5px; background: rgba(255, 255, 255, 0.04); border-radius: 3px; overflow: hidden; margin-bottom: 8px; position: relative; }
+
+.rev-bar .f { height: 100%; border-radius: 3px; }
+
+.rev-bar .m { position: absolute; top: 0px; bottom: 0px; width: 1px; background: rgba(255, 255, 255, 0.15); }
+
+.rev-row { display: flex; align-items: center; gap: 6px; padding: 3px 0px; font-size: 11px; }
+
+.rev-row .rng { flex: 1 1 0%; appearance: none; height: 4px; background: rgba(255, 255, 255, 0.08); border-radius: 2px; outline: none; cursor: pointer; }
+
+.rev-row .rng::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--ac); cursor: pointer; }
+
+.abar { padding: 10px 16px; background: rgba(99, 102, 241, 0.06); border: 1px solid rgba(99, 102, 241, 0.12); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+
+@media (max-width: 900px) {
+  .asgn-wrap { flex-direction: column; }
+  .asgn-list { width: 100%; max-height: 200px; }
+}#LS{background:#f5f4f0!important}.login-card{background:#fff;border:1px solid #e5e5e0;border-radius:16px;padding:40px 48px;width:380px;text-align:center;box-shadow:0 2px 16px rgba(0,0,0,.06);animation:fu .6s ease}.login-jk{font-size:11px;font-weight:800;color:#185FA5;letter-spacing:.08em;margin-bottom:14px;display:block}.login-logo{font-size:20px;font-weight:700;margin-bottom:8px;color:#1a1a1a}.login-subtitle{font-size:13px;color:#6e6e6e;margin-bottom:32px}.login-field{text-align:left;margin-bottom:12px}.login-field label{display:block;font-size:12px;color:#595959;margin-bottom:4px}.login-field input{width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;color:#1a1a1a;background:#fff}.login-field input:focus{outline:none;border-color:#185fa5}.login-submit{width:100%;margin-top:6px;padding:10px;border-radius:8px;background:#185FA5;color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer}.login-submit:hover{background:#1256a0}.login-footer{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:14px;font-size:12px}.login-footer a{color:#185fa5;text-decoration:none;cursor:pointer}.login-footer a:hover{text-decoration:underline}.login-footer .dot{color:#767676}.login-error{background:#fff3f3;border:1px solid #f5c6c6;border-radius:8px;padding:10px 14px;font-size:13px;color:#c0392b;margin-bottom:16px;text-align:left}.login-info{background:#effbf3;border:1px solid #c6f0d2;border-radius:8px;padding:10px 14px;font-size:13px;color:#1e7a3a;margin-bottom:16px;text-align:left}.login-hint{font-size:11px;color:#6e6e6e;margin:-4px 0 8px;text-align:left}.login-note{font-size:11px;color:#767676;margin-top:16px}</style>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEO Staffing Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div id="LS"></div><div id="AP"></div><div id="mr"></div>
+<script>
+// Firebase init
+const fbApp=firebase.initializeApp({
+  apiKey:"AIzaSyDOA0RoExa33VWVx3lXNcWBBZU1GPtQSqE",
+  authDomain:"seo-staffing-hub.firebaseapp.com",
+  databaseURL:"https://seo-staffing-hub-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"seo-staffing-hub",
+  storageBucket:"seo-staffing-hub.firebasestorage.app",
+  messagingSenderId:"1047283209590",
+  appId:"1:1047283209590:web:d5ce3f23ea794765861657"
+});
+const db=firebase.database();
+const dbRef=db.ref('staffing/v1');
+let _fbReady=false,_saving=false;
+
+
+// New HR ranks grouped by Price Level
+const PL={
+  4:["Director","Senior Expert Lead","Senior Manager"],
+  3:["Manager","Expert Lead"],
+  2:["Associate Manager","Senior Consultant","Senior Associate"],
+  1:["Associate","Consultant","Junior Associate","Junior Consultant","Analyst"]
+};
+const RH=["Director","Senior Expert Lead","Senior Manager","Manager","Expert Lead","Associate Manager","Senior Consultant","Senior Associate","Associate","Consultant","Junior Associate","Junior Consultant","Analyst"];
+const PLnames=["Price Level 4","Price Level 3","Price Level 2","Price Level 1"];
+const PLkeys=["PL4","PL3","PL2","PL1"];
+// Rank → PL mapping
+function rPL(role){for(const[pl,roles]of Object.entries(PL))if(roles.includes(role))return+pl;return 1}
+const RC={Director:"#dc2626","Senior Expert Lead":"#f87171","Senior Manager":"#818cf8",Manager:"#60a5fa","Expert Lead":"#38bdf8","Associate Manager":"#34d399","Senior Consultant":"#fbbf24","Senior Associate":"#a3e635",Associate:"#a78bfa",Consultant:"#c084fc","Junior Associate":"#f472b6","Junior Consultant":"#fb923c",Analyst:"#94a3b8"};
+const PLC={4:"#f87171",3:"#60a5fa",2:"#34d399",1:"#a78bfa"};
+const IM=[
+{id:"m1",name:"Chiara Fossati",role:"Associate Manager",cap:220},{id:"m2",name:"Laura Ireland",role:"Senior Manager",cap:220},
+{id:"m3",name:"Andrea Carlucci",role:"Associate",cap:220},{id:"m4",name:"Ella Chesnaye",role:"Consultant",cap:220},
+{id:"m5",name:"Valentina Franco",role:"Consultant",cap:220},{id:"m6",name:"Valentina Nicoli",role:"Associate",cap:220},
+{id:"m7",name:"Ilaria Carlini",role:"Senior Consultant",cap:220},{id:"m8",name:"Diana Cimino",role:"Senior Associate",cap:220},
+{id:"m9",name:"Vittorio Caposiena",role:"Senior Expert Lead",cap:220},{id:"m10",name:"Riccardo Trost",role:"Manager",cap:220},
+{id:"m11",name:"Yuri Ramirez",role:"Associate",cap:220},{id:"m12",name:"Rossana Venturella",role:"Senior Consultant",cap:220},
+{id:"m13",name:"Giulia Pignatiello",role:"Consultant",cap:220},{id:"m14",name:"Gabriella La Fata",role:"Associate",cap:220},
+{id:"m15",name:"Gabriele Mereu Milia",role:"Analyst",cap:220},{id:"m16",name:"Diego Barberio",role:"Expert Lead",cap:220},
+{id:"m17",name:"Eliana Izzo",role:"Associate",cap:220},{id:"m18",name:"Federico Gennari Santori",role:"Senior Manager",cap:220},
+{id:"m19",name:"Sara Pianigiani",role:"Consultant",cap:220},{id:"m20",name:"Alessia Oggero",role:"Senior Consultant",cap:220},
+{id:"m21",name:"Alessandro Azzini",role:"Consultant",cap:220},{id:"m22",name:"Rebecca Yu",role:"Associate Manager",cap:220},
+{id:"m23",name:"Alessandro Corti",role:"Analyst",cap:220},{id:"m24",name:"Martina Posella",role:"Consultant",cap:220},
+{id:"m25",name:"Laura Marchetti",role:"Consultant",cap:220},{id:"m26",name:"Margherita Musmeci",role:"Analyst",cap:220},
+{id:"m27",name:"Laura Malloci",role:"Expert Lead",cap:220},{id:"m28",name:"Lisa Bencivenni",role:"Senior Associate",cap:220},
+{id:"m29",name:"[EXT] Simone Parodi",role:"Senior Consultant",cap:220},
+{id:"m30",name:"[EXT] Colombo Cristofalo",role:"Senior Consultant",cap:220},
+{id:"m31",name:"[EXT] Giulia Vallone",role:"Consultant",cap:220},
+{id:"m32",name:"[EXT] Maria Tedesco",role:"Senior Consultant",cap:220},
+{id:"m33",name:"[EXT] Stefania Chiaramoni",role:"Associate Manager",cap:220}];
+// daysByPL: {PL4:n, PL3:n, PL2:n, PL1:n}
+const _r=d=>({PL4:0,PL3:0,PL2:0,PL1:0,...d});
+const IPR=[
+["p1","502866","KEMPISKI - SEO","KEMPISKI","2025-04-01","2026-03-31",297,{PL4:40,PL3:74,PL2:58,PL1:125}],
+["p2","502352","LUNGARNO Multiservizio","LUNGARNO COLLECTION","2025-02-01","2026-01-31",40,{PL2:32,PL1:8}],
+["p3","504148","LUNGARNO New Website","LUNGARNO COLLECTION","2025-05-01","2026-03-15",35,{PL4:4,PL2:16,PL1:15}],
+["p4","506108","P&G SEO Corporate Italia","P&G","2025-07-01","2026-06-30",78,{PL2:18,PL1:60}],
+["p5","511952","P&G SEO GEO increase","P&G","2026-02-02","2026-06-30",3,{PL1:3}],
+["p6","484654","EXPLORA JOURNEYS SEO","EXPLORA JOURNEYS","2025-04-01","2026-03-31",264,{PL4:60,PL2:60,PL1:144}],
+["p7","509636","OVS SEO&SEA","OVS","2025-11-01","2026-04-30",12.5,{PL4:1.5,PL2:4,PL1:7}],
+["p8","482438","SWEP rollout ISP","ISP","2025-01-06","2026-02-28",585,{PL1:585}],
+["p9","510522","SWEP AMS SEO ISP","ISP","2026-01-01","2026-12-31",1004,{PL2:448,PL1:556}],
+["p10","501622","IL SOLE 24 ORE SEO","IL SOLE 24 ORE","2025-02-09","2026-02-08",138,{PL4:12,PL2:54,PL1:72}],
+["p11","511968","OVS COPY KT","OVS","2026-02-01","2026-04-30",35,{PL1:35}],
+["p12","502784","OVS Copy SemII","OVS","2025-08-01","2026-01-31",46,{PL1:46}],
+["p13","503991","GESSI SEO&Analytics","GESSI","2025-05-05","2026-05-31",60.5,{PL3:5,PL2:18.5,PL1:37}],
+["p14","507216","MSC Support New Website","MSC","2025-07-01","2026-06-30",180,{PL4:10,PL3:5,PL2:85,PL1:80}],
+["p15","510853","MSC Transcreation","MSC","2026-01-01","2026-12-31",124,{PL4:4,PL2:60,PL1:60}],
+["p16","507178","NAMED Redesign Specchiasol","NAMED","2025-10-01","2026-03-31",20,{PL2:4.5,PL1:15.5}],
+["p17","500500","ASTRAZENECA Social Media","ASTRAZENECA","2025-03-01","2026-02-28",10,{PL1:10}],
+["p18","504265","FRATELLI ROSSETTI Ecom","FRATELLI ROSSETTI","2025-06-01","2026-12-31",78,{PL2:16,PL1:62}],
+["p19","503573","KONICA MINOLTA Digital Mkt","KONICA MINOLTA","2025-05-01","2026-04-30",21.5,{PL4:1.5,PL2:10,PL1:10}],
+["p20","502423","BLUSERENA Website+SEO","BLUSERENA","2025-04-01","2026-03-31",14,{PL4:2,PL1:12}],
+["p21","501686","RICHARD GINORI Digital&Media","RICHARD GINORI","2025-03-01","2026-02-28",53,{PL3:6,PL2:24,PL1:23}],
+["p22","502355","ARSENALE DoD Launch","ARSENALE","2025-03-01","2026-02-02",20,{PL3:2,PL2:4,PL1:14}],
+["p23","503364","RESIDENCE HOTELS Restyling","RESIDENCE HOTELS","2025-04-01","2026-03-31",31,{PL2:11,PL1:20}],
+["p24","502994","BANCA CF+ Supporto Mkt","BANCA CF+","2025-03-01","2026-02-28",49,{PL4:2,PL3:4,PL2:18,PL1:25}],
+["p25","501903","MAYA CAPRICE Digital Mkt","CAPRICE","2025-02-22","2026-02-21",30,{PL1:30}],
+["p26","502138","BREITLING Tracking&Analytics","BREITLING","2025-04-01","2026-03-31",112.5,{PL3:6,PL2:74.5,PL1:32}],
+["p27","504060","BENETTON Media Analytics","BENETTON","2025-05-01","2028-12-31",335,{PL4:11,PL3:36,PL2:90,PL1:198}],
+["p28","510527","BENETTON RE-PLATFORMING","BENETTON","2025-12-15","2026-05-29",246,{PL4:17,PL2:77,PL1:152}],
+["p29","504866","DOMPÉ Website Refactoring","DOMPÉ","2025-05-19","2026-05-30",28,{PL4:2.5,PL2:5.5,PL1:20}],
+["p30","509275","FOND. DOMPÉ Website","DOMPÉ","2025-11-01","2026-07-31",28,{PL4:2.5,PL2:5.5,PL1:20}],
+["p31","506606","UNISALUTE Supporto SEO","UNIPOL","2025-09-01","2026-12-31",306,{PL4:20,PL2:26,PL1:260}],
+["p32","505921","CAP HOLDING Gara SEO","CAP HOLDING","2025-08-01","2026-07-30",86,{PL2:15,PL1:71}],
+["p33","508411","ZENITA Digital&Media","ZENITA","2025-10-01","2026-05-31",6,{PL2:2,PL1:4}],
+["p34","508618","DANJOHN SEO","DAN JOHN","2025-11-10","2026-02-16",24.5,{PL4:4.5,PL2:7,PL1:13}],
+["p35","508944","MOBILI FIVER Media&Digital","MOBILI FIVER","2025-11-17","2026-12-23",112.5,{PL3:15,PL2:18.5,PL1:79}],
+["p36","509162","MOBILI FIVER Replatforming","MOBILI FIVER","2025-11-17","2026-03-31",28,{PL2:12,PL1:16}],
+["p37","504659","MOVYON Piano Editoriale","MOVYON","2025-10-01","2026-12-31",3,{PL2:1,PL1:2}],
+["p38","508996","A2A Gara SEO","A2A","2026-01-01","2026-12-31",223,{PL4:23,PL3:25,PL2:75,PL1:100}],
+["p39","510667","B&B ITALIA FLOS Media","FLOS B&B ITALIA","2026-01-01","2026-12-31",60,{PL2:22,PL1:38}],
+["p40","506554","BRIDGESTONE SEO step2","BRIDGESTONE","2026-01-01","2026-03-31",75,{PL4:4,PL2:13,PL1:58}],
+["p41","510350","GNV Media SEO Analytics","GNV","2026-01-01","2026-12-31",220,{PL4:20,PL3:10,PL2:42,PL1:148}],
+["p42","510163","PRADA Licenze Kleecks","PRADA","2026-01-01","2026-12-31",0,{}],
+["p43","512424","PRADA Seo Services","PRADA","2026-01-12","2026-12-31",26,{PL3:8,PL2:18}],
+["p44","509944","PICTET Post Engagement","PICTET","2025-12-01","2026-12-31",.4,{PL1:.4}],
+["p45","509157","PICTET Attività Ongoing","PICTET","2026-01-01","2026-12-31",39.5,{PL1:39.5}],
+["p46","482119","CONAI Restyling Sito","CONAI","2024-10-01","2026-02-28",23,{PL3:3.5,PL2:10.5,PL1:9}],
+["p47","510739","BOGGI JCue SEO DA","BOGGI","2026-01-07","2026-12-31",119,{PL4:2,PL2:35,PL1:82}],
+["p48","510755","HOTEL DE ROME SEO","HOTEL DE ROME","2026-01-01","2026-12-31",72,{PL4:12,PL2:24,PL1:36}],
+["p49","510689","SCHOLL SEO Italia&Spagna","SCHOLL","2026-01-01","2026-12-31",126,{PL4:2,PL2:19,PL1:105}],
+["p50","510649","S.I.D.AL. ZONA CRM","S.I.D.AL.","2026-01-07","2026-12-22",50,{PL4:1.5,PL3:12,PL1:36.5}],
+["p51","508892","TEVA Attività Ongoing","TEVA","2025-12-09","2026-12-31",5.8,{PL1:5.8}],
+["p52","511297","PONZIO Digital Roadmap","PONZIO","2026-01-01","2026-10-31",15,{PL2:3,PL1:12}],
+["p53","510479","CLUB DEL SOLE Link Building","CLUB DEL SOLE","2026-01-01","2026-12-31",0,{}],
+["p54","510484","CLUB DEL SOLE Supporto SEO","CLUB DEL SOLE","2026-01-01","2026-12-31",156,{PL4:10,PL2:49,PL1:97}],
+["p55","511069","DIGITAL RENT Supporto Mkt","DIGITAL RENT","2026-01-07","2026-12-31",64,{PL2:9,PL1:55}],
+["p56","510502","SILVERSEA SEO","SILVERSEA","2026-01-01","2026-12-31",428,{PL4:18,PL3:24,PL2:144,PL1:242}],
+["p57","511705","ARISTON SEO Strategy","ARISTON","2026-01-01","2026-12-31",819,{PL4:22,PL3:18,PL2:264,PL1:515}],
+["p58","511421","REDA INDUSTRIES Digital","REDA INDUSTRIES","2026-01-07","2026-12-31",0,{}],
+["p59","511802","IREN SEO/CRO+Media","IREN","2026-01-01","2026-02-28",22.5,{PL4:.5,PL2:3.5,PL1:18.5}],
+["p60","511635","SAINT GOBAIN Weber SEO","SAINT GOBAIN","2026-01-08","2026-12-31",43,{PL3:9,PL1:34}],
+["p61","511697","SAINT GOBAIN Glass SEO","SAINT GOBAIN","2026-01-08","2026-12-31",10,{PL3:2,PL1:8}],
+["p62","511637","FASTWEB SEO Assessment","FASTWEB","2026-01-01","2026-03-31",37,{PL4:4,PL2:9,PL1:24}],
+["p63","511698","LOGLI SEO","LOGLI","2026-01-07","2026-12-31",10,{PL3:2,PL1:8}],
+["nb1","—","Internal / Management","NON BILLABLE","2026-01-01","2026-12-31",0,{},true],
+["nb2","—","Training / Formazione","NON BILLABLE","2026-01-01","2026-12-31",0,{},true],
+["nb3","—","New Business / Pitch","NON BILLABLE","2026-01-01","2026-12-31",0,{},true],
+["nb4","—","Ferie / Permessi / Malattia","NON BILLABLE","2026-01-01","2026-12-31",0,{},true]];
+const IP=IPR.map(r=>({id:r[0],jobId:r[1],name:r[2],client:r[3],startDate:r[4],endDate:r[5],totalDays:r[6],daysByRole:_r(r[7]),asgn:{},nb:!!r[8]}));
+
+let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),vw:"team",q:"",sm:null,sp:null,
+  tSort:{col:"ef",dir:-1},tFlt:{name:"",role:"",status:""},
+  pSort:{col:"totalDays",dir:-1},pFlt:{name:"",client:"",status:""},
+  mxSort:{col:"totalDays",dir:-1},mxFlt:{name:"",client:""},mxMemSort:"name",
+  aP:null,aM:null,aStep:"assign",aMode:"project",aQ:"",
+  _ec:null};
+function ld(cb){
+  dbRef.once('value').then(snap=>{
+    const d=snap.val();
+    if(d?.m&&d?.p){S.m=d.m;S.p=d.p}
+    _fbReady=true;
+    if(cb)cb();
+  }).catch(e=>{
+    console.error('Firebase load error:',e);
+    // Fallback to localStorage
+    try{const d=JSON.parse(localStorage.getItem("sfv11"));if(d?.m&&d?.p){S.m=d.m;S.p=d.p}}catch(ex){}
+    _fbReady=true;
+    if(cb)cb();
+  });
+  // Listen for realtime changes from other users
+  dbRef.on('value',snap=>{
+    if(_saving)return;
+    const d=snap.val();
+    if(d?.m&&d?.p){S.m=d.m;S.p=d.p;R()}
+  });
+}
+function sv(){
+  _saving=true;
+  dbRef.set({m:S.m,p:S.p}).then(()=>{_saving=false}).catch(e=>{
+    console.error('Firebase save error:',e);
+    _saving=false;
+    // Fallback to localStorage
+    try{localStorage.setItem("sfv11",JSON.stringify({m:S.m,p:S.p}))}catch(ex){}
+  });
+}
+function mEf(mid){let t=0;S.p.forEach(p=>{t+=(p.asgn?.[mid]||0)});return Math.round(t*10)/10}
+function mEfBill(mid){let t=0;S.p.forEach(p=>{if(!p.nb)t+=(p.asgn?.[mid]||0)});return Math.round(t*10)/10}
+function mEfNB(mid){let t=0;S.p.forEach(p=>{if(p.nb)t+=(p.asgn?.[mid]||0)});return Math.round(t*10)/10}
+function mDays(mid){const m=S.m.find(x=>x.id===mid);return m?Math.round(mEf(mid)/100*m.cap*10)/10:0}
+function pAsg(pid){const p=S.p.find(x=>x.id===pid);if(!p?.asgn)return[];return Object.entries(p.asgn).filter(([_,v])=>v>0).map(([mid,pct])=>({mid,pct,m:S.m.find(m=>m.id===mid)})).filter(x=>x.m)}
+function pAlD(pid){return pAsg(pid).reduce((t,a)=>t+a.pct/100*(a.m.cap||220),0)}
+function sc(p){return p>100?"#dc2626":p>90?"#ef4444":p>75?"#f97316":p>50?"#eab308":"#22c55e"}
+function sl(p){return p>100?"SOVRACCARICO":p>90?"CRITICO":p>75?"ALTO":p>50?"MEDIO":"DISPONIBILE"}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+// === Firebase Auth (identical model to SEO Quotation Hub) ===
+const _auth=firebase.auth();
+const _fs=firebase.firestore();
+const BOOTSTRAP_ADMINS=['federico.gennari@jakala.com'];
+let _user=null,_profile=null,_liMode='signin';
+
+function displayNameFromEmail(email){
+  const local=(email||'').split('@')[0]||'';
+  if(!local)return email||'';
+  return local.split(/[._-]+/).filter(Boolean).map(p=>p.charAt(0).toUpperCase()+p.slice(1).toLowerCase()).join(' ');
+}
+function liFriendly(err){
+  const code=err&&err.code||'';
+  const map={'auth/invalid-email':'Invalid email address.','auth/invalid-credential':'Incorrect email or password.','auth/user-not-found':'No account found for this email.','auth/wrong-password':'Incorrect password.','auth/email-already-in-use':'An account already exists for this email.','auth/weak-password':'Password too weak (min. 8 characters).','auth/too-many-requests':'Too many attempts. Try again later.','auth/network-request-failed':'Network error. Check your connection.'};
+  return map[code]||(err&&err.message)||'Something went wrong. Please try again.';
+}
+function liSetMode(m){_liMode=m;liRender('','');}
+function liRender(err,info){
+  const isReset=_liMode==='reset',isSignup=_liMode==='signup';
+  const submitLabel=_liMode==='signin'?'Sign in':isSignup?'Create account':'Send reset email';
+  const footer=_liMode==='signin'
+    ?'<a onclick="liSetMode(\'reset\')">Forgot password?</a><span class="dot">.</span><a onclick="liSetMode(\'signup\')">Create account</a>'
+    :'<a onclick="liSetMode(\'signin\')">Back to sign in</a>';
+  const pwField=isReset?'':'<div class="login-field"><label>Password'+(isSignup?' (min. 8 chars)':'')+'</label><input id="li-password" type="password" autocomplete="'+(isSignup?'new-password':'current-password')+'"></div>';
+  const hint=isSignup?'<p class="login-hint">Your display name will be set from your email address.</p>':'';
+  const LS=document.getElementById('LS');
+  LS.style.display='flex';
+  LS.innerHTML='<div class="login-card">'
+    +'<span class="login-jk">JAKALA</span>'
+    +'<div class="login-logo">SEO Staffing Hub</div>'
+    +'<p class="login-subtitle">SEO &amp; GEO team, internal use only</p>'
+    +(err?'<div class="login-error">'+err+'</div>':'')
+    +(info?'<div class="login-info">'+info+'</div>':'')
+    +'<form id="li-form" autocomplete="on">'
+      +'<div class="login-field"><label>Email</label><input id="li-email" type="email" placeholder="name'+(isSignup?'.surname':'')+'@jakala.com" autocomplete="email"></div>'
+      +pwField+hint
+      +'<button type="submit" class="login-submit">'+submitLabel+'</button>'
+    +'</form>'
+    +'<div class="login-footer">'+footer+'</div>'
+    +'<p class="login-note">Access restricted to @jakala.com accounts.</p>'
+  +'</div>';
+  document.getElementById('li-form').addEventListener('submit',liSubmit);
+}
+async function liSubmit(e){
+  e.preventDefault();
+  const email=((document.getElementById('li-email')||{}).value||'').trim();
+  const password=(document.getElementById('li-password')||{}).value||'';
+  try{
+    if(!email.toLowerCase().endsWith('@jakala.com'))throw new Error('Only @jakala.com addresses are allowed.');
+    if(_liMode==='signin'){await _auth.signInWithEmailAndPassword(email,password);}
+    else if(_liMode==='signup'){if(password.length<8)throw new Error('Password must be at least 8 characters.');await _auth.createUserWithEmailAndPassword(email,password);}
+    else if(_liMode==='reset'){await _auth.sendPasswordResetEmail(email);liRender('','Reset email sent. Check your inbox.');}
+  }catch(err){liRender(liFriendly(err),'');}
+}
+function fbSignOut(){_auth.signOut();}
+
+_auth.onAuthStateChanged(async function(fu){
+  if(!fu){_user=null;_profile=null;document.getElementById('AP').style.display='none';liRender('','');return;}
+  if(!fu.email||!fu.email.toLowerCase().endsWith('@jakala.com')){await _auth.signOut();liRender('Only @jakala.com addresses are allowed.','');return;}
+  try{
+    const ref=_fs.collection('users').doc(fu.uid);
+    const snap=await ref.get();
+    const isBoot=BOOTSTRAP_ADMINS.indexOf(fu.email.toLowerCase())>=0;
+    const autoName=displayNameFromEmail(fu.email);
+    const TS=firebase.firestore.FieldValue.serverTimestamp;
+    if(!snap.exists){
+      const profile={email:fu.email,displayName:autoName,role:isBoot?'admin':'member',active:true,createdAt:TS(),updatedAt:TS()};
+      await ref.set(profile);_profile=profile;
+    }else{
+      const data=snap.data();
+      if(data.active===false){await _auth.signOut();liRender('Your account has been disabled. Contact an administrator.','');return;}
+      const updates={};
+      if(isBoot&&data.role!=='admin')updates.role='admin';
+      if(!data.displayName||data.displayName===data.email)updates.displayName=autoName;
+      if(Object.keys(updates).length){updates.updatedAt=TS();await ref.set(updates,{merge:true});}
+      _profile=Object.assign({},data,updates);
+    }
+  }catch(ex){console.error('Profile load error:',ex);_profile={email:fu.email,displayName:displayNameFromEmail(fu.email),role:'member'};}
+  _user=fu;
+  document.getElementById('LS').style.display='none';
+  document.getElementById('AP').style.display='block';
+  document.getElementById('AP').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:80vh;color:var(--t2);font-size:16px">Caricamento dati...</div>';
+  ld(function(){R();});
+});
+liRender('','');
+
+// Sort helper
+function thH(tab,col){return`onclick="doSort('${tab}','${col}')"`}
+function arrI(tab,col){const s=tab==='t'?S.tSort:tab==='p'?S.pSort:S.mxSort;return s.col===col?`<span class="arr">${s.dir>0?'▲':'▼'}</span>`:`<span class="arr">⇅</span>`}
+function doSort(tab,col){const s=tab==='t'?S.tSort:tab==='p'?S.pSort:S.mxSort;if(s.col===col)s.dir*=-1;else{s.col=col;s.dir=-1}R()}
+
+function R(){
+const ms=S.m,ps=S.p;
+const avgE=ms.length?ms.reduce((a,m)=>a+mEf(m.id),0)/ms.length:0;
+const avgB=ms.length?ms.reduce((a,m)=>a+mEfBill(m.id),0)/ms.length:0;
+const dem={},sup={};PLkeys.forEach(k=>{dem[k]=0;sup[k]=0});ps.forEach(p=>PLkeys.forEach(k=>dem[k]+=(p.daysByRole[k]||0)));ms.forEach(m=>{const pk='PL'+rPL(m.role);if(sup[pk]!==undefined)sup[pk]+=m.cap});
+
+var _uHtml=_user?('<div style="display:flex;align-items:center;gap:8px">'+'<span style="font-size:11px;color:var(--t2)">'+((_profile&&_profile.displayName)||_user.email)+'</span>'+'<button class="b bo" onclick="fbSignOut()" style="font-size:10px;padding:4px 8px">Esci</button></div>'):'';
+let h=`<div class="hdr"><div><h1><span style="color:var(--ac);font-weight:800;letter-spacing:-.02em">JAKALA</span> <span style="color:var(--t2);font-weight:400;font-size:13px">Staffing Hub</span></h1>
+<div class="hs"><span>${ms.length} persone</span><span>·</span><span>${ps.length} progetti</span><span>·</span>
+<span>Utilization rate: <b style="color:${sc(avgB)}">${avgB.toFixed(0)}%</b></span><span>·</span>
+<span>Effort tot. medio: <b style="color:${sc(avgE)}">${avgE.toFixed(0)}%</b></span><span>·</span>
+<span>GG PQ: <b style="color:var(--a2)">${ps.reduce((a,p)=>a+p.totalDays,0).toLocaleString('it')}</b></span></div>
+</div><div class="ha">${_uHtml}<button class="b bo" onclick="rst()">↺ Reset</button></div></div>
+<div class="db">${PLkeys.filter(k=>dem[k]>0||sup[k]>0).map(k=>{const p=sup[k]>0?(dem[k]/sup[k])*100:dem[k]>0?999:0;const n=k.replace('PL','Price Level ');return`<div class="di"><div class="dl">${n}</div><div class="dv"><b style="color:${sc(p)}">${dem[k].toFixed(0)}d</b><span>/ ${sup[k]}d</span></div><div class="dt"><div class="df" style="width:${Math.min(p/1.2,100)}%;background:${sc(p)}"></div></div></div>`}).join('')}</div>
+<div class="tb"><div class="nt">${[["team","👥 Team"],["projects","📁 Progetti"],["matrix","⊞ Matrice"],["assign","⚡ Assegna"]].map(([k,l])=>`<button class="ntb${S.vw===k?' a':''}" onclick="sw('${k}')">${l}</button>`).join('')}</div>
+<input class="si" placeholder="Cerca globale..." value="${esc(S.q)}" oninput="S.q=this.value;R()">
+</div><div class="ct">`;
+
+// ══════════ TEAM TABLE ══════════
+if(S.vw==='team'){
+let fm=ms.map(m=>{const ef=mEf(m.id),eb=mEfBill(m.id),enb=mEfNB(m.id),d=mDays(m.id),pc=ps.filter(p=>p.asgn?.[m.id]>0&&!p.nb).length;return{...m,ef,eb,enb,d,pc,status:sl(ef)}});
+// Filters
+const tf=S.tFlt;
+if(tf.name){const t=tf.name.toLowerCase();fm=fm.filter(m=>m.name.toLowerCase().includes(t))}
+if(tf.role&&tf.role!=='')fm=fm.filter(m=>m.role===tf.role);
+if(tf.status&&tf.status!=='')fm=fm.filter(m=>m.status===tf.status);
+if(S.q){const t=S.q.toLowerCase();fm=fm.filter(m=>m.name.toLowerCase().includes(t)||m.role.toLowerCase().includes(t))}
+// Sort
+const ts=S.tSort;const cmp=(a,b)=>{let va,vb;
+if(ts.col==='name'){va=a.name;vb=b.name;return ts.dir*(va.localeCompare(vb))}
+if(ts.col==='role'){va=RH.indexOf(a.role);vb=RH.indexOf(b.role);return ts.dir*(va-vb)}
+if(ts.col==='cap'){va=a.cap;vb=b.cap}else if(ts.col==='ef'){va=a.ef;vb=b.ef}else if(ts.col==='eb'){va=a.eb;vb=b.eb}else if(ts.col==='enb'){va=a.enb;vb=b.enb}else if(ts.col==='d'){va=a.d;vb=b.d}else if(ts.col==='pc'){va=a.pc;vb=b.pc}else if(ts.col==='avail'){va=100-a.ef;vb=100-b.ef}else{va=a.ef;vb=b.ef}
+return ts.dir*((va||0)-(vb||0))};
+fm.sort(cmp);
+
+const roles=[...new Set(ms.map(m=>m.role))];
+const statuses=["DISPONIBILE","MEDIO","ALTO","CRITICO","SOVRACCARICO"];
+h+=`<div style="flex:1;min-width:0;display:flex;flex-direction:column"><div style="display:flex;justify-content:flex-end;margin-bottom:6px;flex-shrink:0"><button class="b bg" onclick="amM()">+ Persona</button></div><div class="mn"><table class="xtbl"><thead>
+<tr>
+<th${ts.col==='name'?' class="sorted"':''}><div class="thw" ${thH('t','name')}>Nome ${arrI('t','name')}</div><div class="flt"><input placeholder="Filtra..." value="${esc(tf.name)}" oninput="S.tFlt.name=this.value;R()" onclick="event.stopPropagation()"></div></th>
+<th${ts.col==='role'?' class="sorted"':''}><div class="thw" ${thH('t','role')}>Ruolo ${arrI('t','role')}</div><div class="flt"><select onchange="S.tFlt.role=this.value;R()" onclick="event.stopPropagation()"><option value="">Tutti</option>${roles.map(r=>`<option value="${esc(r)}"${tf.role===r?' selected':''}>${esc(r)}</option>`).join('')}</select></div></th>
+<th${ts.col==='ef'?' class="sorted"':''}><div class="thw" ${thH('t','ef')}>Effort Tot. ${arrI('t','ef')}</div><div class="flt"><select onchange="S.tFlt.status=this.value;R()" onclick="event.stopPropagation()"><option value="">Tutti</option>${statuses.map(s=>`<option value="${s}"${tf.status===s?' selected':''}>${s}</option>`).join('')}</select></div></th>
+<th${ts.col==='eb'?' class="sorted"':''}><div class="thw" ${thH('t','eb')}>Billable ${arrI('t','eb')}</div></th>
+<th${ts.col==='enb'?' class="sorted"':''}><div class="thw" ${thH('t','enb')}>Non Bill. ${arrI('t','enb')}</div></th>
+<th${ts.col==='d'?' class="sorted"':''}><div class="thw" ${thH('t','d')}>GG Alloc. ${arrI('t','d')}</div></th>
+<th${ts.col==='avail'?' class="sorted"':''}><div class="thw" ${thH('t','avail')}>Disponib. ${arrI('t','avail')}</div></th>
+<th${ts.col==='pc'?' class="sorted"':''}><div class="thw" ${thH('t','pc')}>Progetti ${arrI('t','pc')}</div></th>
+<th>Stato</th>
+</tr></thead><tbody>`;
+fm.forEach(m=>{
+const c=sc(m.ef),av=100-m.ef;
+h+=`<tr class="${S.sm===m.id?'sel':''}" onclick="selM('${m.id}')">
+<td style="font-weight:600">${esc(m.name)}</td>
+<td><span style="color:${RC[m.role]||'#999'};font-size:11px">${m.role}</span></td>
+<td><div class="efb"><span class="epct" style="color:${c}">${m.ef.toFixed(0)}%</span><div class="efbr"><div class="f" style="width:${Math.min(m.ef/1.2,100)}%;background:${c}"></div><div class="m" style="left:${100/1.2}%"></div></div></div></td>
+<td class="num" style="color:var(--a2)">${m.eb.toFixed(0)}%</td>
+<td class="num" style="color:var(--t3)">${m.enb.toFixed(0)}%</td>
+<td class="num">${m.d}</td>
+<td class="num" style="color:${av>=0?'var(--gn)':'var(--rd)'}">${av.toFixed(0)}%</td>
+<td class="num">${m.pc}</td>
+<td><span class="sb" style="background:${c}18;color:${c}">${m.status}</span></td>
+</tr>`});
+h+=`</tbody></table></div></div>`;
+
+// Panel
+if(S.sm){const m=ms.find(x=>x.id===S.sm);if(m){
+const ef=mEf(m.id),eb=mEfBill(m.id),enb=mEfNB(m.id),d=mDays(m.id),mp=ps.filter(p=>p.asgn?.[m.id]>0),efC=sc(ef);
+h+=`<div class="pn"><div class="ph"><div><div class="pt">${esc(m.name)}</div><div class="ps2" style="color:${RC[m.role]||'#999'}">${m.role} · ${m.cap} gg/anno</div></div>
+<div style="display:flex;gap:4px"><button class="b ba" onclick="emM('${m.id}')">✎</button><button class="b br" onclick="dM('${m.id}')">✕</button><button class="b bo" onclick="S.sm=null;R()">←</button></div></div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:11px;color:var(--t2)">Effort totale:</span><span style="font-family:var(--mn);font-size:16px;font-weight:700;color:${efC}">${ef.toFixed(0)}%</span><span style="font-size:10px;color:var(--t3)">· ${d} gg · Disp: ${(100-ef).toFixed(0)}%</span></div>
+<div style="display:flex;gap:12px;font-size:10px;margin-bottom:8px"><span style="color:var(--a2)">Billable: <b>${eb.toFixed(0)}%</b></span><span style="color:var(--t3)">Non bill.: <b>${enb.toFixed(0)}%</b></span></div>
+<div class="psc">Progetti (${mp.length})</div>`;
+mp.sort((a,b)=>(b.asgn[m.id]||0)-(a.asgn[m.id]||0)).forEach(p=>{const pe=p.asgn[m.id]||0,de=(pe/100)*m.cap;
+h+=`<div class="pr2" ${p.nb?'style="border-left:2px solid var(--t3)"':''}><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nb?'<span style="font-size:8px;color:var(--t3)">NB </span>':''}${esc(p.client||p.name)}</div>
+<div style="font-size:9px;color:var(--t3)">${esc(p.name)}</div></div>
+<div style="display:flex;align-items:center;gap:4px"><input class="pi" type="number" min="0" max="100" step="5" value="${pe}" onchange="setE('${p.id}','${m.id}',parseFloat(this.value)||0)"><span style="font-size:9px;color:var(--t3)">%</span><span style="font-family:var(--mn);font-size:9px;color:var(--a2)">${de.toFixed(0)}gg</span><button class="rb" onclick="rmE('${p.id}','${m.id}')">×</button></div></div>`});
+h+=`<div class="psc">Assegna</div><div class="ac">`;
+const av=100-ef;
+ps.filter(p=>!(p.asgn?.[m.id]>0)).sort((a,b)=>b.totalDays-a.totalDays).forEach(p=>{h+=`<span class="ach" onclick="setE('${p.id}','${m.id}',10)"${av<=0?' style="opacity:.5"':''}>+ ${esc(p.client||p.name)}</span>`});
+h+=`</div></div>`}}}
+
+// ══════════ PROJECTS TABLE ══════════
+if(S.vw==='projects'){
+let fp=ps.map(p=>{const a=pAsg(p.id),ad=Math.round(pAlD(p.id)*10)/10,cov=p.totalDays>0?(ad/p.totalDays)*100:0;return{...p,asgList:a,ad,cov,nTeam:a.length}});
+const pf=S.pFlt;
+if(pf.name){const t=pf.name.toLowerCase();fp=fp.filter(p=>p.name.toLowerCase().includes(t)||p.jobId.includes(t))}
+if(pf.client&&pf.client!=='')fp=fp.filter(p=>p.client===pf.client);
+if(S.q){const t=S.q.toLowerCase();fp=fp.filter(p=>p.name.toLowerCase().includes(t)||p.client.toLowerCase().includes(t)||p.jobId.includes(t))}
+const pps=S.pSort;const pcmp=(a,b)=>{let va,vb;
+if(pps.col==='name'){return pps.dir*a.name.localeCompare(b.name)}
+if(pps.col==='client'){return pps.dir*(a.client||'').localeCompare(b.client||'')}
+if(pps.col==='totalDays'){va=a.totalDays;vb=b.totalDays}else if(pps.col==='ad'){va=a.ad;vb=b.ad}else if(pps.col==='cov'){va=a.cov;vb=b.cov}else if(pps.col==='nTeam'){va=a.nTeam;vb=b.nTeam}else if(pps.col==='start'){return pps.dir*(a.startDate||'').localeCompare(b.startDate||'')}else if(pps.col==='end'){return pps.dir*(a.endDate||'').localeCompare(b.endDate||'')}else{va=a.totalDays;vb=b.totalDays}
+return pps.dir*((va||0)-(vb||0))};
+fp.sort(pcmp);
+const clients=[...new Set(ps.map(p=>p.client).filter(Boolean))].sort();
+
+h+=`<div style="flex:1;min-width:0;display:flex;flex-direction:column"><div style="display:flex;justify-content:flex-end;margin-bottom:6px;flex-shrink:0"><button class="b ba" onclick="amP()">+ Progetto</button></div><div class="mn"><table class="xtbl"><thead><tr>
+<th${pps.col==='name'?' class="sorted"':''}><div class="thw" ${thH('p','name')}>Progetto ${arrI('p','name')}</div><div class="flt"><input placeholder="Filtra..." value="${esc(pf.name)}" oninput="S.pFlt.name=this.value;R()" onclick="event.stopPropagation()"></div></th>
+<th${pps.col==='client'?' class="sorted"':''}><div class="thw" ${thH('p','client')}>Cliente ${arrI('p','client')}</div><div class="flt"><select onchange="S.pFlt.client=this.value;R()" onclick="event.stopPropagation()"><option value="">Tutti</option>${clients.map(c=>`<option value="${esc(c)}"${pf.client===c?' selected':''}>${esc(c)}</option>`).join('')}</select></div></th>
+<th${pps.col==='nTeam'?' class="sorted"':''}><div class="thw" ${thH('p','nTeam')}>Team ${arrI('p','nTeam')}</div></th>
+<th${pps.col==='totalDays'?' class="sorted"':''}><div class="thw" ${thH('p','totalDays')}>GG PQ ${arrI('p','totalDays')}</div></th>
+<th${pps.col==='ad'?' class="sorted"':''}><div class="thw" ${thH('p','ad')}>GG Alloc ${arrI('p','ad')}</div></th>
+<th${pps.col==='cov'?' class="sorted"':''}><div class="thw" ${thH('p','cov')}>Copertura ${arrI('p','cov')}</div></th>
+<th${pps.col==='start'?' class="sorted"':''}><div class="thw" ${thH('p','start')}>Inizio ${arrI('p','start')}</div></th>
+<th${pps.col==='end'?' class="sorted"':''}><div class="thw" ${thH('p','end')}>Fine ${arrI('p','end')}</div></th>
+</tr></thead><tbody>`;
+fp.forEach(p=>{
+const nbStyle=p.nb?' style="background:rgba(24,95,165,.05);border-left:2px solid var(--t3)"':'';
+h+=`<tr class="${S.sp===p.id?'sel':''}" onclick="selP('${p.id}')"${nbStyle}>
+<td><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px">${p.nb?'<span style="font-size:9px;color:var(--t3);margin-right:3px">NB</span>':''}${esc(p.name)}</div><div style="font-family:var(--mn);font-size:9px;color:var(--t3)">${p.nb?'Non billable':'#'+p.jobId}</div></td>
+<td style="font-size:11px;color:var(--t2)">${esc(p.client)}</td>
+<td class="ctr">${p.nTeam>0?`<span style="font-family:var(--mn);font-weight:600">${p.nTeam}</span>`:'<span style="color:rgba(239,68,68,.4)">—</span>'}</td>
+<td class="num" style="color:${p.totalDays>200?'var(--or)':p.totalDays>100?'var(--yl)':'var(--t2)'}">${p.totalDays}</td>
+<td class="num">${p.ad.toFixed(0)}</td>
+<td class="ctr"><span class="sb" style="background:${p.cov>=90?'rgba(34,197,94,.12)':p.cov>0?'rgba(234,179,8,.12)':'rgba(255,255,255,.04)'};color:${p.cov>=90?'var(--gn)':p.cov>0?'var(--yl)':'var(--t3)'}">${p.cov.toFixed(0)}%</span></td>
+<td style="font-size:10px;color:var(--t3)">${p.startDate?.slice(0,7)||''}</td>
+<td style="font-size:10px;color:var(--t3)">${p.endDate?.slice(0,7)||''}</td>
+</tr>`});
+h+=`</tbody></table></div></div>`;
+
+// Panel
+if(S.sp){const p=ps.find(x=>x.id===S.sp);if(p){
+const asg=pAsg(p.id),ad=Math.round(pAlD(p.id)*10)/10,cov=p.totalDays>0?(ad/p.totalDays)*100:0,mx=Math.max(...Object.values(p.daysByRole),1);
+h+=`<div class="pn"><div class="ph"><div style="flex:1;min-width:0"><div class="pt">${esc(p.name)}</div><div class="ps2">${esc(p.client)} · #${p.jobId}</div></div>
+<div style="display:flex;gap:4px"><button class="b ba" onclick="epM('${p.id}')">✎</button><button class="b br" onclick="dP('${p.id}')">✕</button><button class="b bo" onclick="S.sp=null;R()">←</button></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
+<div style="background:rgba(255,255,255,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:var(--a2)">${p.totalDays}</div><div style="font-size:9px;color:var(--t3)">GG venduti</div></div>
+<div style="background:rgba(255,255,255,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:${cov>=90?'var(--gn)':'var(--yl)'}">${ad.toFixed(0)}</div><div style="font-size:9px;color:var(--t3)">GG allocati</div></div>
+<div style="background:rgba(255,255,255,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:${cov>=90?'var(--gn)':cov>0?'var(--yl)':'var(--t3)'}">${cov.toFixed(0)}%</div><div style="font-size:9px;color:var(--t3)">copertura</div></div></div>
+<div class="psc">GG PQ per Price Level</div>`;
+PLkeys.forEach(k=>{const v=p.daysByRole[k]||0;if(v>0)h+=`<div class="rr"><span class="rl">${k.replace('PL','PL ')}</span><div class="rt"><div class="rfl" style="width:${(v/mx)*100}%;background:${PLC[k.replace('PL','')]||'#999'}"></div></div><span class="rv">${v}</span></div>`});
+if(p.startDate)h+=`<div style="font-size:10px;color:var(--t3);margin-top:6px">📅 ${p.startDate} → ${p.endDate}</div>`;
+h+=`<div class="psc">Team (${asg.length})</div>`;
+asg.forEach(a=>{const de=(a.pct/100)*(a.m.cap||220);
+h+=`<div class="pr2"><div style="flex:1"><span style="font-weight:600;font-size:11px">${esc(a.m.name)}</span> <span style="font-size:9px;color:${RC[a.m.role]||'#999'}">${a.m.role}</span></div>
+<div style="display:flex;align-items:center;gap:3px"><input class="pi" type="number" min="0" max="100" step="5" value="${a.pct}" onchange="setE('${p.id}','${a.mid}',parseFloat(this.value)||0)"><span style="font-size:8px;color:var(--t3)">%</span><span style="font-family:var(--mn);font-size:8px;color:var(--a2)">${de.toFixed(0)}gg</span><button class="rb" onclick="rmE('${p.id}','${a.mid}')">×</button></div></div>`});
+h+=`<div class="psc">Aggiungi</div><div class="ac">`;
+ms.filter(m=>!asg.find(a=>a.mid===m.id)).map(m=>({...m,av:100-mEf(m.id)})).forEach(m=>{h+=`<span class="ach" onclick="setE('${p.id}','${m.id}',10)"${m.av<=0?' style="opacity:.5"':''}>+ ${esc(m.name)} <span style="font-size:7px;opacity:.5">${m.av.toFixed(0)}%</span></span>`});
+h+=`</div></div>`}}}
+
+// ══════════ ASSIGN TAB ══════════
+if(S.vw==='assign'){
+const aMode=S.aMode||'project';
+const aq=(S.aQ||'').toLowerCase();
+
+h+=`<div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap">
+<div class="nt">
+<button class="ntb${aMode==='project'?' a':''}" onclick="S.aMode='project';S.aM=null;S.aP=null;S.aStep='assign';R()">📁 Per Progetto</button>
+<button class="ntb${aMode==='person'?' a':''}" onclick="S.aMode='person';S.aM=null;S.aP=null;S.aStep='assign';R()">👤 Per Persona</button>
+</div>
+<input class="si" style="width:220px" placeholder="${aMode==='project'?'Cerca progetto...':'Cerca persona...'}" value="${esc(S.aQ)}" oninput="S.aQ=this.value;R()">
+</div>
+<div class="asgn-wrap">`;
+
+// ──── PROJECT MODE ────
+if(aMode==='project'){
+const ap=S.aP?ps.find(x=>x.id===S.aP):null;
+let fap=[...ps].filter(p=>p.totalDays>0);
+if(aq)fap=fap.filter(p=>p.name.toLowerCase().includes(aq)||p.client.toLowerCase().includes(aq)||p.jobId.includes(aq));
+fap.sort((a,b)=>b.totalDays-a.totalDays);
+
+h+=`<div class="asgn-list">`;
+fap.forEach(p=>{
+const rn=PLkeys.filter(k=>(p.daysByRole[k]||0)>0);
+const asg=pAsg(p.id);const asgPLs=[...new Set(asg.map(a=>'PL'+rPL(a.m.role)))];
+const ad=Math.round(pAlD(p.id)*10)/10;const cov=p.totalDays>0?(ad/p.totalDays*100):0;
+h+=`<div class="ap${S.aP===p.id?' sel':''}" onclick="S.aP='${p.id}';S.aStep='assign';R()">
+<div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="an">${esc(p.name)}</div>
+<span style="font-family:var(--mn);font-size:9px;font-weight:600;color:${cov>=90?'var(--gn)':cov>0?'var(--yl)':'var(--t3)'}">${cov.toFixed(0)}%</span></div>
+<div class="ac2">${esc(p.client)} · ${p.totalDays}d · ${asg.length} pers.</div>
+<div class="aroles">${rn.map(k=>`<span class="ar ${asgPLs.includes(k)?'covered':'uncovered'}" style="color:${PLC[k.replace('PL','')]||'#999'}">${k.replace('PL','PL ')}</span>`).join('')}</div>
+</div>`});
+h+=`</div><div class="asgn-main">`;
+
+if(!ap){
+h+=`<div style="text-align:center;padding:60px 20px;color:var(--t3)"><div style="font-size:28px;margin-bottom:10px">←</div>
+<div style="font-size:13px;font-weight:600;color:var(--t2)">Seleziona un progetto</div></div>`;
+} else if(S.aStep==='assign'){
+const rn=PLkeys.filter(k=>(ap.daysByRole[k]||0)>0);const ca=pAsg(ap.id);
+h+=`<div class="abar"><div><span style="font-weight:700;font-size:14px">${esc(ap.name)}</span><br><span style="font-size:11px;color:var(--t3)">${esc(ap.client)} · ${ap.totalDays} GG PQ</span></div>
+<div style="display:flex;gap:6px"><button class="b ba" onclick="autoCalc('${ap.id}')">⚡ Calcola %</button><button class="b bo" onclick="S.aStep='review';R()">📋 Revisione</button></div></div>`;
+rn.forEach(k=>{
+const plNum=+k.replace('PL','');const plRoles=PL[plNum]||[];
+const dr=ap.daysByRole[k]||0;const cands=ms.filter(m=>plRoles.includes(m.role)).sort((a,b)=>(100-mEf(a.id))-(100-mEf(b.id))).reverse();
+const adr=ca.filter(a=>plRoles.includes(a.m.role)).reduce((t,a)=>t+(a.pct/100)*(a.m.cap||220),0);
+h+=`<div class="role-sec"><div class="role-hdr"><span style="color:${PLC[plNum]||'#999'}">Price Level ${plNum} <span style="font-weight:400;color:var(--t3)">· ${dr} GG · ${adr.toFixed(0)} alloc.</span></span>
+<span style="font-size:10px;color:${adr>=dr?'var(--gn)':'var(--yl)'}">${dr>0?(adr/dr*100).toFixed(0):0}%</span></div>`;
+cands.forEach(m=>{const ef=mEf(m.id);const av=100-ef;const isOn=ap.asgn?.[m.id]>0;
+h+=`<div class="cand" onclick="togLink('${ap.id}','${m.id}')"><div class="ck${isOn?' on':''}">${isOn?'✓':''}</div>
+<div class="cn2"><b>${esc(m.name)}</b> <span style="font-size:9px;color:${RC[m.role]||'#999'}">${m.role}</span><br><span>Effort: ${ef.toFixed(0)}%</span></div><div class="cavail" style="color:${sc(ef)}">${av.toFixed(0)}%</div></div>`});
+h+=`</div>`});
+const usedPLs=rn.map(k=>+k.replace('PL',''));const othr=ms.filter(m=>!usedPLs.includes(rPL(m.role)));
+if(othr.length){h+=`<details style="margin-top:8px"><summary style="font-size:10px;color:var(--t3);cursor:pointer;font-weight:600">Altri (${othr.length})</summary>`;
+othr.forEach(m=>{const ef=mEf(m.id);const av=100-ef;const isOn=ap.asgn?.[m.id]>0;
+h+=`<div class="cand" onclick="togLink('${ap.id}','${m.id}')"><div class="ck${isOn?' on':''}">${isOn?'✓':''}</div>
+<div class="cn2"><b>${esc(m.name)}</b> <span style="color:${RC[m.role]||'#999'};font-size:9px">${m.role}</span><br><span>Effort: ${ef.toFixed(0)}%</span></div>
+<div class="cavail" style="color:${sc(ef)}">${av.toFixed(0)}%</div></div>`});
+h+=`</details>`}
+} else if(S.aStep==='review'){
+h+=`<div class="abar"><div><span style="font-weight:700;font-size:14px">${esc(ap.name)}</span><br><span style="font-size:11px;color:var(--t3)">${esc(ap.client)} · ${ap.totalDays} GG PQ</span></div>
+<div style="display:flex;gap:6px"><button class="b bo" onclick="S.aStep='assign';R()">← Associa</button><button class="b ba" onclick="autoCalc('${ap.id}')">⚡ Ricalcola</button></div></div>`;
+const ca=pAsg(ap.id);const plg={};ca.forEach(a=>{const pk='PL'+rPL(a.m.role);if(!plg[pk])plg[pk]=[];plg[pk].push(a)});
+PLkeys.forEach(k=>{const g=plg[k];if(!g)return;const dr=ap.daysByRole[k]||0;const ad=g.reduce((t,a)=>t+(a.pct/100)*(a.m.cap||220),0);
+const plNum=k.replace('PL','');
+h+=`<div style="margin-bottom:12px"><div style="font-size:10px;font-weight:700;color:${PLC[plNum]||'#999'};margin-bottom:4px;display:flex;justify-content:space-between">
+<span>Price Level ${plNum} · ${dr} GG</span><span style="color:${ad>=dr?'var(--gn)':'var(--yl)'}">Alloc: ${ad.toFixed(0)} GG (${dr>0?(ad/dr*100).toFixed(0):0}%)</span></div>`;
+g.forEach(a=>{const mef=mEf(a.mid);const av=100-mef+a.pct;const de=(a.pct/100)*(a.m.cap||220);
+h+=`<div class="rev-row"><span style="font-weight:600;min-width:110px;font-size:11px">${esc(a.m.name)} <span style="font-size:8px;color:${RC[a.m.role]||'#999'}">${a.m.role}</span></span>
+<input class="rng" type="range" min="0" max="${Math.min(av,100)}" step="5" value="${a.pct}" oninput="setE('${ap.id}','${a.mid}',+this.value);this.nextElementSibling.value=this.value;this.nextElementSibling.nextElementSibling.textContent=(this.value/100*${a.m.cap||220}).toFixed(0)+'gg'">
+<input class="pi" type="number" min="0" max="${Math.min(av,100)}" step="5" value="${a.pct}" style="width:44px" onchange="const v=Math.min(Math.max(+this.value,0),${Math.min(av,100)});setE('${ap.id}','${a.mid}',v);this.previousElementSibling.value=v;this.nextElementSibling.textContent=(v/100*${a.m.cap||220}).toFixed(0)+'gg'">
+<span style="font-family:var(--mn);font-size:9px;color:var(--t3);min-width:30px">${de.toFixed(0)}gg</span>
+<button class="rb" onclick="rmE('${ap.id}','${a.mid}')" style="font-size:11px">×</button></div>`});
+h+=`</div>`});
+}
+h+=`</div>`}
+
+// ──── PERSON MODE ────
+if(aMode==='person'){
+const am=S.aM?ms.find(x=>x.id===S.aM):null;
+let fam=[...ms];
+if(aq)fam=fam.filter(m=>m.name.toLowerCase().includes(aq)||m.role.toLowerCase().includes(aq));
+fam.sort((a,b)=>{const d=RH.indexOf(a.role)-RH.indexOf(b.role);return d!==0?d:a.name.localeCompare(b.name)});
+
+h+=`<div class="asgn-list">`;
+fam.forEach(m=>{
+const ef=mEf(m.id);const pc=ps.filter(p=>p.asgn?.[m.id]>0).length;
+h+=`<div class="ap${S.aM===m.id?' sel':''}" onclick="S.aM='${m.id}';S.aStep='assign';R()">
+<div style="display:flex;justify-content:space-between;align-items:flex-start">
+<div class="an">${esc(m.name)}</div>
+<span class="sb" style="background:${sc(ef)}18;color:${sc(ef)};font-size:8px">${sl(ef)}</span></div>
+<div class="ac2" style="color:${RC[m.role]||'#999'}">${m.role}</div>
+<div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+<div style="flex:1;height:3px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.min(ef/1.2,100)}%;background:${sc(ef)};border-radius:2px"></div></div>
+<span style="font-family:var(--mn);font-size:10px;color:${sc(ef)}">${ef.toFixed(0)}%</span>
+<span style="font-size:9px;color:var(--t3)">${pc} prog.</span>
+</div></div>`});
+h+=`</div><div class="asgn-main">`;
+
+if(!am){
+h+=`<div style="text-align:center;padding:60px 20px;color:var(--t3)"><div style="font-size:28px;margin-bottom:10px">←</div>
+<div style="font-size:13px;font-weight:600;color:var(--t2)">Seleziona una persona</div></div>`;
+} else {
+const ef=mEf(am.id);const av=100-ef;
+h+=`<div class="abar"><div><span style="font-weight:700;font-size:14px">${esc(am.name)}</span><br>
+<span style="font-size:11px;color:${RC[am.role]||'#999'}">${am.role} · ${am.cap} gg/anno</span></div>
+<div style="display:flex;align-items:center;gap:10px">
+<span style="font-family:var(--mn);font-size:16px;font-weight:700;color:${sc(ef)}">${ef.toFixed(0)}%</span>
+<span style="font-size:10px;color:var(--t3)">usato · <b style="color:${av>=0?'var(--gn)':'var(--rd)'}"> ${av.toFixed(0)}%</b> disp.</span>
+<button class="b ba" onclick="autoCalcPerson('${am.id}')">⚡ Calcola %</button>
+</div></div>`;
+
+if(S.aStep==='assign'){
+// Show projects that need this person's role, sorted by days needed
+const mPL='PL'+rPL(am.role);
+const matchPs=ps.filter(p=>p.totalDays>0&&(p.daysByRole[mPL]||0)>0).sort((a,b)=>(b.daysByRole[mPL]||0)-(a.daysByRole[mPL]||0));
+const otherPs=ps.filter(p=>p.totalDays>0&&(p.daysByRole[mPL]||0)===0).sort((a,b)=>b.totalDays-a.totalDays);
+
+h+=`<div class="psc" style="margin-top:0">Progetti che richiedono ${mPL.replace('PL','Price Level ')} (${matchPs.length})</div>`;
+matchPs.forEach(p=>{
+const isOn=p.asgn?.[am.id]>0;const dr=p.daysByRole[mPL]||0;
+const plRoles=PL[rPL(am.role)]||[];
+const asg=pAsg(p.id).filter(a=>plRoles.includes(a.m.role));const adr=asg.reduce((t,a)=>t+(a.pct/100)*(a.m.cap||220),0);
+h+=`<div class="cand" onclick="togLink('${p.id}','${am.id}')"><div class="ck${isOn?' on':''}">${isOn?'✓':''}</div>
+<div class="cn2"><b>${esc(p.name)}</b><br><span>${esc(p.client)} · ${dr} GG ${am.role} · ${adr.toFixed(0)} alloc.</span></div>
+<div class="cavail" style="font-size:9px;color:${adr>=dr?'var(--gn)':'var(--yl)'}"><div>${dr>0?(adr/dr*100).toFixed(0):0}%</div><div style="color:var(--t3)">${p.totalDays}d</div></div></div>`});
+
+if(otherPs.length){h+=`<details style="margin-top:8px"><summary style="font-size:10px;color:var(--t3);cursor:pointer;font-weight:600">Altri progetti (${otherPs.length})</summary>`;
+otherPs.forEach(p=>{const isOn=p.asgn?.[am.id]>0;
+h+=`<div class="cand" onclick="togLink('${p.id}','${am.id}')"><div class="ck${isOn?' on':''}">${isOn?'✓':''}</div>
+<div class="cn2"><b>${esc(p.name)}</b><br><span>${esc(p.client)} · ${p.totalDays}d</span></div></div>`});
+h+=`</details>`}
+} else {
+// Review mode for person
+const myPs=ps.filter(p=>p.asgn?.[am.id]>0).sort((a,b)=>(b.asgn[am.id]||0)-(a.asgn[am.id]||0));
+h+=`<div class="psc" style="margin-top:0">Progetti assegnati (${myPs.length})</div>`;
+myPs.forEach(p=>{const pe=p.asgn[am.id]||0;const de=(pe/100)*am.cap;
+h+=`<div class="rev-row"><span style="font-weight:600;min-width:130px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.client||p.name)}</span>
+<input class="rng" type="range" min="0" max="${Math.min(100-ef+pe,100)}" step="5" value="${pe}" oninput="setE('${p.id}','${am.id}',+this.value);this.nextElementSibling.value=this.value;this.nextElementSibling.nextElementSibling.textContent=(this.value/100*${am.cap}).toFixed(0)+'gg'">
+<input class="pi" type="number" min="0" max="${Math.min(100-ef+pe,100)}" step="5" value="${pe}" style="width:44px" onchange="const v=Math.min(Math.max(+this.value,0),${Math.min(100-ef+pe,100)});setE('${p.id}','${am.id}',v);this.previousElementSibling.value=v;this.nextElementSibling.textContent=(v/100*${am.cap}).toFixed(0)+'gg'">
+<span style="font-family:var(--mn);font-size:9px;color:var(--t3);min-width:30px">${de.toFixed(0)}gg</span>
+<button class="rb" onclick="rmE('${p.id}','${am.id}')" style="font-size:11px">×</button></div>`});
+}
+}
+h+=`</div>`}
+h+=`</div>`}
+
+// ══════════ MATRIX ══════════
+if(S.vw==='matrix'){
+// Member sort
+let mm=[...ms];
+if(S.mxMemSort==='role')mm.sort((a,b)=>{const d=RH.indexOf(a.role)-RH.indexOf(b.role);return d!==0?d:a.name.localeCompare(b.name)});
+else if(S.mxMemSort==='effort')mm.sort((a,b)=>mEf(b.id)-mEf(a.id));
+else mm.sort((a,b)=>a.name.localeCompare(b.name));
+// Member name formatter: "I. Cognome"
+function mxName(m){const p=m.name.split(' ');return p.length>1?p[0][0]+'. '+p.slice(1).join(' '):m.name}
+
+let fp=ps.filter(p=>p.totalDays>0);
+const mxf=S.mxFlt;
+if(mxf.name){const t=mxf.name.toLowerCase();fp=fp.filter(p=>p.name.toLowerCase().includes(t)||p.jobId.includes(t))}
+if(mxf.client&&mxf.client!=='')fp=fp.filter(p=>p.client===mxf.client);
+if(S.q){const t=S.q.toLowerCase();fp=fp.filter(p=>p.name.toLowerCase().includes(t)||p.client.toLowerCase().includes(t))}
+const mxs=S.mxSort;
+fp.sort((a,b)=>{
+if(mxs.col==='name')return mxs.dir*a.name.localeCompare(b.name);
+if(mxs.col==='client')return mxs.dir*(a.client||'').localeCompare(b.client||'');
+if(mxs.col==='totalDays')return mxs.dir*(a.totalDays-b.totalDays);
+if(mxs.col==='nTeam')return mxs.dir*(pAsg(a.id).length-pAsg(b.id).length);
+return mxs.dir*(a.totalDays-b.totalDays);
+});
+const mxClients=[...new Set(fp.map(p=>p.client).filter(Boolean))].sort();
+h+=`<div style="flex:1;min-width:0;display:flex;flex-direction:column">
+<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap;flex-shrink:0">
+<input class="si" style="width:150px" placeholder="Filtra progetto..." value="${esc(mxf.name)}" oninput="S.mxFlt.name=this.value;R()">
+<select class="si" style="width:150px" onchange="S.mxFlt.client=this.value;R()"><option value="">Tutti i clienti</option>${mxClients.map(c=>`<option value="${esc(c)}"${mxf.client===c?' selected':''}>${esc(c)}</option>`).join('')}</select>
+<span style="font-size:10px;color:var(--t3)">Progetti:</span>
+<select class="si" style="width:120px" onchange="const v=this.value.split('_');S.mxSort.col=v[0];S.mxSort.dir=v[1]==='a'?1:-1;R()">
+<option value="totalDays_d"${mxs.col==='totalDays'&&mxs.dir===-1?' selected':''}>GG PQ ↓</option>
+<option value="totalDays_a"${mxs.col==='totalDays'&&mxs.dir===1?' selected':''}>GG PQ ↑</option>
+<option value="name_a"${mxs.col==='name'&&mxs.dir===1?' selected':''}>Nome A→Z</option>
+<option value="client_a"${mxs.col==='client'&&mxs.dir===1?' selected':''}>Cliente A→Z</option>
+<option value="nTeam_d"${mxs.col==='nTeam'&&mxs.dir===-1?' selected':''}>N° Persone ↓</option>
+</select>
+<span style="font-size:10px;color:var(--t3)">Persone:</span>
+<select class="si" style="width:120px" onchange="S.mxMemSort=this.value;R()">
+<option value="name"${S.mxMemSort==='name'?' selected':''}>Nome A→Z</option>
+<option value="role"${S.mxMemSort==='role'?' selected':''}>Ruolo (rank)</option>
+<option value="effort"${S.mxMemSort==='effort'?' selected':''}>Effort ↓</option>
+</select>
+<span style="font-size:10px;color:var(--t3);margin-left:auto">${fp.length} progetti · ${mm.length} persone</span>
+</div>
+<div class="mn"><table>
+<thead>
+<tr><th class="sh" rowspan="2" style="text-align:left;padding:5px 8px;color:var(--t3);font-size:9px;min-width:200px;vertical-align:bottom;background:var(--bg)">Progetto</th>
+${mm.map(m=>`<th style="text-align:center;padding:2px 1px 0;font-size:7px;font-weight:600;color:${RC[m.role]||'#999'};white-space:nowrap;border-bottom:none;background:var(--bg)">${esc(m.role.replace('Senior ','Sr. ').replace('Consultant','Cons.').replace('Manager','Mgr').replace('Ass. ','A.').replace('Sr. Cons.','Sr.C').replace('J. Cons.','Jr.C'))}</th>`).join('')}
+</tr>
+<tr>
+${mm.map(m=>{const ef=mEf(m.id);return`<th class="vh" style="color:${sc(ef)};font-weight:600;font-size:9px;background:var(--bg)">${esc(mxName(m))}</th>`}).join('')}
+</tr>
+</thead><tbody>`;
+fp.forEach(p=>{
+h+=`<tr><td class="sc" style="padding:4px 8px;font-size:10px;border-bottom:1px solid var(--bd);text-align:left;min-width:200px">
+<div style="font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px">${esc(p.name)}</div>
+<div style="font-size:8px;color:var(--t3)">${esc(p.client)} · ${p.totalDays}d</div></td>`;
+mm.forEach(m=>{const pc=(p.asgn?.[m.id])||0;const on=pc>0;
+const ed=S._ec&&S._ec.pid===p.id&&S._ec.mid===m.id;
+if(ed)h+=`<td style="border-bottom:1px solid rgba(255,255,255,.02);padding:1px"><input class="mxi" id="mxe" type="number" min="0" max="100" step="5" value="${pc}" onblur="cMx('${p.id}','${m.id}')" onkeydown="kMx(event,'${p.id}','${m.id}')"></td>`;
+else h+=`<td style="border-bottom:1px solid rgba(255,255,255,.02)" onclick="oMx('${p.id}','${m.id}')"><div class="mx ${on?'on':'off'}">${on?pc+'%':''}</div></td>`});
+h+=`</tr>`});
+h+=`<tr><td class="sc" style="padding:6px 8px;border-top:2px solid var(--bh);font-weight:700;font-size:10px;color:var(--t2);text-align:left">EFFORT TOT.</td>`;
+mm.forEach(m=>{const ef=mEf(m.id);h+=`<td style="border-top:2px solid var(--bh);text-align:center;font-family:var(--mn);font-size:9px;font-weight:700;color:${sc(ef)}">${ef.toFixed(0)}%</td>`});
+h+=`</tr></tbody></table></div></div>`}
+
+h+=`</div>`;document.getElementById("AP").innerHTML=h;
+// autofocus matrix edit
+if(S._ec){setTimeout(()=>{const el=document.getElementById('mxe');if(el){el.focus();el.select()}},20)}
+}
+
+// ACTIONS
+function sw(v){S.vw=v;S.sm=null;S.sp=null;R()}
+function selM(id){S.sm=S.sm===id?null:id;S.sp=null;R()}
+function selP(id){S.sp=S.sp===id?null:id;S.sm=null;R()}
+function setE(pid,mid,pct){const p=S.p.find(x=>x.id===pid);if(!p)return;if(!p.asgn)p.asgn={};const cur=p.asgn[mid]||0;const totO=mEf(mid)-cur;if(pct+totO>100&&pct>cur){const ok=confirm(`Attenzione: effort totale sarà ${(pct+totO).toFixed(0)}% (supera 100%).\nIl sovraccarico verrà evidenziato. Procedere?`);if(!ok)return}if(pct>0)p.asgn[mid]=Math.round(pct*10)/10;else delete p.asgn[mid];sv();R()}
+function rmE(pid,mid){const p=S.p.find(x=>x.id===pid);if(p?.asgn)delete p.asgn[mid];sv();R()}
+function oMx(pid,mid){S._ec={pid,mid};R()}
+function cMx(pid,mid){const el=document.getElementById('mxe');if(!el)return;const v=parseFloat(el.value)||0;S._ec=null;if(v<=0)rmE(pid,mid);else setE(pid,mid,v)}
+function kMx(e,pid,mid){if(e.key==='Enter'){e.preventDefault();cMx(pid,mid)}if(e.key==='Escape'){S._ec=null;R()}}
+function dM(id){if(!confirm("Rimuovere?"))return;S.m=S.m.filter(m=>m.id!==id);S.p.forEach(p=>{if(p.asgn)delete p.asgn[id]});S.sm=null;sv();R()}
+function dP(id){if(!confirm("Eliminare?"))return;S.p=S.p.filter(p=>p.id!==id);S.sp=null;sv();R()}
+function rst(){if(!confirm("Resettare tutto?"))return;S.m=JSON.parse(JSON.stringify(IM));S.p=JSON.parse(JSON.stringify(IP));S.sm=null;S.sp=null;sv();R()}
+
+// Toggle link (associate/disassociate without % yet)
+function togLink(pid,mid){
+  const p=S.p.find(x=>x.id===pid);if(!p)return;
+  if(!p.asgn)p.asgn={};
+  if(p.asgn[mid]>0){delete p.asgn[mid]}
+  else{p.asgn[mid]=0.1} // placeholder, will be overwritten by autoCalc
+  sv();R()
+}
+
+// Auto-calculate percentages weighted by available capacity
+function autoCalc(pid){
+  const p=S.p.find(x=>x.id===pid);if(!p)return;
+  if(!p.asgn)p.asgn={};
+  // Get all linked members
+  const linked=Object.keys(p.asgn).map(mid=>S.m.find(m=>m.id===mid)).filter(Boolean);
+  if(!linked.length)return;
+  // Group by Price Level
+  const byPL={};linked.forEach(m=>{const pk='PL'+rPL(m.role);if(!byPL[pk])byPL[pk]=[];byPL[pk].push(m)});
+  // For each PL, distribute proportionally to available capacity
+  const newAsgn={};
+  Object.entries(byPL).forEach(([pk,members])=>{
+    const daysNeeded=p.daysByRole[pk]||0;
+    if(daysNeeded<=0){members.forEach(m=>{newAsgn[m.id]=0.1});return}
+    // Available capacity for each member (excluding current project)
+    const avails=members.map(m=>{
+      const curOnThis=p.asgn[m.id]||0;
+      const otherEf=mEf(m.id)-curOnThis;
+      const avail=Math.max(100-otherEf,0);
+      return{m,avail,cap:m.cap||220}
+    });
+    const totalAvailCap=avails.reduce((t,a)=>t+a.avail/100*a.cap,0);
+    if(totalAvailCap<=0){avails.forEach(a=>{newAsgn[a.m.id]=0.1});return}
+    // How much % of each person's capacity we need
+    avails.forEach(a=>{
+      // Proportion of this person's available capacity vs total available
+      const share=totalAvailCap>0?(a.avail/100*a.cap)/totalAvailCap:1/avails.length;
+      const daysForThis=daysNeeded*share;
+      let pct=a.cap>0?(daysForThis/a.cap)*100:0;
+      pct=Math.min(pct,a.avail); // cap at available
+      pct=Math.round(pct/5)*5; // round to nearest 5
+      pct=Math.max(pct,5); // minimum 5%
+      pct=Math.min(pct,a.avail); // re-cap
+      newAsgn[a.m.id]=pct;
+    });
+  });
+  // Apply
+  Object.entries(newAsgn).forEach(([mid,pct])=>{
+    if(pct>0)p.asgn[mid]=pct;else delete p.asgn[mid]
+  });
+  S.aStep='review';
+  sv();R()
+}
+
+// Auto-calc for person mode: distribute this person's available capacity across linked projects
+function autoCalcPerson(mid){
+  const m=S.m.find(x=>x.id===mid);if(!m)return;
+  // Find all projects this person is linked to
+  const linkedPs=S.p.filter(p=>p.asgn?.[mid]>0);
+  if(!linkedPs.length)return;
+  // For each project, compute how much of this person's role days are needed
+  const curOnOther=mEf(mid)-linkedPs.reduce((t,p)=>t+(p.asgn[mid]||0),0);
+  const totalAvail=Math.max(100-curOnOther,0);
+  // Weight by days needed for this role on each project
+  const weights=linkedPs.map(p=>{
+    const mPLk='PL'+rPL(m.role);const daysForRole=p.daysByRole[mPLk]||0;
+    // Subtract what other people already cover for this role
+    const othersOnPL=pAsg(p.id).filter(a=>rPL(a.m.role)===rPL(m.role)&&a.mid!==mid).reduce((t,a)=>t+(a.pct/100)*(a.m.cap||220),0);
+    const remaining=Math.max(daysForRole-othersOnPL,0);
+    return{p,w:remaining}
+  });
+  const totalW=weights.reduce((t,x)=>t+x.w,0);
+  if(totalW<=0){weights.forEach(x=>{if(x.p.asgn)x.p.asgn[mid]=Math.round(totalAvail/weights.length/5)*5||5});sv();S.aStep='review';R();return}
+  weights.forEach(x=>{
+    let pct=(x.w/totalW)*totalAvail;
+    pct=Math.round(pct/5)*5;
+    pct=Math.max(pct,5);
+    pct=Math.min(pct,totalAvail);
+    if(x.p.asgn)x.p.asgn[mid]=pct;
+  });
+  // Verify total doesn't exceed available
+  let total=linkedPs.reduce((t,p)=>t+(p.asgn[mid]||0),0);
+  while(total>totalAvail&&linkedPs.length){
+    const maxP=linkedPs.reduce((a,b)=>(a.asgn[mid]||0)>(b.asgn[mid]||0)?a:b);
+    maxP.asgn[mid]=Math.max((maxP.asgn[mid]||0)-5,0);
+    total=linkedPs.reduce((t,p)=>t+(p.asgn[mid]||0),0);
+  }
+  S.aStep='review';
+  sv();R()
+}
+
+// MODALS
+function amM(){document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Aggiungi Persona</h2><label>Nome</label><input id="xn"><label>Ruolo</label><select id="xr">${RH.map(r=>`<option value="${r}">${r}</option>`).join('')}</select><label>Capacità gg/anno</label><input id="xc" type="number" value="220"><div class="ma"><button class="b bo" onclick="cm()">Annulla</button><button class="b ba" onclick="doAM()">Aggiungi</button></div></div></div>`}
+function doAM(){const n=document.getElementById("xn").value.trim();if(!n)return alert("Nome!");S.m.push({id:"m_"+Math.random().toString(36).slice(2,8),name:n,role:document.getElementById("xr").value,cap:parseInt(document.getElementById("xc").value)||220});cm();sv();R()}
+function emM(id){const m=S.m.find(x=>x.id===id);if(!m)return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Modifica Persona</h2><label>Nome</label><input id="xn" value="${esc(m.name)}"><label>Ruolo</label><select id="xr">${RH.map(r=>`<option value="${r}"${m.role===r?' selected':''}>${r}</option>`).join('')}</select><label>Capacità gg/anno</label><input id="xc" type="number" value="${m.cap}"><div class="ma"><button class="b bo" onclick="cm()">Annulla</button><button class="b ba" onclick="doEM('${id}')">Salva</button></div></div></div>`}
+function doEM(id){const m=S.m.find(x=>x.id===id);if(!m)return;m.name=document.getElementById("xn").value;m.role=document.getElementById("xr").value;m.cap=parseInt(document.getElementById("xc").value)||220;cm();sv();R()}
+function amP(){document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Aggiungi Progetto</h2><label>Nome</label><input id="yn"><label>Cliente</label><input id="yc"><label>Job ID</label><input id="yj"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><label>Inizio</label><input id="ys" type="date"></div><div><label>Fine</label><input id="ye" type="date"></div></div><label>GG PQ per Price Level</label>${PLkeys.map(k=>`<div style="display:flex;align-items:center;gap:6px;margin-top:3px"><span style="width:100px;font-size:10px;color:var(--t2);text-align:right">${k.replace('PL','Price Level ')}</span><input id="yr_${k}" type="number" value="0" min="0" style="width:70px"></div>`).join('')}<div class="ma"><button class="b bo" onclick="cm()">Annulla</button><button class="b ba" onclick="doAP()">Aggiungi</button></div></div></div>`}
+function doAP(){const n=document.getElementById("yn").value.trim();if(!n)return alert("Nome!");const dr={};let t=0;PLkeys.forEach(k=>{const v=parseFloat(document.getElementById("yr_"+k).value)||0;dr[k]=v;t+=v});S.p.push({id:"p_"+Math.random().toString(36).slice(2,8),jobId:document.getElementById("yj").value||String(Date.now()).slice(-6),name:n,client:document.getElementById("yc").value.trim(),startDate:document.getElementById("ys").value,endDate:document.getElementById("ye").value,totalDays:t,daysByRole:dr,asgn:{}});cm();sv();R()}
+function epM(id){const p=S.p.find(x=>x.id===id);if(!p)return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Modifica Progetto</h2><label>Nome</label><input id="yn" value="${esc(p.name)}"><label>Cliente</label><input id="yc" value="${esc(p.client)}"><label>Job ID</label><input id="yj" value="${p.jobId}"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><label>Inizio</label><input id="ys" type="date" value="${p.startDate}"></div><div><label>Fine</label><input id="ye" type="date" value="${p.endDate}"></div></div><label>GG PQ per Price Level</label>${PLkeys.map(k=>`<div style="display:flex;align-items:center;gap:6px;margin-top:3px"><span style="width:100px;font-size:10px;color:var(--t2);text-align:right">${k.replace('PL','Price Level ')}</span><input id="yr_${k}" type="number" value="${p.daysByRole[k]||0}" min="0" style="width:70px"></div>`).join('')}<div class="ma"><button class="b bo" onclick="cm()">Annulla</button><button class="b ba" onclick="doEP('${id}')">Salva</button></div></div></div>`}
+function doEP(id){const p=S.p.find(x=>x.id===id);if(!p)return;p.name=document.getElementById("yn").value;p.client=document.getElementById("yc").value;p.jobId=document.getElementById("yj").value;p.startDate=document.getElementById("ys").value;p.endDate=document.getElementById("ye").value;let t=0;PLkeys.forEach(k=>{const v=parseFloat(document.getElementById("yr_"+k).value)||0;p.daysByRole[k]=v;t+=v});p.totalDays=t;cm();sv();R()}
+function cm(){document.getElementById("mr").innerHTML=""}
+</script>
+
+
+</body></html>

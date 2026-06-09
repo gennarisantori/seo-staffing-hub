@@ -1,0 +1,11 @@
+{
+  // Cloudflare Workers static-assets config.
+  // Serves the app as a static site and falls back to index.html for any
+  // unknown path (SPA behaviour).
+  "name": "seo-staffing-hub",
+  "compatibility_date": "2025-01-01",
+  "assets": {
+    "directory": ".",
+    "not_found_handling": "single-page-application"
+  }
+}
