@@ -19,13 +19,24 @@ design; security is enforced by Auth + DB rules, not by hiding the key).
 
 ### Required setup (one-time, in the Firebase console)
 1. **Authentication > Sign-in method**: enable **Email/Password**.
-2. Create the first account by signing up in the app with an `@jakala.com`
-   email. `federico.gennari@jakala.com` is auto-promoted to **admin**
-   (see `BOOTSTRAP_ADMINS` in `index.html`).
+2. **Firestore Database**: create it (production mode, europe region). It stores
+   the invite allowlist (`config/access`) and user profiles (`users/{uid}`).
+3. **Firestore rules**: publish `firestore.rules` from this repo (Firestore >
+   Rules > paste > Publish). They enforce admin-only writes to the allowlist.
+4. **First admin**: `federico.gennari@jakala.com` is a bootstrap admin
+   (see `BOOTSTRAP_ADMINS` in `index.html`); they can sign up directly and are
+   auto-promoted to **admin**.
 
-### Optional / recommended
-- **Firestore**: enable Cloud Firestore so user profiles persist. If Firestore
-  is not enabled, login still works (profile load fails gracefully).
+### How new users are activated (same model as the Quotation Hub)
+- An **admin** opens the **Utenti** tab and enters the person's `@jakala.com`
+  email, choosing the role (Member / Admin). This adds them to the access list.
+- The admin shares the app link. The invited person clicks **Create account**
+  and sets their own password. Only invited emails (or bootstrap admins) can
+  register; everyone else is blocked.
+- After first login the person appears in the **Utenti** table, where admins can
+  change their role or disable their access.
+
+### Recommended
 - **Realtime Database rules**: now that real auth is in place, tighten the rules
   to require authentication:
   ```json

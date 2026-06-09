@@ -30,7 +30,7 @@ for a, b in [
 
 # ── B. Login CSS (mirrors Quotation Hub global.css) ──
 login_css = (
-    "#LS{background:#f5f4f0!important}"
+    "#LS{background:#ffffff!important}"
     ".login-card{background:#fff;border:1px solid #e5e5e0;border-radius:16px;padding:40px 48px;width:380px;text-align:center;box-shadow:0 2px 16px rgba(0,0,0,.06);animation:fu .6s ease}"
     ".login-jk{font-size:11px;font-weight:800;color:#185FA5;letter-spacing:.08em;margin-bottom:14px;display:block}"
     ".login-logo{font-size:20px;font-weight:700;margin-bottom:8px;color:#1a1a1a}"
@@ -125,6 +125,36 @@ async function liSubmit(e){
   }catch(err){liRender(liFriendly(err),'');}
 }
 function fbSignOut(){_auth.signOut();}
+function isAdmin(){return !!(_profile&&_profile.role==='admin');}
+
+// ── Access management: invite allowlist (config/access) + users (same model as Quotation Hub) ──
+async function uGetInvites(){
+  try{
+    const s=await _fs.collection('config').doc('access').get();
+    if(!s.exists)return[];
+    const d=s.data();
+    if(Array.isArray(d.invites))return d.invites.map(e=>({email:String(e.email).toLowerCase(),role:e.role==='admin'?'admin':'member'}));
+    if(Array.isArray(d.emails))return d.emails.map(e=>({email:String(e).toLowerCase(),role:'member'}));
+    return[];
+  }catch(e){console.error('uGetInvites',e);return[];}
+}
+async function uSaveInvites(invites){await _fs.collection('config').doc('access').set({invites,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});}
+async function uAddInvite(email,role){
+  const e=String(email).trim().toLowerCase();
+  if(!e.endsWith('@jakala.com'))throw new Error('Solo indirizzi @jakala.com possono essere invitati.');
+  const r=role==='admin'?'admin':'member';
+  const inv=await uGetInvites();const i=inv.findIndex(x=>x.email===e);
+  if(i>=0)inv[i].role=r;else inv.push({email:e,role:r});
+  await uSaveInvites(inv);
+}
+async function uRemoveInvite(email){const e=String(email).trim().toLowerCase();await uSaveInvites((await uGetInvites()).filter(x=>x.email!==e));}
+async function uSetInviteRole(email,role){await uAddInvite(email,role);}
+async function uListUsers(){
+  try{const s=await _fs.collection('users').orderBy('displayName').get();return s.docs.map(d=>Object.assign({uid:d.id},d.data()));}
+  catch(e){console.error('uListUsers',e);return[];}
+}
+async function uSetUserRole(uid,role){await _fs.collection('users').doc(uid).set({role:role==='admin'?'admin':'member',updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});}
+async function uSetUserActive(uid,active){await _fs.collection('users').doc(uid).set({active:!!active,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});}
 
 _auth.onAuthStateChanged(async function(fu){
   if(!fu){_user=null;_profile=null;document.getElementById('AP').style.display='none';liRender('','');return;}
@@ -136,7 +166,11 @@ _auth.onAuthStateChanged(async function(fu){
     const autoName=displayNameFromEmail(fu.email);
     const TS=firebase.firestore.FieldValue.serverTimestamp;
     if(!snap.exists){
-      const profile={email:fu.email,displayName:autoName,role:isBoot?'admin':'member',active:true,createdAt:TS(),updatedAt:TS()};
+      // First appearance: gate by the invite allowlist (bootstrap admins always allowed)
+      let invitedRole=null;
+      if(!isBoot){const inv=await uGetInvites();const f=inv.find(x=>x.email===fu.email.toLowerCase());invitedRole=f?f.role:null;}
+      if(!(isBoot||invitedRole!=null)){await _auth.signOut();liRender('Questo indirizzo non risulta invitato. Chiedi a un amministratore di aggiungerti.','');return;}
+      const profile={email:fu.email,displayName:autoName,role:isBoot?'admin':(invitedRole||'member'),active:true,createdAt:TS(),updatedAt:TS()};
       await ref.set(profile);_profile=profile;
     }else{
       const data=snap.data();
@@ -196,10 +230,10 @@ html = html.replace(
     1,
 )
 
-# H2. Light design tokens (mirror css/global.css of the Quotation Hub)
+# H2. Light design tokens — white background, strong contrast (Quotation Hub feel)
 light_root = ('@charset "utf-8";\n:root { '
-    '--bg:#f5f4f0; --sf:#ffffff; --s2:#ffffff; --bd:#e3e3dd; --bh:#185fa5; '
-    '--tx:#1a1a1a; --t2:#595959; --t3:#8a8780; --ac:#185fa5; --a2:#185fa5; '
+    '--bg:#ffffff; --sf:#ffffff; --s2:#ffffff; --bd:#d7d6ce; --bh:#185fa5; '
+    '--tx:#15171c; --t2:#42454c; --t3:#6b6e76; --ac:#185fa5; --a2:#185fa5; '
     '--gn:#2f6e12; --yl:#8a5a0c; --or:#c2410c; --rd:#b32a1c; '
     "--mn:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace; "
     "--sn:'Raleway',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }")
@@ -237,17 +271,102 @@ html = html.replace(
     'const PLC={4:"#f87171",3:"#60a5fa",2:"#34d399",1:"#a78bfa"};',
     'const PLC={4:"#b32a1c",3:"#185fa5",2:"#2f6e12",1:"#6d4ba8"};')
 
-# H9. Final light-theme touch-ups (appended last so they win)
+# H9. Final light-theme touch-ups (appended last so they win) — white bg + structure
 theme_css = (
-    ".xtbl th{background:#faf9f5}"
-    ".xtbl th .flt{background:#faf9f5}"
-    ".sc,.sh{background:var(--bg)}"
-    ".di{box-shadow:0 1px 2px rgba(0,0,0,.04)}"
-    ".hdr{box-shadow:0 1px 2px rgba(0,0,0,.05)}"
-    ".pn,.md{box-shadow:0 2px 16px rgba(0,0,0,.06)}"
-    ".mx.off{color:rgba(0,0,0,.18)}"
+    # Header bar: white with a clear divider + shadow
+    ".hdr{border-bottom:1px solid #e3e2da;box-shadow:0 1px 3px rgba(0,0,0,.05)}"
+    # Dashboard KPI tiles: subtle card so they pop on white
+    ".di{background:#fbfbfa;border:1px solid var(--bd);box-shadow:0 1px 2px rgba(0,0,0,.04)}"
+    ".dt,.efbr,.rt,.rfl,.rev-bar{background:#e9e8e2}"
+    # Tab group container
+    ".nt{background:#eef0f3}"
+    ".ntb.a{background:#e6f1fb;color:#185fa5}"
+    # Main data tables: tinted sticky header + zebra rows for readability
+    ".xtbl th{background:#eef0f3;border-bottom:2px solid #cfd4da;color:#42454c}"
+    ".xtbl th .flt{background:#eef0f3;border-top-color:#dfe2e6}"
+    ".xtbl tbody tr:nth-child(even){background:#f7f8fa}"
+    ".xtbl tbody tr:hover{background:#eef4fb}"
+    ".xtbl tbody tr.sel{background:#e1ecf8}"
+    ".xtbl td{border-bottom:1px solid #ececea}"
+    ".sc,.sh{background:#fff}"
+    # Side panel / modal / list cards
+    ".pn,.md{box-shadow:0 4px 20px rgba(0,0,0,.10)}"
+    ".ap{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04)}"
+    ".ap:hover{border-color:#bcd3ec}"
+    ".ap.sel{background:#e8f1fb;border-color:#185fa5}"
+    ".mx.off{background:#f2f2ef;border:1px solid #e4e3dd;color:rgba(0,0,0,.25)}"
+    ".pr2{background:#f6f6f3}"
+    ".tchip{background:#eef0f3;color:#42454c}"
+    ".si,.pi,.mxi{background:#fff;border:1px solid var(--bd)}"
+    ".si::placeholder{color:#9a9aa0}"
+    # Users / access-management view
+    ".ucard{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:20px 22px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}"
+    ".uct{font-size:18px;font-weight:700;color:#15171c;margin-bottom:4px}"
+    ".ucs{font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.5;max-width:80ch}"
+    ".utbl{width:100%;border-collapse:collapse;font-size:13px}"
+    ".utbl th{text-align:left;padding:9px 10px;background:#eef0f3;border-bottom:2px solid #cfd4da;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#42454c;white-space:nowrap}"
+    ".utbl td{padding:9px 10px;border-bottom:1px solid #ececea;color:var(--tx);vertical-align:middle}"
+    ".utbl tbody tr:nth-child(even){background:#f7f8fa}"
+    ".utbl select{padding:5px 8px;border:1px solid var(--bd);border-radius:6px;background:#fff;color:var(--tx);font-size:12px;font-family:inherit}"
+    ".utbl .ctr{text-align:center}"
 )
 html = html.replace('</style>', theme_css + '</style>', 1)
+
+# ── I. ACCESS MANAGEMENT: "Utenti" tab + invite-based user activation (Quotation Hub model) ──
+
+# I1. Add the nav tab
+assert '["assign","⚡ Assegna"]]' in html, 'nav tabs anchor not found'
+html = html.replace('["assign","⚡ Assegna"]]',
+                    '["assign","⚡ Assegna"],["users","⚙ Utenti"]]', 1)
+
+# I2. Route the new view (load Firestore data, then render)
+assert 'function sw(v){S.vw=v;S.sm=null;S.sp=null;R()}' in html, 'sw() anchor not found'
+html = html.replace('function sw(v){S.vw=v;S.sm=null;S.sp=null;R()}',
+                    "function sw(v){S.vw=v;S.sm=null;S.sp=null;if(v==='users'){uLoad();return;}R()}", 1)
+
+# I3. Render the view inside the content area
+anchor_ap = 'h+=`</div>`;document.getElementById("AP").innerHTML=h;'
+assert anchor_ap in html, 'AP render anchor not found'
+html = html.replace(anchor_ap, "if(S.vw==='users'){h+=renderUsers();}\n" + anchor_ap, 1)
+
+# I4. Append the access-management UI + actions before the closing </script>
+users_js = r"""
+// ===== Access management view (admins invite by email + role; the invited person sets their own password via the shared app link) =====
+let _uUsers=null,_uInvites=null,_uLoading=false;
+function uLoad(){_uLoading=true;R();Promise.all([uListUsers(),uGetInvites()]).then(function(r){_uUsers=r[0];_uInvites=r[1];_uLoading=false;R();}).catch(function(){_uUsers=[];_uInvites=[];_uLoading=false;R();});}
+function uRoleBadge(role){return role==='admin'?'<span class="sb" style="background:rgba(24,95,165,.12);color:#185fa5">Admin</span>':'<span class="sb" style="background:rgba(0,0,0,.06);color:#42454c">Member</span>';}
+function renderUsers(){
+  var adm=isAdmin();
+  if(_uLoading||_uUsers===null||_uInvites===null)return '<div style="flex:1;text-align:center;padding:50px;color:var(--t2);font-size:14px">Caricamento utenti...</div>';
+  var me=_user?_user.uid:null;
+  var invRows=_uInvites.length?_uInvites.map(function(i){
+    var roleCell=adm?'<select onchange="uChgInviteRole(\''+esc(i.email)+'\',this.value)"><option value="member"'+(i.role!=='admin'?' selected':'')+'>Member</option><option value="admin"'+(i.role==='admin'?' selected':'')+'>Admin</option></select>':uRoleBadge(i.role);
+    var act=adm?'<button class="b br" onclick="uRmInvite(\''+esc(i.email)+'\')">Rimuovi</button>':'';
+    return '<tr><td>'+esc(i.email)+'</td><td>'+roleCell+'</td><td class="ctr">'+act+'</td></tr>';
+  }).join(''):'<tr><td colspan="3" style="text-align:center;color:var(--t3);padding:14px">Nessuna email invitata.</td></tr>';
+  var inviteForm=adm?'<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap"><input id="u-email" type="email" placeholder="nome.cognome@jakala.com" class="si" style="flex:1;min-width:240px;width:auto"><select id="u-role" class="si" style="width:120px"><option value="member">Member</option><option value="admin">Admin</option></select><button class="b ba" onclick="uDoInvite()">Invita</button></div>':'';
+  var usrRows=_uUsers.length?_uUsers.map(function(u){
+    var active=u.active!==false,isMe=u.uid===me;
+    var roleCell=(adm&&!isMe)?'<select onchange="uChgUserRole(\''+u.uid+'\',this.value)"><option value="member"'+(u.role==='member'?' selected':'')+'>Member</option><option value="admin"'+(u.role==='admin'?' selected':'')+'>Admin</option></select>':uRoleBadge(u.role);
+    var statusCell=active?'<span class="sb" style="background:rgba(47,110,18,.12);color:#2f6e12">Attivo</span>':'<span class="sb" style="background:rgba(0,0,0,.06);color:#42454c">Disabilitato</span>';
+    var act=(adm&&!isMe)?(active?'<button class="b br" onclick="uDisable(\''+u.uid+'\')">Disabilita</button>':'<button class="b bg" onclick="uEnable(\''+u.uid+'\')">Riattiva</button>'):(isMe?'<span style="font-size:10px;color:var(--t3)">(tu)</span>':'');
+    return '<tr style="'+(active?'':'opacity:.55')+'"><td>'+esc(u.displayName||'')+'</td><td>'+esc(u.email||'')+'</td><td>'+roleCell+'</td><td>'+statusCell+'</td><td class="ctr">'+act+'</td></tr>';
+  }).join(''):'<tr><td colspan="5" style="text-align:center;color:var(--t3);padding:18px">Nessun utente ancora.</td></tr>';
+  return '<div style="flex:1;min-width:0;max-width:960px;margin:0 auto;width:100%">'
+    +'<div class="ucard"><div class="uct">Email invitate (lista accessi)</div><div class="ucs">Solo le email invitate possono registrarsi e accedere. Scegli il ruolo al momento dell\'invito: la persona lo riceve al primo accesso. Poi condividi il link dell\'app: l\'invitato si registra impostando la propria password.</div>'+inviteForm+'<table class="utbl"><thead><tr><th>Email</th><th>Ruolo al primo accesso</th><th class="ctr">Azione</th></tr></thead><tbody>'+invRows+'</tbody></table></div>'
+    +'<div class="ucard"><div class="uct">Utenti</div><div class="ucs">Gli utenti compaiono qui automaticamente dopo il primo accesso. Da qui puoi cambiarne il ruolo o disabilitarne l\'accesso.</div><table class="utbl"><thead><tr><th>Nome</th><th>Email</th><th>Ruolo</th><th>Stato</th><th class="ctr">Azioni</th></tr></thead><tbody>'+usrRows+'</tbody></table></div>'
+    +(adm?'':'<div style="font-size:12px;color:var(--t3);text-align:center;margin-top:4px">Vista in sola lettura: solo gli amministratori possono invitare o modificare gli utenti.</div>')
+    +'</div>';
+}
+function uDoInvite(){var e=(document.getElementById('u-email')||{}).value||'';var r=(document.getElementById('u-role')||{}).value||'member';if(!e.trim())return;uAddInvite(e,r).then(uLoad).catch(function(err){alert('Invito fallito: '+(err.message||err));});}
+function uRmInvite(e){if(!confirm('Rimuovere l\'invito per '+e+'?'))return;uRemoveInvite(e).then(uLoad).catch(function(err){alert(err.message||err);});}
+function uChgInviteRole(e,r){uSetInviteRole(e,r).then(uLoad).catch(function(err){alert(err.message||err);});}
+function uChgUserRole(uid,r){uSetUserRole(uid,r).then(uLoad).catch(function(err){alert(err.message||err);});}
+function uDisable(uid){uSetUserActive(uid,false).then(uLoad).catch(function(err){alert(err.message||err);});}
+function uEnable(uid){uSetUserActive(uid,true).then(uLoad).catch(function(err){alert(err.message||err);});}
+"""
+cut = html.rindex('</script>')
+html = html[:cut] + users_js + '\n' + html[cut:]
 
 with io.open(OUT, 'w', encoding='utf-8') as f:
     f.write(html)

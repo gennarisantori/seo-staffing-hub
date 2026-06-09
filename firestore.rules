@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Must be signed in with a @jakala.com account
+    function isJakala() {
+      return request.auth != null &&
+             request.auth.token.email.matches('.*@jakala\\.com$');
+    }
+
+    // Caller is an admin (role read from their own users/{uid} doc)
+    function isAdmin() {
+      return isJakala() &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // config/** (invite allowlist at config/access) — all jakala users read; only admins write
+    match /config/{doc} {
+      allow read:  if isJakala();
+      allow write: if isAdmin();
+    }
+
+    // users — self read/create; self update only on non-role fields; admins read/write all
+    match /users/{uid} {
+      allow read:   if isJakala() && (request.auth.uid == uid || isAdmin());
+      allow create: if isJakala() && request.auth.uid == uid;
+      allow update: if isJakala() && (
+                      (request.auth.uid == uid && !('role' in request.resource.data.diff(resource.data).affectedKeys()))
+                      || isAdmin()
+                    );
+    }
+  }
+}
