@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 -4 60 190" role="img" aria-label="JAKALA">
-  <!-- J (red) -->
-  <path d="M64,0 H92 V105 A48,48 0 0 1 44,153 L44,125 A20,20 0 0 0 64,105 Z" fill="#F41E1E"/>
-  <!-- navy wedge on the lower-left of the hook -->
-  <path d="M64,105 A20,20 0 0 1 44,125 L44,153 A48,48 0 0 0 77.9,138.9 Z" fill="#14136B"/>
-  <!-- hexagon dot (red) -->
-  <path d="M78,148 L92.72,156.5 L92.72,173.5 L78,182 L63.28,173.5 L63.28,156.5 Z" fill="#F41E1E"/>
-</svg>
