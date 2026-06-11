@@ -528,6 +528,8 @@ TR = [
     ('"Rimuovere?"', '"Remove?"'),
     (">Assegna</div>", ">Assign</div>"),
     ("nome.cognome@jakala.com", "name.surname@jakala.com"),
+    # Title
+    ("SEO Staffing Hub", "SEO/GEO Staffing Hub"),
 ]
 for it, en in TR:
     html = html.replace(it, en)
