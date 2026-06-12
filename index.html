@@ -181,6 +181,10 @@ input, select, button, textarea { font-family: inherit; }
 
 .mw table { border-collapse: separate; border-spacing: 1px; font-size: 10px; width: 100%; }
 
+.mxt { table-layout: fixed; border-collapse: separate; border-spacing: 2px 1px; font-size: 10px; }
+.mxt th, .mxt td { width: 42px; }
+.mxt .sc, .mxt .sh { width: 200px; }
+
 .mw table thead th { position: sticky; top: 0px; z-index: 4; }
 
 .mw th { padding: 3px; font-weight: 600; }
@@ -926,10 +930,10 @@ h+=`<div style="flex:1;min-width:0;display:flex;flex-direction:column">
 </select>
 <span style="font-size:10px;color:var(--t3);margin-left:auto">${fp.length} projects · ${mm.length} people</span>
 </div>
-<div class="mn"><table>
+<div class="mn"><table class="mxt">
 <thead>
 <tr><th class="sh" rowspan="2" style="text-align:left;padding:5px 8px;color:var(--t3);font-size:9px;min-width:200px;vertical-align:bottom;background:var(--bg)">Project</th>
-${mm.map(m=>`<th style="text-align:center;padding:2px 1px 0;font-size:7px;font-weight:600;color:${RC[m.role]||'#999'};white-space:nowrap;border-bottom:none;background:var(--bg)">${esc(m.role.replace('Senior ','Sr. ').replace('Consultant','Cons.').replace('Manager','Mgr').replace('Ass. ','A.').replace('Sr. Cons.','Sr.C').replace('J. Cons.','Jr.C'))}</th>`).join('')}
+${mm.map(m=>`<th style="text-align:center;padding:2px 1px 0;font-size:7px;font-weight:600;color:${RC[m.role]||'#999'};white-space:normal;line-height:1.1;border-bottom:none;background:var(--bg)">${esc(m.role.replace('Senior ','Sr. ').replace('Consultant','Cons.').replace('Manager','Mgr').replace('Ass. ','A.').replace('Sr. Cons.','Sr.C').replace('J. Cons.','Jr.C'))}</th>`).join('')}
 </tr>
 <tr>
 ${mm.map(m=>{const ef=mEf(m.id);return`<th class="vh" style="color:${sc(ef)};font-weight:600;font-size:9px;background:var(--bg)">${esc(mxName(m))}</th>`}).join('')}
