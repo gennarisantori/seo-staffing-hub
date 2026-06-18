@@ -551,10 +551,13 @@ html = html.replace(
 # ── M. Members can edit ONLY projects they created or are involved in (have an allocation); admins: all ──
 # M1. Permission helpers (a signed-in user is mapped to team resources by name-token match).
 helpers = (
-    r"function _nmTok(s){return String(s||'').toLowerCase().replace(/\[ext\]/g,' ').replace(/[^a-z\s]/g,' ').split(/\s+/).filter(Boolean);}"
-    r"function myResourceIds(){if(!_user)return[];var mine=_nmTok((_profile&&_profile.displayName)||_user.email);if(!mine.length)return[];return S.m.filter(function(m){var rn=_nmTok(m.name);return mine.every(function(t){return rn.indexOf(t)>=0;});}).map(function(m){return m.id;});}"
+    r"function _nmTok(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\[ext\]/g,' ').replace(/[^a-z\s]/g,' ').split(/\s+/).filter(Boolean);}"
+    r"function _emailFromName(n){var t=_nmTok(n);return t.length?t.join('.')+'@jakala.com':'';}"
+    r"function _resEmail(m){return (m&&m.email&&String(m.email).toLowerCase())||_emailFromName(m&&m.name);}"
+    r"function myResourceIds(){if(!_user)return[];var em=String(_user.email||'').toLowerCase();var mine=_nmTok((_profile&&_profile.displayName)||_user.email);return S.m.filter(function(m){if(em&&_resEmail(m)===em)return true;return mine.length&&mine.every(function(t){return _nmTok(m.name).indexOf(t)>=0;});}).map(function(m){return m.id;});}"
     r"function canEditProject(p){if(isAdmin())return true;if(!p||!_user)return false;if(p.createdBy&&p.createdBy===_user.uid)return true;var ids=myResourceIds();return ids.some(function(id){return p.asgn&&p.asgn[id]>0;});}"
     r"function canEditProjectId(pid){return canEditProject(S.p.find(function(x){return x.id===pid;}));}"
+    r"function _migrateTeam(){var ch=false;(S.m||[]).forEach(function(m){if(m.name==='Federico Gennari Santori'){m.name='Federico Gennari';ch=true;}if(!m.email){m.email=_emailFromName(m.name);ch=true;}});if(ch&&typeof isAdmin==='function'&&isAdmin()){try{sv();}catch(e){}}}"
 )
 html = html.replace('function mEf(mid){', helpers + '\nfunction mEf(mid){', 1)
 
@@ -598,6 +601,29 @@ html = html.replace(
 # M5. Assign "By project" list shows members only the projects they can edit.
 html = html.replace('let fap=[...ps].filter(p=>p.totalDays>0);',
                     'let fap=[...ps].filter(p=>p.totalDays>0&&canEditProject(p));', 1)
+
+# ── N. Email per team resource (robust user<->resource link) + rename in seed ──
+# N1. Seed rename so resets/new data are correct too.
+html = html.replace('name:"Federico Gennari Santori"', 'name:"Federico Gennari"', 1)
+# N2. On load, backfill emails and apply the rename (persisted by an admin).
+html = html.replace('if(d?.m&&d?.p){S.m=d.m;S.p=d.p}',
+                    'if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}}')   # once() + localStorage fallback
+html = html.replace('if(d?.m&&d?.p){S.m=d.m;S.p=d.p;R()}',
+                    'if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}R()}', 1)  # realtime listener
+# N3. Email field in the Add person modal.
+html = html.replace(
+    '<h2>Add person</h2><label>Name</label><input id="xn"><label>Role</label>',
+    '<h2>Add person</h2><label>Name</label><input id="xn"><label>Email</label><input id="xe" type="email" placeholder="name.surname@jakala.com"><label>Role</label>', 1)
+html = html.replace(
+    'S.m.push({id:"m_"+Math.random().toString(36).slice(2,8),name:n,role:document.getElementById("xr").value,cap:parseInt(document.getElementById("xc").value)||220})',
+    'S.m.push({id:"m_"+Math.random().toString(36).slice(2,8),name:n,role:document.getElementById("xr").value,cap:parseInt(document.getElementById("xc").value)||220,email:(document.getElementById("xe").value||"").trim().toLowerCase()||_emailFromName(n)})', 1)
+# N4. Email field in the Edit person modal.
+html = html.replace(
+    '<h2>Edit person</h2><label>Name</label><input id="xn" value="${esc(m.name)}"><label>Role</label>',
+    '<h2>Edit person</h2><label>Name</label><input id="xn" value="${esc(m.name)}"><label>Email</label><input id="xe" type="email" value="${esc(m.email||_emailFromName(m.name))}"><label>Role</label>', 1)
+html = html.replace(
+    'function doEM(id){const m=S.m.find(x=>x.id===id);if(!m)return;m.name=document.getElementById("xn").value;',
+    'function doEM(id){const m=S.m.find(x=>x.id===id);if(!m)return;m.name=document.getElementById("xn").value;m.email=(document.getElementById("xe").value||"").trim().toLowerCase()||_emailFromName(m.name);', 1)
 
 with io.open(OUT, 'w', encoding='utf-8') as f:
     f.write(html)

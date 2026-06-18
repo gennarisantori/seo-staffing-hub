@@ -348,7 +348,7 @@ const IM=[
 {id:"m11",name:"Yuri Ramirez",role:"Associate",cap:220},{id:"m12",name:"Rossana Venturella",role:"Senior Consultant",cap:220},
 {id:"m13",name:"Giulia Pignatiello",role:"Consultant",cap:220},{id:"m14",name:"Gabriella La Fata",role:"Associate",cap:220},
 {id:"m15",name:"Gabriele Mereu Milia",role:"Analyst",cap:220},{id:"m16",name:"Diego Barberio",role:"Expert Lead",cap:220},
-{id:"m17",name:"Eliana Izzo",role:"Associate",cap:220},{id:"m18",name:"Federico Gennari Santori",role:"Senior Manager",cap:220},
+{id:"m17",name:"Eliana Izzo",role:"Associate",cap:220},{id:"m18",name:"Federico Gennari",role:"Senior Manager",cap:220},
 {id:"m19",name:"Sara Pianigiani",role:"Consultant",cap:220},{id:"m20",name:"Alessia Oggero",role:"Senior Consultant",cap:220},
 {id:"m21",name:"Alessandro Azzini",role:"Consultant",cap:220},{id:"m22",name:"Rebecca Yu",role:"Associate Manager",cap:220},
 {id:"m23",name:"Alessandro Corti",role:"Analyst",cap:220},{id:"m24",name:"Martina Posella",role:"Consultant",cap:220},
@@ -440,13 +440,13 @@ let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),vw:"tea
 function ld(cb){
   dbRef.once('value').then(snap=>{
     const d=snap.val();
-    if(d?.m&&d?.p){S.m=d.m;S.p=d.p}
+    if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}}
     _fbReady=true;
     if(cb)cb();
   }).catch(e=>{
     console.error('Firebase load error:',e);
     // Fallback to localStorage
-    try{const d=JSON.parse(localStorage.getItem("sfv11"));if(d?.m&&d?.p){S.m=d.m;S.p=d.p}}catch(ex){}
+    try{const d=JSON.parse(localStorage.getItem("sfv11"));if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}}}catch(ex){}
     _fbReady=true;
     if(cb)cb();
   });
@@ -454,7 +454,7 @@ function ld(cb){
   dbRef.on('value',snap=>{
     if(_saving)return;
     const d=snap.val();
-    if(d?.m&&d?.p){S.m=d.m;S.p=d.p;R()}
+    if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}R()}
   });
 }
 function sv(){
@@ -466,7 +466,7 @@ function sv(){
     try{localStorage.setItem("sfv11",JSON.stringify({m:S.m,p:S.p}))}catch(ex){}
   });
 }
-function _nmTok(s){return String(s||'').toLowerCase().replace(/\[ext\]/g,' ').replace(/[^a-z\s]/g,' ').split(/\s+/).filter(Boolean);}function myResourceIds(){if(!_user)return[];var mine=_nmTok((_profile&&_profile.displayName)||_user.email);if(!mine.length)return[];return S.m.filter(function(m){var rn=_nmTok(m.name);return mine.every(function(t){return rn.indexOf(t)>=0;});}).map(function(m){return m.id;});}function canEditProject(p){if(isAdmin())return true;if(!p||!_user)return false;if(p.createdBy&&p.createdBy===_user.uid)return true;var ids=myResourceIds();return ids.some(function(id){return p.asgn&&p.asgn[id]>0;});}function canEditProjectId(pid){return canEditProject(S.p.find(function(x){return x.id===pid;}));}
+function _nmTok(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\[ext\]/g,' ').replace(/[^a-z\s]/g,' ').split(/\s+/).filter(Boolean);}function _emailFromName(n){var t=_nmTok(n);return t.length?t.join('.')+'@jakala.com':'';}function _resEmail(m){return (m&&m.email&&String(m.email).toLowerCase())||_emailFromName(m&&m.name);}function myResourceIds(){if(!_user)return[];var em=String(_user.email||'').toLowerCase();var mine=_nmTok((_profile&&_profile.displayName)||_user.email);return S.m.filter(function(m){if(em&&_resEmail(m)===em)return true;return mine.length&&mine.every(function(t){return _nmTok(m.name).indexOf(t)>=0;});}).map(function(m){return m.id;});}function canEditProject(p){if(isAdmin())return true;if(!p||!_user)return false;if(p.createdBy&&p.createdBy===_user.uid)return true;var ids=myResourceIds();return ids.some(function(id){return p.asgn&&p.asgn[id]>0;});}function canEditProjectId(pid){return canEditProject(S.p.find(function(x){return x.id===pid;}));}function _migrateTeam(){var ch=false;(S.m||[]).forEach(function(m){if(m.name==='Federico Gennari Santori'){m.name='Federico Gennari';ch=true;}if(!m.email){m.email=_emailFromName(m.name);ch=true;}});if(ch&&typeof isAdmin==='function'&&isAdmin()){try{sv();}catch(e){}}}
 function mEf(mid){let t=0;S.p.forEach(p=>{t+=(p.asgn?.[mid]||0)});return Math.round(t*10)/10}
 function mEfBill(mid){let t=0;S.p.forEach(p=>{if(!p.nb)t+=(p.asgn?.[mid]||0)});return Math.round(t*10)/10}
 function mEfNB(mid){let t=0;S.p.forEach(p=>{if(p.nb)t+=(p.asgn?.[mid]||0)});return Math.round(t*10)/10}
@@ -1069,10 +1069,10 @@ function autoCalcPerson(mid){
 }
 
 // MODALS
-function amM(){if(!isAdmin())return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Add person</h2><label>Name</label><input id="xn"><label>Role</label><select id="xr">${RH.map(r=>`<option value="${r}">${r}</option>`).join('')}</select><label>Capacity (days/year)</label><input id="xc" type="number" value="220"><div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doAM()">Add</button></div></div></div>`}
-function doAM(){if(!isAdmin())return;const n=document.getElementById("xn").value.trim();if(!n)return alert("Name!");S.m.push({id:"m_"+Math.random().toString(36).slice(2,8),name:n,role:document.getElementById("xr").value,cap:parseInt(document.getElementById("xc").value)||220});cm();sv();R()}
-function emM(id){if(!isAdmin())return;const m=S.m.find(x=>x.id===id);if(!m)return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Edit person</h2><label>Name</label><input id="xn" value="${esc(m.name)}"><label>Role</label><select id="xr">${RH.map(r=>`<option value="${r}"${m.role===r?' selected':''}>${r}</option>`).join('')}</select><label>Capacity (days/year)</label><input id="xc" type="number" value="${m.cap}"><div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doEM('${id}')">Save</button></div></div></div>`}
-function doEM(id){const m=S.m.find(x=>x.id===id);if(!m)return;m.name=document.getElementById("xn").value;m.role=document.getElementById("xr").value;m.cap=parseInt(document.getElementById("xc").value)||220;cm();sv();R()}
+function amM(){if(!isAdmin())return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Add person</h2><label>Name</label><input id="xn"><label>Email</label><input id="xe" type="email" placeholder="name.surname@jakala.com"><label>Role</label><select id="xr">${RH.map(r=>`<option value="${r}">${r}</option>`).join('')}</select><label>Capacity (days/year)</label><input id="xc" type="number" value="220"><div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doAM()">Add</button></div></div></div>`}
+function doAM(){if(!isAdmin())return;const n=document.getElementById("xn").value.trim();if(!n)return alert("Name!");S.m.push({id:"m_"+Math.random().toString(36).slice(2,8),name:n,role:document.getElementById("xr").value,cap:parseInt(document.getElementById("xc").value)||220,email:(document.getElementById("xe").value||"").trim().toLowerCase()||_emailFromName(n)});cm();sv();R()}
+function emM(id){if(!isAdmin())return;const m=S.m.find(x=>x.id===id);if(!m)return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Edit person</h2><label>Name</label><input id="xn" value="${esc(m.name)}"><label>Email</label><input id="xe" type="email" value="${esc(m.email||_emailFromName(m.name))}"><label>Role</label><select id="xr">${RH.map(r=>`<option value="${r}"${m.role===r?' selected':''}>${r}</option>`).join('')}</select><label>Capacity (days/year)</label><input id="xc" type="number" value="${m.cap}"><div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doEM('${id}')">Save</button></div></div></div>`}
+function doEM(id){const m=S.m.find(x=>x.id===id);if(!m)return;m.name=document.getElementById("xn").value;m.email=(document.getElementById("xe").value||"").trim().toLowerCase()||_emailFromName(m.name);m.role=document.getElementById("xr").value;m.cap=parseInt(document.getElementById("xc").value)||220;cm();sv();R()}
 function amP(){document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Add project</h2><label>Name</label><input id="yn"><label>Client</label><input id="yc"><label>Job ID</label><input id="yj"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><label>Start</label><input id="ys" type="date"></div><div><label>End</label><input id="ye" type="date"></div></div><label>Quoted days per Price Level</label>${PLkeys.map(k=>`<div style="display:flex;align-items:center;gap:6px;margin-top:3px"><span style="width:100px;font-size:10px;color:var(--t2);text-align:right">${k.replace('PL','Price Level ')}</span><input id="yr_${k}" type="number" value="0" min="0" style="width:70px"></div>`).join('')}<div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doAP()">Add</button></div></div></div>`}
 function doAP(){const n=document.getElementById("yn").value.trim();if(!n)return alert("Name!");const dr={};let t=0;PLkeys.forEach(k=>{const v=parseFloat(document.getElementById("yr_"+k).value)||0;dr[k]=v;t+=v});S.p.push({id:"p_"+Math.random().toString(36).slice(2,8),jobId:document.getElementById("yj").value||String(Date.now()).slice(-6),name:n,client:document.getElementById("yc").value.trim(),startDate:document.getElementById("ys").value,endDate:document.getElementById("ye").value,totalDays:t,daysByRole:dr,asgn:{},createdBy:(_user&&_user.uid)||null});cm();sv();R()}
 function epM(id){if(!canEditProjectId(id))return;const p=S.p.find(x=>x.id===id);if(!p)return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Edit project</h2><label>Name</label><input id="yn" value="${esc(p.name)}"><label>Client</label><input id="yc" value="${esc(p.client)}"><label>Job ID</label><input id="yj" value="${p.jobId}"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><label>Start</label><input id="ys" type="date" value="${p.startDate}"></div><div><label>End</label><input id="ye" type="date" value="${p.endDate}"></div></div><label>Quoted days per Price Level</label>${PLkeys.map(k=>`<div style="display:flex;align-items:center;gap:6px;margin-top:3px"><span style="width:100px;font-size:10px;color:var(--t2);text-align:right">${k.replace('PL','Price Level ')}</span><input id="yr_${k}" type="number" value="${p.daysByRole[k]||0}" min="0" style="width:70px"></div>`).join('')}<div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doEP('${id}')">Save</button></div></div></div>`}
