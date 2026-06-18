@@ -36,6 +36,19 @@ design; security is enforced by Auth + DB rules, not by hiding the key).
 - After first login the person appears in the **Utenti** table, where admins can
   change their role or disable their access.
 
+### Roles & permissions
+- **Admin**: full access. Manages the Team people (add/edit/delete), invites users,
+  sees the Admin tab and the Team "Status" column, and can edit every project.
+- **Member**: can create projects, and edit/delete/assign **only** projects they
+  created or are involved in (i.e. a team resource matching their name has an
+  allocated % on that project). Members cannot modify the Team list and do not
+  see the Admin tab or the Status column.
+- "Involved" maps a signed-in user to a team resource by name (the user's display
+  name tokens must appear in the resource name). If names don't match, the member
+  still controls projects they created; an admin can align the resource name.
+  Enforcement is in the client; pair it with matching Realtime Database rules if
+  you need server-side guarantees.
+
 ### Recommended
 - **Realtime Database rules**: now that real auth is in place, tighten the rules
   to require authentication:

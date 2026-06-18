@@ -530,9 +530,74 @@ TR = [
     ("nome.cognome@jakala.com", "name.surname@jakala.com"),
     # Title
     ("SEO Staffing Hub", "SEO/GEO Staffing Hub"),
+    ("Eliminare?", "Delete?"),
 ]
 for it, en in TR:
     html = html.replace(it, en)
+
+# ── L. Members are read-only on the TEAM list (only admins add/edit/delete team people) ──
+html = html.replace(
+    '<div style="display:flex;justify-content:flex-start;margin-bottom:8px;flex-shrink:0"><button class="b bg" onclick="amM()">+ Person</button></div>',
+    '${isAdmin()?`<div style="display:flex;justify-content:flex-start;margin-bottom:8px;flex-shrink:0"><button class="b bg" onclick="amM()">+ Person</button></div>`:``}', 1)
+html = html.replace(
+    '<button class="b ba" onclick="emM(\'${m.id}\')">✎</button><button class="b br" onclick="dM(\'${m.id}\')">✕</button>',
+    '${isAdmin()?`<button class="b ba" onclick="emM(\'${m.id}\')">✎</button><button class="b br" onclick="dM(\'${m.id}\')">✕</button>`:``}', 1)
+for fn in ['function amM(', 'function doAM(', 'function doEM(', 'function dM(']:
+    html = html.replace(fn + '){', fn + "){if(!isAdmin())return;", 1)
+html = html.replace(
+    'function emM(id){const m=S.m.find(x=>x.id===id);if(!m)return;',
+    'function emM(id){if(!isAdmin())return;const m=S.m.find(x=>x.id===id);if(!m)return;', 1)
+
+# ── M. Members can edit ONLY projects they created or are involved in (have an allocation); admins: all ──
+# M1. Permission helpers (a signed-in user is mapped to team resources by name-token match).
+helpers = (
+    r"function _nmTok(s){return String(s||'').toLowerCase().replace(/\[ext\]/g,' ').replace(/[^a-z\s]/g,' ').split(/\s+/).filter(Boolean);}"
+    r"function myResourceIds(){if(!_user)return[];var mine=_nmTok((_profile&&_profile.displayName)||_user.email);if(!mine.length)return[];return S.m.filter(function(m){var rn=_nmTok(m.name);return mine.every(function(t){return rn.indexOf(t)>=0;});}).map(function(m){return m.id;});}"
+    r"function canEditProject(p){if(isAdmin())return true;if(!p||!_user)return false;if(p.createdBy&&p.createdBy===_user.uid)return true;var ids=myResourceIds();return ids.some(function(id){return p.asgn&&p.asgn[id]>0;});}"
+    r"function canEditProjectId(pid){return canEditProject(S.p.find(function(x){return x.id===pid;}));}"
+)
+html = html.replace('function mEf(mid){', helpers + '\nfunction mEf(mid){', 1)
+
+# M2. Stamp the creator when a project is created.
+html = html.replace(',daysByRole:dr,asgn:{}})', ',daysByRole:dr,asgn:{},createdBy:(_user&&_user.uid)||null})', 1)
+
+# M3. Function-level guards on project + assignment mutations (the real enforcement).
+html = html.replace('function doEP(id){const p=S.p.find(x=>x.id===id);if(!p)return;',
+                    'function doEP(id){if(!canEditProjectId(id))return;const p=S.p.find(x=>x.id===id);if(!p)return;', 1)
+html = html.replace('function epM(id){const p=S.p.find(x=>x.id===id);if(!p)return;',
+                    'function epM(id){if(!canEditProjectId(id))return;const p=S.p.find(x=>x.id===id);if(!p)return;', 1)
+html = html.replace('function dP(id){if(!confirm("Delete?"))return;',
+                    'function dP(id){if(!canEditProjectId(id))return;if(!confirm("Delete?"))return;', 1)
+html = html.replace('function setE(pid,mid,pct){const p=S.p.find(x=>x.id===pid);if(!p)return;',
+                    'function setE(pid,mid,pct){if(!canEditProjectId(pid))return;const p=S.p.find(x=>x.id===pid);if(!p)return;', 1)
+html = html.replace('function rmE(pid,mid){const p=S.p.find(x=>x.id===pid);',
+                    'function rmE(pid,mid){if(!canEditProjectId(pid))return;const p=S.p.find(x=>x.id===pid);', 1)
+html = html.replace('function togLink(pid,mid){\n  const p=S.p.find(x=>x.id===pid);if(!p)return;',
+                    'function togLink(pid,mid){\n  if(!canEditProjectId(pid))return;const p=S.p.find(x=>x.id===pid);if(!p)return;', 1)
+html = html.replace('function autoCalc(pid){\n  const p=S.p.find(x=>x.id===pid);if(!p)return;',
+                    'function autoCalc(pid){\n  if(!canEditProjectId(pid))return;const p=S.p.find(x=>x.id===pid);if(!p)return;', 1)
+html = html.replace('function oMx(pid,mid){S._ec={pid,mid};R()}',
+                    'function oMx(pid,mid){if(!canEditProjectId(pid))return;S._ec={pid,mid};R()}', 1)
+html = html.replace('const linkedPs=S.p.filter(p=>p.asgn?.[mid]>0);',
+                    'const linkedPs=S.p.filter(p=>p.asgn?.[mid]>0&&canEditProject(p));', 1)
+html = html.replace('function rst(){if(!confirm("Reset everything?"))return;',
+                    'function rst(){if(!isAdmin())return;if(!confirm("Reset everything?"))return;', 1)
+
+# M4. Project panel: compute editability once and hide the edit controls when the user can't edit.
+html = html.replace('x.id===S.sp);if(p){', 'x.id===S.sp);if(p){const _ce=canEditProject(p);', 1)
+html = html.replace(
+    """<button class="b ba" onclick="epM('${p.id}')">✎</button><button class="b br" onclick="dP('${p.id}')">✕</button>""",
+    """${_ce?`<button class="b ba" onclick="epM('${p.id}')">✎</button><button class="b br" onclick="dP('${p.id}')">✕</button>`:``}""", 1)
+html = html.replace(
+    """<div style="display:flex;align-items:center;gap:3px"><input class="pi" type="number" min="0" max="100" step="5" value="${a.pct}" onchange="setE('${p.id}','${a.mid}',parseFloat(this.value)||0)"><span style="font-size:8px;color:var(--t3)">%</span><span style="font-family:var(--mn);font-size:8px;color:var(--a2)">${de.toFixed(0)}d</span><button class="rb" onclick="rmE('${p.id}','${a.mid}')">×</button></div>""",
+    """<div style="display:flex;align-items:center;gap:3px">${_ce?`<input class="pi" type="number" min="0" max="100" step="5" value="${a.pct}" onchange="setE('${p.id}','${a.mid}',parseFloat(this.value)||0)">`:`<span class="pi" style="border-color:transparent;text-align:center">${a.pct}</span>`}<span style="font-size:8px;color:var(--t3)">%</span><span style="font-family:var(--mn);font-size:8px;color:var(--a2)">${de.toFixed(0)}d</span>${_ce?`<button class="rb" onclick="rmE('${p.id}','${a.mid}')">×</button>`:``}</div>""", 1)
+html = html.replace(
+    """h+=`<div class="psc">Add</div><div class="ac">`;\nms.filter(m=>!asg.find(a=>a.mid===m.id)).map(m=>({...m,av:100-mEf(m.id)})).forEach(m=>{h+=`<span class="ach" onclick="setE('${p.id}','${m.id}',10)"${m.av<=0?' style="opacity:.5"':''}>+ ${esc(m.name)} <span style="font-size:7px;opacity:.5">${m.av.toFixed(0)}%</span></span>`});\nh+=`</div></div>`}}}""",
+    """if(_ce){h+=`<div class="psc">Add</div><div class="ac">`;\nms.filter(m=>!asg.find(a=>a.mid===m.id)).map(m=>({...m,av:100-mEf(m.id)})).forEach(m=>{h+=`<span class="ach" onclick="setE('${p.id}','${m.id}',10)"${m.av<=0?' style="opacity:.5"':''}>+ ${esc(m.name)} <span style="font-size:7px;opacity:.5">${m.av.toFixed(0)}%</span></span>`});\nh+=`</div>`;}\nh+=`</div>`}}}""", 1)
+
+# M5. Assign "By project" list shows members only the projects they can edit.
+html = html.replace('let fap=[...ps].filter(p=>p.totalDays>0);',
+                    'let fap=[...ps].filter(p=>p.totalDays>0&&canEditProject(p));', 1)
 
 with io.open(OUT, 'w', encoding='utf-8') as f:
     f.write(html)
