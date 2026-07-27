@@ -43,10 +43,21 @@ def ckey(s):
     return ALIAS.get(k, k)
 
 
+def is_project(p):
+    """Skip the sheets' summary rows (e.g. a trailing 'Totale' line) and finished work."""
+    name = (p['name'] or '').strip()
+    if not name or re.match(r'^(totale?|total)\b', name, re.I):
+        return False
+    if p['status'].strip().lower() == 'finished':
+        return False
+    # a real project row carries a job id and a start date
+    return bool((p['jobId'] or '').strip()) and bool((p['startDate'] or '').strip())
+
+
 projects, by_client, pid_n = [], {}, 0
 for src, rows in (('SEO', d['seo']), ('Content', d['content'])):
     for p in rows:
-        if p['status'].strip().lower() == 'finished' or not p['name']:
+        if not is_project(p):
             continue
         pid_n += 1
         rec = dict(id='p%d' % pid_n, jobId=p['jobId'] or '-', name=p['name'],
