@@ -439,18 +439,35 @@ function uEnable(uid){uSetUserActive(uid,true).then(uLoad).catch(function(err){a
 function _d0(x){return Math.round(x||0).toLocaleString('en-US');}
 function _p0(x){return (x||0).toFixed(0)+'%';}
 function _bar(pct,col){var w=Math.max(0,Math.min(pct||0,100));return '<div class="acbar" style="margin:4px 0 0"><div style="width:'+w+'%;background:'+col+'"></div></div>';}
-// Aggregate per HR rank + quoted days per Price Level
+// Share of a project's quoted days that falls inside the current year (2026).
+var YEAR=2026, _Y0=Date.UTC(YEAR,0,1), _Y1=Date.UTC(YEAR,11,31), _DAY=864e5;
+function yearShare(p){
+  var s=Date.parse(p.startDate),e=Date.parse(p.endDate);
+  if(isNaN(s)||isNaN(e)||e<s)return 1;              // no usable dates: count in full
+  var os=Math.max(s,_Y0),oe=Math.min(e,_Y1);
+  if(oe<os)return 0;                                 // project doesn't touch this year
+  return (oe-os+_DAY)/(e-s+_DAY);
+}
+// Aggregate capacity/effort per Price Level + quoted days for the current year
 function admData(){
   var rows={},order=[];
   RH.forEach(function(r){rows[r]={rank:r,pl:rPL(r),n:0,cap:0,bill:0,nb:0};order.push(r);});
   S.m.forEach(function(m){var r=rows[m.role];if(!r)return;var c=m.cap||220;r.n++;r.cap+=c;r.bill+=mEfBill(m.id)/100*c;r.nb+=mEfNB(m.id)/100*c;});
-  var quoted={PL4:0,PL3:0,PL2:0,PL1:0},np=0;
-  S.p.forEach(function(p){if(p.nb)return;np++;PLkeys.forEach(function(k){quoted[k]+=(p.daysByRole&&p.daysByRole[k])||0;});});
+  var quoted={PL4:0,PL3:0,PL2:0,PL1:0},quotedAll={PL4:0,PL3:0,PL2:0,PL1:0},np=0;
+  S.p.forEach(function(p){
+    if(p.nb)return;
+    var sh=yearShare(p);
+    if(sh>0)np++;
+    PLkeys.forEach(function(k){var v=(p.daysByRole&&p.daysByRole[k])||0;quoted[k]+=v*sh;quotedAll[k]+=v;});
+  });
   var used=order.filter(function(r){return rows[r].n>0;});
-  var plCap={PL4:0,PL3:0,PL2:0,PL1:0},plBill={PL4:0,PL3:0,PL2:0,PL1:0},plN={PL4:0,PL3:0,PL2:0,PL1:0};
-  used.forEach(function(r){var k='PL'+rows[r].pl;plCap[k]+=rows[r].cap;plBill[k]+=rows[r].bill;plN[k]+=rows[r].n;});
-  return {rows:rows,used:used,quoted:quoted,nProjects:np,plCap:plCap,plBill:plBill,plN:plN};
+  var plCap={PL4:0,PL3:0,PL2:0,PL1:0},plBill={PL4:0,PL3:0,PL2:0,PL1:0},plNb={PL4:0,PL3:0,PL2:0,PL1:0},plN={PL4:0,PL3:0,PL2:0,PL1:0},plRanks={PL4:[],PL3:[],PL2:[],PL1:[]};
+  used.forEach(function(r){var k='PL'+rows[r].pl;plCap[k]+=rows[r].cap;plBill[k]+=rows[r].bill;plNb[k]+=rows[r].nb;plN[k]+=rows[r].n;plRanks[k].push(r);});
+  return {rows:rows,used:used,quoted:quoted,quotedAll:quotedAll,nProjects:np,
+          plCap:plCap,plBill:plBill,plNb:plNb,plN:plN,plRanks:plRanks};
 }
+function plLabel(k){return 'Price Level '+k.replace('PL','');}
+function plRanksTxt(D,k){return D.plRanks[k].length?D.plRanks[k].join(', '):'-';}
 function admSub(k,l){return '<a class="nav-item'+((S.aTab||'overview')===k?' active':'')+'" onclick="S.aTab=\''+k+'\';R()">'+l+'</a>';}
 function renderAdmin(){
   var t=S.aTab||'overview';
@@ -463,68 +480,66 @@ function renderAdmin(){
   else {h+=renderUsers();h+='<div class="ucard"><div class="uct">Maintenance</div><div class="ucs">Reset people and projects to their initial values. This cannot be undone.</div><button class="b br" onclick="rst()">Reset data</button></div>';}
   return h;
 }
-// ── Overview: headcount, projects, quoted days by rank/Price Level, totals ──
+// ── Overview: headcount, projects and quoted days for the current year, per Price Level ──
 function admOverview(){
-  var D=admData(),totQ=0,totCap=0,totN=0;
-  PLkeys.forEach(function(k){totQ+=D.quoted[k];});
+  var D=admData(),totQ=0,totQA=0,totCap=0,totN=0;
+  PLkeys.forEach(function(k){totQ+=D.quoted[k];totQA+=D.quotedAll[k];});
   D.used.forEach(function(r){totCap+=D.rows[r].cap;totN+=D.rows[r].n;});
-  var h='<div class="ucard"><div class="uct">Overview</div><div class="ucs">Headcount, projects and quoted days (sold on the price quotes). Quoted days are set per Price Level, so they are shown on the Price Level row and the HR ranks that belong to it are listed underneath.</div>'
-   +'<div class="ametrics">'+amCard('People',totN,'')+amCard('Projects',D.nProjects,'')+amCard('Quoted days',_d0(totQ),'#185fa5')+amCard('Capacity days',_d0(totCap),'')+amCard('Quoted / capacity',_p0(totCap?totQ/totCap*100:0),sc(totCap?totQ/totCap*100:0))+'</div></div>';
-  h+='<div class="ucard"><div class="uct">Quoted days by Price Level and HR rank</div><table class="utbl"><thead><tr><th>Price Level / HR rank</th><th class="r">People</th><th class="r">Capacity (d)</th><th class="r">Quoted (d)</th></tr></thead><tbody>';
+  var ratio=totCap?totQ/totCap*100:0;
+  var h='<div class="ucard"><div class="uct">Overview '+YEAR+'</div><div class="ucs">Headcount, active projects and days quoted on the price quotes, per Price Level. Quoted days are counted pro rata for '+YEAR+': a project running beyond the year only contributes the share of days falling inside it.</div>'
+   +'<div class="ametrics">'+amCard('People',totN,'')+amCard('Projects',D.nProjects,'')+amCard('Quoted days '+YEAR,_d0(totQ),'#185fa5')+amCard('Capacity days',_d0(totCap),'')+amCard('Quoted / capacity',_p0(ratio),sc(ratio))+'</div></div>';
+  h+='<div class="ucard"><div class="uct">Quoted days by Price Level</div><table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Capacity (d)</th><th class="r">Quoted '+YEAR+' (d)</th><th class="r">Quoted, full contract (d)</th></tr></thead><tbody>';
   PLkeys.forEach(function(k){
-    var pln=+k.replace('PL','');
-    h+='<tr class="grp"><td>Price Level '+pln+'</td><td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(D.plCap[k])+'</td><td class="r"><b>'+_d0(D.quoted[k])+'</b></td></tr>';
-    D.used.filter(function(r){return D.rows[r].pl===pln;}).forEach(function(r){
-      h+='<tr><td style="padding-left:26px;color:var(--t2)">'+esc(r)+'</td><td class="r">'+D.rows[r].n+'</td><td class="r">'+_d0(D.rows[r].cap)+'</td><td class="r" style="color:var(--t3)">-</td></tr>';
-    });
+    h+='<tr><td><b>'+plLabel(k)+'</b></td><td style="font-size:11px;color:var(--t2)">'+esc(plRanksTxt(D,k))+'</td><td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(D.plCap[k])+'</td><td class="r"><b>'+_d0(D.quoted[k])+'</b></td><td class="r" style="color:var(--t3)">'+_d0(D.quotedAll[k])+'</td></tr>';
   });
-  h+='<tr class="tot"><td>Total</td><td class="r">'+totN+'</td><td class="r">'+_d0(totCap)+'</td><td class="r">'+_d0(totQ)+'</td></tr>';
+  h+='<tr class="tot"><td>Total</td><td></td><td class="r">'+totN+'</td><td class="r">'+_d0(totCap)+'</td><td class="r">'+_d0(totQ)+'</td><td class="r">'+_d0(totQA)+'</td></tr>';
   return h+'</tbody></table></div>';
 }
-// ── Billability: billable vs non-billable days and utilization rate, per rank ──
+// ── Billability: billable vs non-billable days and utilization rate, per Price Level ──
 function admBillability(){
-  var D=admData(),tb=0,tn=0,tc=0;
-  var h='<div class="ucard"><div class="uct">Billability</div><div class="ucs">Days spent on client projects (billable) versus internal work and presale (non-billable), per HR rank. Utilization rate = billable days / available capacity.</div>'
-   +'<table class="utbl"><thead><tr><th>HR rank</th><th class="r">People</th><th class="r">Capacity (d)</th><th class="r">Billable (d)</th><th class="r">Non-billable (d)</th><th class="r">Utilization</th></tr></thead><tbody>';
-  D.used.forEach(function(r){
-    var x=D.rows[r],u=x.cap?x.bill/x.cap*100:0;tb+=x.bill;tn+=x.nb;tc+=x.cap;
-    h+='<tr><td>'+esc(r)+' <span style="font-size:10px;color:var(--t3)">PL'+x.pl+'</span></td><td class="r">'+x.n+'</td><td class="r">'+_d0(x.cap)+'</td><td class="r" style="color:#185fa5">'+_d0(x.bill)+'</td><td class="r" style="color:var(--t3)">'+_d0(x.nb)+'</td><td class="r"><b style="color:'+sc(u)+'">'+_p0(u)+'</b>'+_bar(u,sc(u))+'</td></tr>';
+  var D=admData(),tb=0,tn=0,tc=0,tN=0;
+  var h='<div class="ucard"><div class="uct">Billability</div><div class="ucs">Days spent on client projects (billable) versus internal work and presale (non-billable), per Price Level. Utilization rate = billable days / available capacity.</div>'
+   +'<table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Capacity (d)</th><th class="r">Billable (d)</th><th class="r">Non-billable (d)</th><th class="r">Utilization</th></tr></thead><tbody>';
+  PLkeys.forEach(function(k){
+    var cap=D.plCap[k],bill=D.plBill[k],nb=D.plNb[k],u=cap?bill/cap*100:0;
+    tb+=bill;tn+=nb;tc+=cap;tN+=D.plN[k];
+    h+='<tr><td><b>'+plLabel(k)+'</b></td><td style="font-size:11px;color:var(--t2)">'+esc(plRanksTxt(D,k))+'</td><td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(cap)+'</td><td class="r" style="color:#185fa5">'+_d0(bill)+'</td><td class="r" style="color:var(--t3)">'+_d0(nb)+'</td><td class="r"><b style="color:'+sc(u)+'">'+_p0(u)+'</b>'+_bar(u,sc(u))+'</td></tr>';
   });
   var tUt=tc?tb/tc*100:0;
-  h+='<tr class="tot"><td>Total</td><td class="r">'+D.used.reduce(function(a,r){return a+D.rows[r].n;},0)+'</td><td class="r">'+_d0(tc)+'</td><td class="r">'+_d0(tb)+'</td><td class="r">'+_d0(tn)+'</td><td class="r">'+_p0(tUt)+'</td></tr>';
+  h+='<tr class="tot"><td>Total</td><td></td><td class="r">'+tN+'</td><td class="r">'+_d0(tc)+'</td><td class="r">'+_d0(tb)+'</td><td class="r">'+_d0(tn)+'</td><td class="r">'+_p0(tUt)+'</td></tr>';
   return h+'</tbody></table></div>';
 }
-// ── Allocation: available capacity vs days actually quoted on projects ──
+// ── Allocation: available capacity vs days quoted on projects, per Price Level ──
 function admAllocation(){
-  var D=admData(),tc=0,tq=0;
-  var h='<div class="ucard"><div class="uct">Allocation</div><div class="ucs">Available capacity versus the days actually quoted on projects. Quoted days come from the price quotes and are defined per Price Level, so the ratio is computed per Price Level (the HR ranks feeding each level are listed).</div>'
-   +'<table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Available (d)</th><th class="r">Quoted (d)</th><th class="r">Quoted / available</th></tr></thead><tbody>';
+  var D=admData(),tc=0,tq=0,tN=0;
+  var h='<div class="ucard"><div class="uct">Allocation '+YEAR+'</div><div class="ucs">Available capacity versus the days actually quoted on projects for '+YEAR+' (pro rata for projects that run beyond the year), per Price Level.</div>'
+   +'<table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Available (d)</th><th class="r">Quoted '+YEAR+' (d)</th><th class="r">Quoted / available</th></tr></thead><tbody>';
   PLkeys.forEach(function(k){
-    var pln=+k.replace('PL',''),cap=D.plCap[k],q=D.quoted[k],r=cap?q/cap*100:(q>0?999:0);
-    tc+=cap;tq+=q;
-    var names=D.used.filter(function(x){return D.rows[x].pl===pln;}).join(', ')||'-';
-    h+='<tr><td><b>Price Level '+pln+'</b></td><td style="font-size:11px;color:var(--t2)">'+esc(names)+'</td><td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(cap)+'</td><td class="r">'+_d0(q)+'</td><td class="r"><b style="color:'+sc(r)+'">'+(r>900?'no capacity':_p0(r))+'</b>'+_bar(r,sc(r))+'</td></tr>';
+    var cap=D.plCap[k],q=D.quoted[k],r=cap?q/cap*100:(q>0?999:0);
+    tc+=cap;tq+=q;tN+=D.plN[k];
+    h+='<tr><td><b>'+plLabel(k)+'</b></td><td style="font-size:11px;color:var(--t2)">'+esc(plRanksTxt(D,k))+'</td><td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(cap)+'</td><td class="r">'+_d0(q)+'</td><td class="r"><b style="color:'+sc(r)+'">'+(r>900?'no capacity':_p0(r))+'</b>'+_bar(r,sc(r))+'</td></tr>';
   });
-  var tr=tc?tq/tc*100:0;
-  h+='<tr class="tot"><td>Total</td><td></td><td class="r">'+D.used.reduce(function(a,r){return a+D.rows[r].n;},0)+'</td><td class="r">'+_d0(tc)+'</td><td class="r">'+_d0(tq)+'</td><td class="r">'+_p0(tr)+'</td></tr>';
+  var tRt=tc?tq/tc*100:0;
+  h+='<tr class="tot"><td>Total</td><td></td><td class="r">'+tN+'</td><td class="r">'+_d0(tc)+'</td><td class="r">'+_d0(tq)+'</td><td class="r">'+_p0(tRt)+'</td></tr>';
   return h+'</tbody></table></div>';
 }
-// ── Perception: available capacity vs the days people believe they spend on projects ──
+// ── Perception: available capacity vs the days people believe they spend, per Price Level ──
 function admPerception(){
-  var D=admData(),tc=0,tp=0;
-  var h='<div class="ucard"><div class="uct">Perception</div><div class="ucs">Available capacity versus the days each team member believes they spend on their projects, derived from the percentage weight they set on each project (non-billable work excluded).</div>'
-   +'<table class="utbl"><thead><tr><th>HR rank</th><th class="r">People</th><th class="r">Available (d)</th><th class="r">Perceived (d)</th><th class="r">Perceived / available</th></tr></thead><tbody>';
-  D.used.forEach(function(r){
-    var x=D.rows[r],p=x.cap?x.bill/x.cap*100:0;tc+=x.cap;tp+=x.bill;
-    h+='<tr><td>'+esc(r)+' <span style="font-size:10px;color:var(--t3)">PL'+x.pl+'</span></td><td class="r">'+x.n+'</td><td class="r">'+_d0(x.cap)+'</td><td class="r">'+_d0(x.bill)+'</td><td class="r"><b style="color:'+sc(p)+'">'+_p0(p)+'</b>'+_bar(p,sc(p))+'</td></tr>';
-  });
-  h+='<tr class="tot"><td>Total</td><td class="r">'+D.used.reduce(function(a,r){return a+D.rows[r].n;},0)+'</td><td class="r">'+_d0(tc)+'</td><td class="r">'+_d0(tp)+'</td><td class="r">'+_p0(tc?tp/tc*100:0)+'</td></tr></tbody></table></div>';
-  // perceived vs quoted, per Price Level
-  h+='<div class="ucard"><div class="uct">Perceived versus quoted, by Price Level</div><div class="ucs">How the effort the team reports compares with what was actually sold on the quotes.</div><table class="utbl"><thead><tr><th>Price Level</th><th class="r">Perceived (d)</th><th class="r">Quoted (d)</th><th class="r">Difference</th></tr></thead><tbody>';
+  var D=admData(),tc=0,tp=0,tq=0,tN=0;
+  var h='<div class="ucard"><div class="uct">Perception</div><div class="ucs">Available capacity versus the days team members believe they spend on their projects, derived from the percentage weight each of them set on every project (non-billable work excluded).</div>'
+   +'<table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Available (d)</th><th class="r">Perceived (d)</th><th class="r">Perceived / available</th></tr></thead><tbody>';
   PLkeys.forEach(function(k){
-    var pln=+k.replace('PL',''),pe=D.plBill[k],q=D.quoted[k],df=pe-q;
-    h+='<tr><td><b>Price Level '+pln+'</b></td><td class="r">'+_d0(pe)+'</td><td class="r">'+_d0(q)+'</td><td class="r" style="color:'+(df>0?'#b32a1c':'#2f6e12')+'">'+(df>0?'+':'')+_d0(df)+'</td></tr>';
+    var cap=D.plCap[k],pe=D.plBill[k],p=cap?pe/cap*100:0;
+    tc+=cap;tp+=pe;tN+=D.plN[k];
+    h+='<tr><td><b>'+plLabel(k)+'</b></td><td style="font-size:11px;color:var(--t2)">'+esc(plRanksTxt(D,k))+'</td><td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(cap)+'</td><td class="r">'+_d0(pe)+'</td><td class="r"><b style="color:'+sc(p)+'">'+_p0(p)+'</b>'+_bar(p,sc(p))+'</td></tr>';
   });
+  h+='<tr class="tot"><td>Total</td><td></td><td class="r">'+tN+'</td><td class="r">'+_d0(tc)+'</td><td class="r">'+_d0(tp)+'</td><td class="r">'+_p0(tc?tp/tc*100:0)+'</td></tr></tbody></table></div>';
+  h+='<div class="ucard"><div class="uct">Perceived versus quoted '+YEAR+'</div><div class="ucs">How the effort the team reports compares with what was actually sold on the quotes for '+YEAR+'.</div><table class="utbl"><thead><tr><th>Price Level</th><th class="r">Perceived (d)</th><th class="r">Quoted '+YEAR+' (d)</th><th class="r">Difference</th></tr></thead><tbody>';
+  PLkeys.forEach(function(k){
+    var pe=D.plBill[k],q=D.quoted[k],df=pe-q;tq+=q;
+    h+='<tr><td><b>'+plLabel(k)+'</b></td><td class="r">'+_d0(pe)+'</td><td class="r">'+_d0(q)+'</td><td class="r" style="color:'+(df>=0?'#b32a1c':'#2f6e12')+'">'+(df>0?'+':'')+_d0(df)+'</td></tr>';
+  });
+  h+='<tr class="tot"><td>Total</td><td class="r">'+_d0(tp)+'</td><td class="r">'+_d0(tq)+'</td><td class="r">'+((tp-tq)>0?'+':'')+_d0(tp-tq)+'</td></tr>';
   return h+'</tbody></table></div>';
 }
 // ── People: billability / allocation / perception per team member ──
