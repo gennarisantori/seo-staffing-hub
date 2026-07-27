@@ -752,7 +752,11 @@ helpers = (
     r"function myResourceIds(){if(!_user)return[];var em=String(_user.email||'').toLowerCase();var mine=_nmTok((_profile&&_profile.displayName)||_user.email);return S.m.filter(function(m){if(em&&_resEmail(m)===em)return true;return mine.length&&mine.every(function(t){return _nmTok(m.name).indexOf(t)>=0;});}).map(function(m){return m.id;});}"
     r"function canEditProject(p){if(isAdmin())return true;if(!p||!_user)return false;if(p.createdBy&&p.createdBy===_user.uid)return true;var ids=myResourceIds();return ids.some(function(id){return p.asgn&&p.asgn[id]>0;});}"
     r"function canEditProjectId(pid){return canEditProject(S.p.find(function(x){return x.id===pid;}));}"
-    r"function _migrateTeam(){var ch=false;(S.m||[]).forEach(function(m){if(m.name==='Federico Gennari Santori'){m.name='Federico Gennari';ch=true;}if(!m.email){m.email=_emailFromName(m.name);ch=true;}});if(ch&&typeof isAdmin==='function'&&isAdmin()){try{sv();}catch(e){}}}"
+    r"function _migrateTeam(){var ch=false;(S.m||[]).forEach(function(m){if(m.name==='Federico Gennari Santori'){m.name='Federico Gennari';ch=true;}if(!m.email){m.email=_emailFromName(m.name);ch=true;}});"
+    # Drop the spreadsheet summary rows ("Totale") that an early import stored as
+    # projects: they carry huge phantom quoted days and wreck every metric.
+    r"var before=(S.p||[]).length;S.p=(S.p||[]).filter(function(p){if(p.nb)return true;return !/^\s*total/i.test(p.name||'');});if(S.p.length!==before)ch=true;"
+    r"if(ch&&typeof isAdmin==='function'&&isAdmin()){try{sv();}catch(e){}}}"
 )
 html = html.replace('function mEf(mid){', helpers + '\nfunction mEf(mid){', 1)
 
