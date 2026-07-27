@@ -4,13 +4,23 @@
 #  - Auth identical to SEO Quotation Hub (email/password, signup, reset,
 #    @jakala.com gate, Firestore user profile + role, bootstrap admin)
 #  - JAKALA branding + signed-in user display in header
-import io, re
+import io, os, re
 
 SRC = 'C:/Users/fgennari/Downloads/seo-staffing-hub/_original.html'
 OUT = 'C:/Users/fgennari/Downloads/seo-staffing-hub/index.html'
 
 with io.open(SRC, encoding='utf-8') as f:
     html = f.read()
+
+# ── A0. Replace the seed data (people + projects) with the one generated from the
+#     GM Digital Experience / OG People-on-projects workbooks (see seed_js.txt).
+SEED = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'seed_js.txt')
+if os.path.exists(SEED):
+    seed_js = io.open(SEED, encoding='utf-8').read()
+    a = html.index('const IM=[')
+    b = html.index('const IP=IPR.map(')
+    b = html.index(';', b) + 1
+    html = html[:a] + seed_js + html[b:]
 
 # ── A. Palette: indigo -> JAKALA blue ──
 html = html.replace('--ac: #6366f1', '--ac: #185FA5')
@@ -342,6 +352,14 @@ theme_css = (
     ".acbar{height:6px;background:#e9e8e2;border-radius:3px;overflow:hidden;margin-bottom:6px}"
     ".acbar>div{height:100%;border-radius:3px;transition:width .5s}"
     ".acp{font-size:12px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}"
+    # Admin sub-navigation + analytics tables
+    ".admsub{display:flex;gap:4px;flex-wrap:wrap;margin:2px 0 14px;padding-bottom:10px;border-bottom:1px solid #e5e5e0}"
+    ".utbl th.r,.utbl td.r{text-align:right}"
+    ".utbl td{font-variant-numeric:tabular-nums}"
+    ".utbl tr.grp td{background:#eef4fb;font-weight:700;color:#15171c;border-top:1px solid #cfd4da}"
+    ".utbl tr.grp td:first-child{color:#185fa5}"
+    ".utbl tr.tot td{background:#f2f3f5;font-weight:700;border-top:2px solid #cfd4da}"
+    ".ametric .amv{white-space:nowrap}"
 )
 html = html.replace('</style>', theme_css + '</style>', 1)
 
@@ -370,13 +388,7 @@ html = html.replace('function sw(v){S.vw=v;S.sm=null;S.sp=null;R()}',
 anchor_ap = 'h+=`</div>`;document.getElementById("AP").innerHTML=h;'
 assert anchor_ap in html, 'AP render anchor not found'
 admin_branch = r"""if(S.vw==='admin'&&isAdmin()){
-var _totD=ps.reduce(function(a,p){return a+p.totalDays;},0);
-h+='<div style="flex:1;min-width:0;max-width:1000px;margin:0 auto;width:100%">';
-h+='<div class="ucard"><div class="uct">Panoramica team</div><div class="ametrics">'+amCard('Persone',ms.length,'')+amCard('Progetti',ps.length,'')+amCard('Utilization rate',avgB.toFixed(0)+'%',sc(avgB))+amCard('Effort tot. medio',avgE.toFixed(0)+'%',sc(avgE))+amCard('GG PQ',_totD.toLocaleString('it'),'#185fa5')+'</div></div>';
-h+='<div class="ucard"><div class="uct">Capacità per Price Level</div><div class="acapgrid">'+PLkeys.map(function(k){var dd=dem[k]||0;var ss=sup[k]||0;var p=ss>0?(dd/ss)*100:dd>0?999:0;var n=k.replace('PL','Price Level ');return '<div class="acap"><div class="acl">'+n+'</div><div class="acv"><b style="color:'+sc(p)+'">'+dd.toFixed(0)+'d</b> <span>/ '+ss+'d</span></div><div class="acbar"><div style="width:'+Math.min(p/1.2,100)+'%;background:'+sc(p)+'"></div></div><div class="acp" style="color:'+sc(p)+'">'+(p>900?'oltre 100%':p.toFixed(0)+'%')+'</div></div>';}).join('')+'</div></div>';
-h+=renderUsers();
-h+='<div class="ucard"><div class="uct">Manutenzione</div><div class="ucs">Ripristina persone e progetti ai valori iniziali. Operazione irreversibile.</div><button class="b br" onclick="rst()">↺ Reset dati</button></div>';
-h+='</div>';
+h+='<div style="flex:1;min-width:0;max-width:1120px;margin:0 auto;width:100%">'+renderAdmin()+'</div>';
 }
 """
 html = html.replace(anchor_ap, admin_branch + anchor_ap, 1)
@@ -422,6 +434,113 @@ function uChgInviteRole(e,r){uSetInviteRole(e,r).then(uLoad).catch(function(err)
 function uChgUserRole(uid,r){uSetUserRole(uid,r).then(uLoad).catch(function(err){alert(err.message||err);});}
 function uDisable(uid){uSetUserActive(uid,false).then(uLoad).catch(function(err){alert(err.message||err);});}
 function uEnable(uid){uSetUserActive(uid,true).then(uLoad).catch(function(err){alert(err.message||err);});}
+
+// ===== Admin analytics: Overview / Billability / Allocation / Perception / People =====
+function _d0(x){return Math.round(x||0).toLocaleString('en-US');}
+function _p0(x){return (x||0).toFixed(0)+'%';}
+function _bar(pct,col){var w=Math.max(0,Math.min(pct||0,100));return '<div class="acbar" style="margin:4px 0 0"><div style="width:'+w+'%;background:'+col+'"></div></div>';}
+// Aggregate per HR rank + quoted days per Price Level
+function admData(){
+  var rows={},order=[];
+  RH.forEach(function(r){rows[r]={rank:r,pl:rPL(r),n:0,cap:0,bill:0,nb:0};order.push(r);});
+  S.m.forEach(function(m){var r=rows[m.role];if(!r)return;var c=m.cap||220;r.n++;r.cap+=c;r.bill+=mEfBill(m.id)/100*c;r.nb+=mEfNB(m.id)/100*c;});
+  var quoted={PL4:0,PL3:0,PL2:0,PL1:0},np=0;
+  S.p.forEach(function(p){if(p.nb)return;np++;PLkeys.forEach(function(k){quoted[k]+=(p.daysByRole&&p.daysByRole[k])||0;});});
+  var used=order.filter(function(r){return rows[r].n>0;});
+  var plCap={PL4:0,PL3:0,PL2:0,PL1:0},plBill={PL4:0,PL3:0,PL2:0,PL1:0},plN={PL4:0,PL3:0,PL2:0,PL1:0};
+  used.forEach(function(r){var k='PL'+rows[r].pl;plCap[k]+=rows[r].cap;plBill[k]+=rows[r].bill;plN[k]+=rows[r].n;});
+  return {rows:rows,used:used,quoted:quoted,nProjects:np,plCap:plCap,plBill:plBill,plN:plN};
+}
+function admSub(k,l){return '<a class="nav-item'+((S.aTab||'overview')===k?' active':'')+'" onclick="S.aTab=\''+k+'\';R()">'+l+'</a>';}
+function renderAdmin(){
+  var t=S.aTab||'overview';
+  var h='<div class="admsub">'+admSub('overview','Overview')+admSub('billability','Billability')+admSub('allocation','Allocation')+admSub('perception','Perception')+admSub('people','People')+admSub('users','Users')+'</div>';
+  if(t==='overview')h+=admOverview();
+  else if(t==='billability')h+=admBillability();
+  else if(t==='allocation')h+=admAllocation();
+  else if(t==='perception')h+=admPerception();
+  else if(t==='people')h+=admPeople();
+  else {h+=renderUsers();h+='<div class="ucard"><div class="uct">Maintenance</div><div class="ucs">Reset people and projects to their initial values. This cannot be undone.</div><button class="b br" onclick="rst()">Reset data</button></div>';}
+  return h;
+}
+// ── Overview: headcount, projects, quoted days by rank/Price Level, totals ──
+function admOverview(){
+  var D=admData(),totQ=0,totCap=0,totN=0;
+  PLkeys.forEach(function(k){totQ+=D.quoted[k];});
+  D.used.forEach(function(r){totCap+=D.rows[r].cap;totN+=D.rows[r].n;});
+  var h='<div class="ucard"><div class="uct">Overview</div><div class="ucs">Headcount, projects and quoted days (sold on the price quotes). Quoted days are set per Price Level, so they are shown on the Price Level row and the HR ranks that belong to it are listed underneath.</div>'
+   +'<div class="ametrics">'+amCard('People',totN,'')+amCard('Projects',D.nProjects,'')+amCard('Quoted days',_d0(totQ),'#185fa5')+amCard('Capacity days',_d0(totCap),'')+amCard('Quoted / capacity',_p0(totCap?totQ/totCap*100:0),sc(totCap?totQ/totCap*100:0))+'</div></div>';
+  h+='<div class="ucard"><div class="uct">Quoted days by Price Level and HR rank</div><table class="utbl"><thead><tr><th>Price Level / HR rank</th><th class="r">People</th><th class="r">Capacity (d)</th><th class="r">Quoted (d)</th></tr></thead><tbody>';
+  PLkeys.forEach(function(k){
+    var pln=+k.replace('PL','');
+    h+='<tr class="grp"><td>Price Level '+pln+'</td><td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(D.plCap[k])+'</td><td class="r"><b>'+_d0(D.quoted[k])+'</b></td></tr>';
+    D.used.filter(function(r){return D.rows[r].pl===pln;}).forEach(function(r){
+      h+='<tr><td style="padding-left:26px;color:var(--t2)">'+esc(r)+'</td><td class="r">'+D.rows[r].n+'</td><td class="r">'+_d0(D.rows[r].cap)+'</td><td class="r" style="color:var(--t3)">-</td></tr>';
+    });
+  });
+  h+='<tr class="tot"><td>Total</td><td class="r">'+totN+'</td><td class="r">'+_d0(totCap)+'</td><td class="r">'+_d0(totQ)+'</td></tr>';
+  return h+'</tbody></table></div>';
+}
+// ── Billability: billable vs non-billable days and utilization rate, per rank ──
+function admBillability(){
+  var D=admData(),tb=0,tn=0,tc=0;
+  var h='<div class="ucard"><div class="uct">Billability</div><div class="ucs">Days spent on client projects (billable) versus internal work and presale (non-billable), per HR rank. Utilization rate = billable days / available capacity.</div>'
+   +'<table class="utbl"><thead><tr><th>HR rank</th><th class="r">People</th><th class="r">Capacity (d)</th><th class="r">Billable (d)</th><th class="r">Non-billable (d)</th><th class="r">Utilization</th></tr></thead><tbody>';
+  D.used.forEach(function(r){
+    var x=D.rows[r],u=x.cap?x.bill/x.cap*100:0;tb+=x.bill;tn+=x.nb;tc+=x.cap;
+    h+='<tr><td>'+esc(r)+' <span style="font-size:10px;color:var(--t3)">PL'+x.pl+'</span></td><td class="r">'+x.n+'</td><td class="r">'+_d0(x.cap)+'</td><td class="r" style="color:#185fa5">'+_d0(x.bill)+'</td><td class="r" style="color:var(--t3)">'+_d0(x.nb)+'</td><td class="r"><b style="color:'+sc(u)+'">'+_p0(u)+'</b>'+_bar(u,sc(u))+'</td></tr>';
+  });
+  var tUt=tc?tb/tc*100:0;
+  h+='<tr class="tot"><td>Total</td><td class="r">'+D.used.reduce(function(a,r){return a+D.rows[r].n;},0)+'</td><td class="r">'+_d0(tc)+'</td><td class="r">'+_d0(tb)+'</td><td class="r">'+_d0(tn)+'</td><td class="r">'+_p0(tUt)+'</td></tr>';
+  return h+'</tbody></table></div>';
+}
+// ── Allocation: available capacity vs days actually quoted on projects ──
+function admAllocation(){
+  var D=admData(),tc=0,tq=0;
+  var h='<div class="ucard"><div class="uct">Allocation</div><div class="ucs">Available capacity versus the days actually quoted on projects. Quoted days come from the price quotes and are defined per Price Level, so the ratio is computed per Price Level (the HR ranks feeding each level are listed).</div>'
+   +'<table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Available (d)</th><th class="r">Quoted (d)</th><th class="r">Quoted / available</th></tr></thead><tbody>';
+  PLkeys.forEach(function(k){
+    var pln=+k.replace('PL',''),cap=D.plCap[k],q=D.quoted[k],r=cap?q/cap*100:(q>0?999:0);
+    tc+=cap;tq+=q;
+    var names=D.used.filter(function(x){return D.rows[x].pl===pln;}).join(', ')||'-';
+    h+='<tr><td><b>Price Level '+pln+'</b></td><td style="font-size:11px;color:var(--t2)">'+esc(names)+'</td><td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(cap)+'</td><td class="r">'+_d0(q)+'</td><td class="r"><b style="color:'+sc(r)+'">'+(r>900?'no capacity':_p0(r))+'</b>'+_bar(r,sc(r))+'</td></tr>';
+  });
+  var tr=tc?tq/tc*100:0;
+  h+='<tr class="tot"><td>Total</td><td></td><td class="r">'+D.used.reduce(function(a,r){return a+D.rows[r].n;},0)+'</td><td class="r">'+_d0(tc)+'</td><td class="r">'+_d0(tq)+'</td><td class="r">'+_p0(tr)+'</td></tr>';
+  return h+'</tbody></table></div>';
+}
+// ── Perception: available capacity vs the days people believe they spend on projects ──
+function admPerception(){
+  var D=admData(),tc=0,tp=0;
+  var h='<div class="ucard"><div class="uct">Perception</div><div class="ucs">Available capacity versus the days each team member believes they spend on their projects, derived from the percentage weight they set on each project (non-billable work excluded).</div>'
+   +'<table class="utbl"><thead><tr><th>HR rank</th><th class="r">People</th><th class="r">Available (d)</th><th class="r">Perceived (d)</th><th class="r">Perceived / available</th></tr></thead><tbody>';
+  D.used.forEach(function(r){
+    var x=D.rows[r],p=x.cap?x.bill/x.cap*100:0;tc+=x.cap;tp+=x.bill;
+    h+='<tr><td>'+esc(r)+' <span style="font-size:10px;color:var(--t3)">PL'+x.pl+'</span></td><td class="r">'+x.n+'</td><td class="r">'+_d0(x.cap)+'</td><td class="r">'+_d0(x.bill)+'</td><td class="r"><b style="color:'+sc(p)+'">'+_p0(p)+'</b>'+_bar(p,sc(p))+'</td></tr>';
+  });
+  h+='<tr class="tot"><td>Total</td><td class="r">'+D.used.reduce(function(a,r){return a+D.rows[r].n;},0)+'</td><td class="r">'+_d0(tc)+'</td><td class="r">'+_d0(tp)+'</td><td class="r">'+_p0(tc?tp/tc*100:0)+'</td></tr></tbody></table></div>';
+  // perceived vs quoted, per Price Level
+  h+='<div class="ucard"><div class="uct">Perceived versus quoted, by Price Level</div><div class="ucs">How the effort the team reports compares with what was actually sold on the quotes.</div><table class="utbl"><thead><tr><th>Price Level</th><th class="r">Perceived (d)</th><th class="r">Quoted (d)</th><th class="r">Difference</th></tr></thead><tbody>';
+  PLkeys.forEach(function(k){
+    var pln=+k.replace('PL',''),pe=D.plBill[k],q=D.quoted[k],df=pe-q;
+    h+='<tr><td><b>Price Level '+pln+'</b></td><td class="r">'+_d0(pe)+'</td><td class="r">'+_d0(q)+'</td><td class="r" style="color:'+(df>0?'#b32a1c':'#2f6e12')+'">'+(df>0?'+':'')+_d0(df)+'</td></tr>';
+  });
+  return h+'</tbody></table></div>';
+}
+// ── People: billability / allocation / perception per team member ──
+function admPeople(){
+  var rows=S.m.map(function(m){
+    var c=m.cap||220,ef=mEf(m.id),eb=mEfBill(m.id),enb=mEfNB(m.id);
+    return {m:m,cap:c,ef:ef,bill:eb/100*c,nb:enb/100*c,util:eb,alloc:Math.round(ef/100*c*10)/10,
+            avail:100-ef,pc:S.p.filter(function(p){return p.asgn&&p.asgn[m.id]>0&&!p.nb;}).length,status:sl(ef)};
+  }).sort(function(a,b){return b.util-a.util;});
+  var h='<div class="ucard"><div class="uct">People</div><div class="ucs">Billability, allocation and perception for each team member. Utilization = billable days / capacity; allocated days include non-billable work.</div>'
+   +'<table class="utbl"><thead><tr><th>Name</th><th>HR rank</th><th class="r">Capacity (d)</th><th class="r">Billable (d)</th><th class="r">Non-bill. (d)</th><th class="r">Utilization</th><th class="r">Alloc. days</th><th class="r">Available</th><th class="r">Projects</th><th>Status</th></tr></thead><tbody>';
+  rows.forEach(function(x){
+    h+='<tr><td style="font-weight:600">'+esc(x.m.name)+'</td><td style="color:'+(RC[x.m.role]||'#999')+';font-size:11px">'+esc(x.m.role)+'</td><td class="r">'+_d0(x.cap)+'</td><td class="r" style="color:#185fa5">'+_d0(x.bill)+'</td><td class="r" style="color:var(--t3)">'+_d0(x.nb)+'</td><td class="r"><b style="color:'+sc(x.util)+'">'+_p0(x.util)+'</b></td><td class="r">'+x.alloc+'</td><td class="r" style="color:'+(x.avail>=0?'var(--gn)':'var(--rd)')+'">'+_p0(x.avail)+'</td><td class="r">'+x.pc+'</td><td><span class="sb" style="background:'+sc(x.ef)+'18;color:'+sc(x.ef)+'">'+x.status+'</span></td></tr>';
+  });
+  return h+'</tbody></table></div>';
+}
 """
 cut = html.rindex('</script>')
 html = html[:cut] + users_js + '\n' + html[cut:]
@@ -534,6 +653,23 @@ TR = [
 ]
 for it, en in TR:
     html = html.replace(it, en)
+# The translation table works on raw text, so a short entry can corrupt code
+# (e.g. "(tu)" -> "(you)" inside an expression). Catch that here.
+assert '(you)' not in html.replace('>(you)<', ''), 'translation leaked into code: (you)'
+
+# ── O. Team table: move Alloc. days / Available / Projects / Status to the Admin > People view ──
+for frag in [
+    """<th${ts.col==='d'?' class="sorted"':''}><div class="thw" ${thH('t','d')}>Alloc. days ${arrI('t','d')}</div></th>""",
+    """<th${ts.col==='avail'?' class="sorted"':''}><div class="thw" ${thH('t','avail')}>Available ${arrI('t','avail')}</div></th>""",
+    """<th${ts.col==='pc'?' class="sorted"':''}><div class="thw" ${thH('t','pc')}>Projects ${arrI('t','pc')}</div></th>""",
+    """${isAdmin()?'<th>Status</th>':''}""",
+    """<td class="num">${m.d}</td>""",
+    """<td class="num" style="color:${av>=0?'var(--gn)':'var(--rd)'}">${av.toFixed(0)}%</td>""",
+    """<td class="num">${m.pc}</td>""",
+    """${isAdmin()?`<td><span class="sb" style="background:${c}18;color:${c}">${m.status}</span></td>`:``}""",
+]:
+    assert frag in html, 'team column fragment not found: ' + frag[:60]
+    html = html.replace(frag, '', 1)
 
 # ── L. Members are read-only on the TEAM list (only admins add/edit/delete team people) ──
 html = html.replace(
