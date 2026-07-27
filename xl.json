@@ -1,0 +1,4341 @@
+{
+ "seo": [
+  {
+   "jobId": "510522",
+   "name": "2026 SWEP: AMS SEO (ISP)",
+   "status": "Ongoing",
+   "client": "ISP",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 448.0,
+    "PL1": 556.0
+   },
+   "total": 1004.0
+  },
+  {
+   "jobId": "511705",
+   "name": "2026 - SEO Strategy & Services + Romania ARISTON",
+   "status": "Ongoing",
+   "client": "ARISTON",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 22.0,
+    "PL3": 18.0,
+    "PL2": 264.0,
+    "PL1": 515.0
+   },
+   "total": 819.0
+  },
+  {
+   "jobId": "502866",
+   "name": "25/26 - KEMPISKI - SEO",
+   "status": "Finished",
+   "client": "KEMPISKI",
+   "startDate": "2025-04-01",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 40.0,
+    "PL3": 74.0,
+    "PL2": 58.0,
+    "PL1": 125.0
+   },
+   "total": 297.0
+  },
+  {
+   "jobId": "482438",
+   "name": "2025 SWEP: rollout (ISP)",
+   "status": "Finished",
+   "client": "ISP",
+   "startDate": "2025-01-06",
+   "endDate": "2026-02-28",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 585.0
+   },
+   "total": 585.0
+  },
+  {
+   "jobId": "510502",
+   "name": "SILVERSEA_SEO_2026",
+   "status": "Ongoing",
+   "client": "SILVERSEA",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 18.0,
+    "PL3": 24.0,
+    "PL2": 144.0,
+    "PL1": 242.0
+   },
+   "total": 428.0
+  },
+  {
+   "jobId": "513200",
+   "name": "26 - KEMPISKI - SEO",
+   "status": "Ongoing",
+   "client": "KEMPISKI",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 40.0,
+    "PL3": 86.0,
+    "PL2": 58.0,
+    "PL1": 125.0
+   },
+   "total": 309.0
+  },
+  {
+   "jobId": "510527",
+   "name": "2026_BENETTON RE-PLATFORMING",
+   "status": "Ongoing",
+   "client": "BENETTON",
+   "startDate": "2025-12-15",
+   "endDate": "2026-05-29",
+   "pl": {
+    "PL4": 17.0,
+    "PL3": 0.0,
+    "PL2": 77.0,
+    "PL1": 152.0
+   },
+   "total": 246.0
+  },
+  {
+   "jobId": "516986",
+   "name": "2026 - Magazine Contents - Set Up EXPLORA JOURNEYS",
+   "status": "Ongoing",
+   "client": "EXPLORA JOURNEYS",
+   "startDate": "2026-07-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 9.0,
+    "PL1": 0.0
+   },
+   "total": 9.0
+  },
+  {
+   "jobId": "517276",
+   "name": "2026 - Magazine Contents - consumo EXPLORA JOURNEYS",
+   "status": "Ongoing",
+   "client": "EXPLORA JOURNEYS",
+   "startDate": "2026-07-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 24.0
+   },
+   "total": 24.0
+  },
+  {
+   "jobId": "509839",
+   "name": "26 - EXPLORA JOURNEYS - SEO",
+   "status": "Ongoing",
+   "client": "EXPLORA JOURNEYS",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 50.0,
+    "PL3": 31.0,
+    "PL2": 20.0,
+    "PL1": 150.0
+   },
+   "total": 251.0
+  },
+  {
+   "jobId": "484654",
+   "name": "25 - EXPLORA JOURNEYS - SEO Management",
+   "status": "Finished",
+   "client": "EXPLORA JOURNEYS",
+   "startDate": "2025-04-01",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 60.0,
+    "PL3": 0.0,
+    "PL2": 60.0,
+    "PL1": 144.0
+   },
+   "total": 264.0
+  },
+  {
+   "jobId": "504060",
+   "name": "Media,Analytics,DigitalServices BENETTON",
+   "status": "Ongoing",
+   "client": "BENETTON",
+   "startDate": "2025-05-01",
+   "endDate": "2028-12-31",
+   "pl": {
+    "PL4": 11.0,
+    "PL3": 36.0,
+    "PL2": 90.0,
+    "PL1": 198.0
+   },
+   "total": 335.0
+  },
+  {
+   "jobId": "506606",
+   "name": "2025 - 2026_UNISALUTE_Supporto SEO",
+   "status": "Ongoing",
+   "client": "UNIPOL ASSICURAZIONI",
+   "startDate": "2025-09-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 20.0,
+    "PL3": 0.0,
+    "PL2": 26.0,
+    "PL1": 260.0
+   },
+   "total": 306.0
+  },
+  {
+   "jobId": "508996",
+   "name": "2026_A2A_Gara_SEO",
+   "status": "Ongoing",
+   "client": "A2A",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 23.0,
+    "PL3": 25.0,
+    "PL2": 75.0,
+    "PL1": 100.0
+   },
+   "total": 223.0
+  },
+  {
+   "jobId": "514588",
+   "name": "2026 A2A - Gelsia_Assessment SEO 2026",
+   "status": "Ongoing",
+   "client": "A2A",
+   "startDate": "2026-04-20",
+   "endDate": "2026-07-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 3.0,
+    "PL2": 0.0,
+    "PL1": 8.0
+   },
+   "total": 11.0
+  },
+  {
+   "jobId": "510350",
+   "name": "GNV Media SEO Analytics GRANDI NAVI VELOCI",
+   "status": "Ongoing",
+   "client": "GNV",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 20.0,
+    "PL3": 10.0,
+    "PL2": 42.0,
+    "PL1": 148.0
+   },
+   "total": 220.0
+  },
+  {
+   "jobId": "510408",
+   "name": "2026 SWEP: Addendum rollout (ISP)",
+   "status": "Ongoing",
+   "client": "ISP",
+   "startDate": "2026-01-01",
+   "endDate": "2026-09-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 85.0,
+    "PL1": 180.0
+   },
+   "total": 265.0
+  },
+  {
+   "jobId": "507216",
+   "name": "MSC Support New Website",
+   "status": "Ongoing",
+   "client": "MSC",
+   "startDate": "2025-07-01",
+   "endDate": "2026-08-31",
+   "pl": {
+    "PL4": 10.0,
+    "PL3": 5.0,
+    "PL2": 85.0,
+    "PL1": 80.0
+   },
+   "total": 180.0
+  },
+  {
+   "jobId": "501622",
+   "name": "2025_IL SOLE 24 ORE_Supporto SEO",
+   "status": "Finished",
+   "client": "IL SOLE 24 ORE",
+   "startDate": "2025-02-09",
+   "endDate": "2026-02-08",
+   "pl": {
+    "PL4": 12.0,
+    "PL3": 0.0,
+    "PL2": 54.0,
+    "PL1": 72.0
+   },
+   "total": 138.0
+  },
+  {
+   "jobId": "512493",
+   "name": "2026_Il Sole 24 Ore_Supporto SEO",
+   "status": "Ongoing",
+   "client": "IL SOLE 24 ORE",
+   "startDate": "2026-02-09",
+   "endDate": "2027-02-08",
+   "pl": {
+    "PL4": 10.0,
+    "PL3": 0.0,
+    "PL2": 50.0,
+    "PL1": 72.0
+   },
+   "total": 132.0
+  },
+  {
+   "jobId": "514212",
+   "name": "Digital Tracking & Analytics 2026/2027 BREITLING",
+   "status": "Ongoing",
+   "client": "BREITLING",
+   "startDate": "2026-04-01",
+   "endDate": "2027-03-31",
+   "pl": {
+    "PL4": 2.0,
+    "PL3": 0.0,
+    "PL2": 94.0,
+    "PL1": 109.0
+   },
+   "total": 205.0
+  },
+  {
+   "jobId": "510163",
+   "name": "2026_LicenzeKleecks PRADA",
+   "status": "Ongoing",
+   "client": "PRADA",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 0.0
+   },
+   "total": 0.0
+  },
+  {
+   "jobId": "510484",
+   "name": "Supporto SEO 2026 CLUB DEL SOLE",
+   "status": "Ongoing",
+   "client": "CLUB DEL SOLE",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 10.0,
+    "PL3": 0.0,
+    "PL2": 49.0,
+    "PL1": 97.0
+   },
+   "total": 156.0
+  },
+  {
+   "jobId": "510689",
+   "name": "SCHOLL - SEO Italia & Spagna",
+   "status": "Ongoing",
+   "client": "SCHOLL",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 2.0,
+    "PL3": 0.0,
+    "PL2": 19.0,
+    "PL1": 105.0
+   },
+   "total": 126.0
+  },
+  {
+   "jobId": "510853",
+   "name": "MSC Transcreation",
+   "status": "Ongoing",
+   "client": "MSC",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 4.0,
+    "PL3": 0.0,
+    "PL2": 60.0,
+    "PL1": 60.0
+   },
+   "total": 124.0
+  },
+  {
+   "jobId": "510739",
+   "name": "2026_BOGGI_JCue_SEO_DA (BBB)",
+   "status": "Ongoing",
+   "client": "BOGGI",
+   "startDate": "2026-01-07",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 2.0,
+    "PL3": 0.0,
+    "PL2": 35.0,
+    "PL1": 82.0
+   },
+   "total": 119.0
+  },
+  {
+   "jobId": "502138",
+   "name": "Digital Tracking & Analytics BREITLING",
+   "status": "Finished",
+   "client": "BREITLING",
+   "startDate": "2025-04-01",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 6.0,
+    "PL2": 74.5,
+    "PL1": 32.0
+   },
+   "total": 112.5
+  },
+  {
+   "jobId": "514260",
+   "name": "2026_BancoBPM_SEO",
+   "status": "Ongoing",
+   "client": "BANCO BPM",
+   "startDate": "2026-04-01",
+   "endDate": "2027-03-31",
+   "pl": {
+    "PL4": 10.0,
+    "PL3": 0.0,
+    "PL2": 32.0,
+    "PL1": 79.0
+   },
+   "total": 121.0
+  },
+  {
+   "jobId": "506108",
+   "name": "FY 25-26 SEO Corporate Italia P&G",
+   "status": "Ongoing",
+   "client": "P&G",
+   "startDate": "2025-07-01",
+   "endDate": "2026-06-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 18.0,
+    "PL1": 60.0
+   },
+   "total": 78.0
+  },
+  {
+   "jobId": "513083",
+   "name": "26 - Artesole - Manfredi Hotels - SEO, Media e manutenzione",
+   "status": "Ongoing",
+   "client": "ARTESOLE",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 6.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 66.0
+   },
+   "total": 72.0
+  },
+  {
+   "jobId": "513189",
+   "name": "26 - LUNGARNO - Meida, Seo, Manutenzione",
+   "status": "Ongoing",
+   "client": "LUNGARNO COLLECTION",
+   "startDate": "2026-02-01",
+   "endDate": "2027-01-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 3.0,
+    "PL2": 21.5,
+    "PL1": 46.5
+   },
+   "total": 71.0
+  },
+  {
+   "jobId": "516564",
+   "name": "2026/27_SEO&Analytics GESSI",
+   "status": "Ongoing",
+   "client": "GESSI",
+   "startDate": "2026-06-01",
+   "endDate": "2027-05-31",
+   "pl": {
+    "PL4": 9.0,
+    "PL3": 0.0,
+    "PL2": 6.0,
+    "PL1": 72.0
+   },
+   "total": 87.0
+  },
+  {
+   "jobId": "512996",
+   "name": "H26 - CRIBIS - Servizi D&M",
+   "status": "Ongoing",
+   "client": "CRIBIS",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 22.0,
+    "PL1": 40.0
+   },
+   "total": 62.0
+  },
+  {
+   "jobId": "512834",
+   "name": "Flos SEO 2026",
+   "status": "Ongoing",
+   "client": "FLOS B&B ITALIA",
+   "startDate": "2026-01-23",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 19.0,
+    "PL1": 52.0
+   },
+   "total": 71.0
+  },
+  {
+   "jobId": "508944",
+   "name": "Media&DigitalGrowth2526 MOBILI FIVER",
+   "status": "Ongoing",
+   "client": "MOBILI FIVER",
+   "startDate": "2025-11-17",
+   "endDate": "2026-12-23",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 15.0,
+    "PL2": 18.5,
+    "PL1": 79.0
+   },
+   "total": 112.5
+  },
+  {
+   "jobId": "509700",
+   "name": "PLENITUDE_Digital Presence PDV_26",
+   "status": "Ongoing",
+   "client": "ENI",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 36.0,
+    "PL1": 0.0
+   },
+   "total": 36.0
+  },
+  {
+   "jobId": "510755",
+   "name": "26 - Hotel De Rome - SEO Management",
+   "status": "Ongoing",
+   "client": "HOTEL DE ROME",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 12.0,
+    "PL3": 0.0,
+    "PL2": 24.0,
+    "PL1": 36.0
+   },
+   "total": 72.0
+  },
+  {
+   "jobId": "503991",
+   "name": "2025_SEO&Analytics GESSI",
+   "status": "Ongoing",
+   "client": "GESSI",
+   "startDate": "2025-05-05",
+   "endDate": "2026-05-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 5.0,
+    "PL2": 18.5,
+    "PL1": 37.0
+   },
+   "total": 60.5
+  },
+  {
+   "jobId": "514023",
+   "name": "2026_ALPERIA_JHorizon",
+   "status": "Ongoing",
+   "client": "ALPERIA",
+   "startDate": "2026-05-01",
+   "endDate": "2027-04-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 14.0,
+    "PL2": 0.0,
+    "PL1": 53.0
+   },
+   "total": 67.0
+  },
+  {
+   "jobId": "502352",
+   "name": "25 - LUNGARNO COLLECTION - Multiservizio",
+   "status": "Finished",
+   "client": "LUNGARNO COLLECTION",
+   "startDate": "2025-02-01",
+   "endDate": "2026-01-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 32.0,
+    "PL1": 8.0
+   },
+   "total": 40.0
+  },
+  {
+   "jobId": "516843",
+   "name": "2026_OPEN_SEO & DIGITAL STRATEGY (OPEN) - RCS",
+   "status": "Ongoing",
+   "client": "RCS",
+   "startDate": "2026-06-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 15.0,
+    "PL1": 50.0
+   },
+   "total": 65.0
+  },
+  {
+   "jobId": "511558",
+   "name": "UNISALUTE_Omnicanalità2026",
+   "status": "Ongoing",
+   "client": "UNISALUTE",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 2.0,
+    "PL3": 0.0,
+    "PL2": 18.0,
+    "PL1": 36.0
+   },
+   "total": 56.0
+  },
+  {
+   "jobId": "501686",
+   "name": "2025_Digital&MediaSupport RICHARD GINORI",
+   "status": "Finished",
+   "client": "RICHARD GINORI",
+   "startDate": "2025-03-01",
+   "endDate": "2026-02-28",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 6.0,
+    "PL2": 24.0,
+    "PL1": 23.0
+   },
+   "total": 53.0
+  },
+  {
+   "jobId": "510667",
+   "name": "B&B Media 2026 B&B ITALIA FLOS",
+   "status": "Ongoing",
+   "client": "FLOS B&B ITALIA",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 22.0,
+    "PL1": 38.0
+   },
+   "total": 60.0
+  },
+  {
+   "jobId": "513136",
+   "name": "2026_Digital&MediaSupport RICHARD GINORI",
+   "status": "Ongoing",
+   "client": "RICHARD GINORI",
+   "startDate": "2026-03-01",
+   "endDate": "2027-02-28",
+   "pl": {
+    "PL4": 5.0,
+    "PL3": 4.0,
+    "PL2": 24.0,
+    "PL1": 53.0
+   },
+   "total": 86.0
+  },
+  {
+   "jobId": "511333",
+   "name": "2026_VERYMOBILE_W3B_CRO_SEO WIND3",
+   "status": "Ongoing",
+   "client": "WIND3",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 10.0,
+    "PL2": 33.0,
+    "PL1": 45.0
+   },
+   "total": 88.0
+  },
+  {
+   "jobId": "511335",
+   "name": "2026_VERYMOBILE_W3B_CRO_SEO_EXTRA_FEE WIND3",
+   "status": "Ongoing",
+   "client": "WIND3",
+   "startDate": "2026-11-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 0.0
+   },
+   "total": 0.0
+  },
+  {
+   "jobId": "509308",
+   "name": "26 ENERVIT | SEO Ongoing",
+   "status": "Ongoing",
+   "client": "ENERVIT",
+   "startDate": "2026-01-05",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 1.0,
+    "PL3": 4.0,
+    "PL2": 15.5,
+    "PL1": 29.0
+   },
+   "total": 49.5
+  },
+  {
+   "jobId": "511069",
+   "name": "2026 - DIGITAL RENT - Supporto Marketing",
+   "status": "Ongoing",
+   "client": "DIGITAL RENT",
+   "startDate": "2026-01-07",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 9.0,
+    "PL1": 55.0
+   },
+   "total": 64.0
+  },
+  {
+   "jobId": "513221",
+   "name": "SEO support 2026 Kiton CIRO PAONE",
+   "status": "Ongoing",
+   "client": "CIRO PAONE",
+   "startDate": "2026-01-07",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 3.0,
+    "PL3": 0.0,
+    "PL2": 10.0,
+    "PL1": 40.0
+   },
+   "total": 53.0
+  },
+  {
+   "jobId": "505921",
+   "name": "2025 CAP HOLDING Gara SEO",
+   "status": "Ongoing",
+   "client": "CAP HOLDING",
+   "startDate": "2025-08-01",
+   "endDate": "2026-07-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 9.0,
+    "PL1": 48.0
+   },
+   "total": 57.0
+  },
+  {
+   "jobId": "506554",
+   "name": "BS - SEO - step 2 BRIDGESTONE First Stop Europe NV",
+   "status": "Finished",
+   "client": "BRIDGESTONE",
+   "startDate": "2026-01-01",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 4.0,
+    "PL3": 0.0,
+    "PL2": 13.0,
+    "PL1": 58.0
+   },
+   "total": 75.0
+  },
+  {
+   "jobId": "511635",
+   "name": "SG - Seo Sea Weber Isover Gyproc - 2026 SAINT GOBAIN",
+   "status": "Ongoing",
+   "client": "SAINT GOBAIN",
+   "startDate": "2026-01-08",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 9.0,
+    "PL2": 0.0,
+    "PL1": 34.0
+   },
+   "total": 43.0
+  },
+  {
+   "jobId": "511637",
+   "name": "2026_FASTWEB_SEO Assessment",
+   "status": "Finished",
+   "client": "FASTWEB",
+   "startDate": "2026-01-01",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 4.0,
+    "PL3": 0.0,
+    "PL2": 9.0,
+    "PL1": 24.0
+   },
+   "total": 37.0
+  },
+  {
+   "jobId": "502994",
+   "name": "2025 - Supporto marketing BANCA CF+",
+   "status": "Finished",
+   "client": "BANCA CF+",
+   "startDate": "2025-03-01",
+   "endDate": "2026-02-28",
+   "pl": {
+    "PL4": 2.0,
+    "PL3": 4.0,
+    "PL2": 18.0,
+    "PL1": 25.0
+   },
+   "total": 49.0
+  },
+  {
+   "jobId": "514624",
+   "name": "2026 - MEDIA MANAGEMENT 9 MESI DAIKIN",
+   "status": "Ongoing",
+   "client": "DAIKIN",
+   "startDate": "2026-04-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 10.5,
+    "PL2": 0.0,
+    "PL1": 39.75
+   },
+   "total": 50.25
+  },
+  {
+   "jobId": "510649",
+   "name": "2026 - ZONA CRM S.I.D.AL.",
+   "status": "Ongoing",
+   "client": "S.I.D.AL.",
+   "startDate": "2026-01-07",
+   "endDate": "2026-12-22",
+   "pl": {
+    "PL4": 1.5,
+    "PL3": 12.0,
+    "PL2": 0.0,
+    "PL1": 36.5
+   },
+   "total": 50.0
+  },
+  {
+   "jobId": "510753",
+   "name": "26 - Italia Trasporto Aereo - SEO",
+   "status": "Finished",
+   "client": "ITALIA TRASPORTO AEREO (ITA)",
+   "startDate": "2026-01-01",
+   "endDate": "2026-06-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 3.0,
+    "PL2": 0.0,
+    "PL1": 7.0
+   },
+   "total": 10.0
+  },
+  {
+   "jobId": "504265",
+   "name": "FRATELLIROSSETTI_AMSEcom_2025_2026",
+   "status": "Ongoing",
+   "client": "FRATELLI ROSSETTI",
+   "startDate": "2025-06-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 16.0,
+    "PL1": 62.0
+   },
+   "total": 78.0
+  },
+  {
+   "jobId": "512542",
+   "name": "BS - SEO - step 3 BRIDGESTONE First Stop Europe NV",
+   "status": "Ongoing",
+   "client": "BRIDGESTONE",
+   "startDate": "2026-03-02",
+   "endDate": "2026-07-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 14.5,
+    "PL1": 26.5
+   },
+   "total": 41.0
+  },
+  {
+   "jobId": "502423",
+   "name": "25-26 Bluserena - Website Maintenance + SEO",
+   "status": "Finished",
+   "client": "BLUSERENA",
+   "startDate": "2025-04-01",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 2.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 12.0
+   },
+   "total": 14.0
+  },
+  {
+   "jobId": "502784",
+   "name": "2025_OVS_Copy_SemII",
+   "status": "Finished",
+   "client": "OVS",
+   "startDate": "2025-08-01",
+   "endDate": "2026-01-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 46.0
+   },
+   "total": 46.0
+  },
+  {
+   "jobId": "512424",
+   "name": "2026_SeoServices PRADA",
+   "status": "Ongoing",
+   "client": "PRADA",
+   "startDate": "2026-01-12",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 8.0,
+    "PL2": 18.0,
+    "PL1": 0.0
+   },
+   "total": 26.0
+  },
+  {
+   "jobId": "511421",
+   "name": "Digital & Media Support 2026 REDA INDUSTRIES",
+   "status": "Ongoing",
+   "client": "REDA INDUSTRIES",
+   "startDate": "2026-01-07",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 0.0
+   },
+   "total": 0.0
+  },
+  {
+   "jobId": "513583",
+   "name": "26 - Progetto Esmeralda (Forte Village) - Digital",
+   "status": "Ongoing",
+   "client": "PROGETTO ESMERALDA",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 3.0,
+    "PL3": 0.0,
+    "PL2": 6.0,
+    "PL1": 40.0
+   },
+   "total": 49.0
+  },
+  {
+   "jobId": "513750",
+   "name": "2026_Supporto marketing BANCA CF+",
+   "status": "Ongoing",
+   "client": "BANCA CF+",
+   "startDate": "2026-03-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 21.5,
+    "PL1": 19.5
+   },
+   "total": 41.0
+  },
+  {
+   "jobId": "501903",
+   "name": "25/26 - MAYA CAPRICE - Digital Marketing",
+   "status": "Finished",
+   "client": "CAPRICE",
+   "startDate": "2025-02-22",
+   "endDate": "2026-02-21",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 30.0
+   },
+   "total": 30.0
+  },
+  {
+   "jobId": "504148",
+   "name": "25 - LUNGARNO COLLECTION - New Website",
+   "status": "Ongoing",
+   "client": "LUNGARNO COLLECTION",
+   "startDate": "2025-05-01",
+   "endDate": "2026-03-15",
+   "pl": {
+    "PL4": 4.0,
+    "PL3": 0.0,
+    "PL2": 16.0,
+    "PL1": 15.0
+   },
+   "total": 35.0
+  },
+  {
+   "jobId": "514745",
+   "name": "KONICA MINOLTA Digital Marketing Support FY26-27",
+   "status": "Ongoing",
+   "client": "KONICA MINOLTA",
+   "startDate": "2026-05-04",
+   "endDate": "2027-04-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 11.5,
+    "PL1": 23.0
+   },
+   "total": 34.5
+  },
+  {
+   "jobId": "509866",
+   "name": "26/27 - MAYA CAPRICE - Digital Marketing",
+   "status": "Ongoing",
+   "client": "CAPRICE",
+   "startDate": "2026-02-22",
+   "endDate": "2027-02-21",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 30.0
+   },
+   "total": 30.0
+  },
+  {
+   "jobId": "511968",
+   "name": "2026_OVS_COPY_KT",
+   "status": "Finished",
+   "client": "OVS",
+   "startDate": "2026-02-01",
+   "endDate": "2026-04-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 35.0
+   },
+   "total": 35.0
+  },
+  {
+   "jobId": "511802",
+   "name": "2026_IREN_Rinnovo SEO/CRO + MediaPerformance GEN-FEB2026",
+   "status": "Finished",
+   "client": "IREN",
+   "startDate": "2026-01-01",
+   "endDate": "2026-02-28",
+   "pl": {
+    "PL4": 1.0,
+    "PL3": 0.0,
+    "PL2": 6.5,
+    "PL1": 27.5
+   },
+   "total": 35.0
+  },
+  {
+   "jobId": "514703",
+   "name": "2026_DUFERCO_Digital Assessment",
+   "status": "Ongoing",
+   "client": "DUFERCO",
+   "startDate": "2026-05-18",
+   "endDate": "2026-10-31",
+   "pl": {
+    "PL4": 1.0,
+    "PL3": 4.0,
+    "PL2": 5.0,
+    "PL1": 15.0
+   },
+   "total": 25.0
+  },
+  {
+   "jobId": "509275",
+   "name": "Company website refactoring FONDAZIONE DOMPE'",
+   "status": "Ongoing",
+   "client": "DOMPE'",
+   "startDate": "2025-11-01",
+   "endDate": "2026-07-31",
+   "pl": {
+    "PL4": 2.5,
+    "PL3": 0.0,
+    "PL2": 5.5,
+    "PL1": 20.0
+   },
+   "total": 28.0
+  },
+  {
+   "jobId": "511501",
+   "name": "NAMED - Campagna NamedSport 2026",
+   "status": "Ongoing",
+   "client": "NAMED",
+   "startDate": "2026-03-01",
+   "endDate": "2027-02-28",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 2.0,
+    "PL2": 0.0,
+    "PL1": 11.5
+   },
+   "total": 13.5
+  },
+  {
+   "jobId": "504866",
+   "name": "Company website refactoring DOMPE'",
+   "status": "Finished",
+   "client": "DOMPE'",
+   "startDate": "2025-05-19",
+   "endDate": "2026-05-30",
+   "pl": {
+    "PL4": 2.5,
+    "PL3": 0.0,
+    "PL2": 5.5,
+    "PL1": 20.0
+   },
+   "total": 28.0
+  },
+  {
+   "jobId": "509162",
+   "name": "ReplatformingEcommUx/Ui MOBILI FIVER",
+   "status": "Ongoing",
+   "client": "MOBILI FIVER",
+   "startDate": "2025-11-17",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 12.0,
+    "PL1": 16.0
+   },
+   "total": 28.0
+  },
+  {
+   "jobId": "503364",
+   "name": "25 - RESIDENCE HOTELS - Restyling Sito Web",
+   "status": "Ongoing",
+   "client": "RESIDENCE HOTELS",
+   "startDate": "2025-04-01",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 11.0,
+    "PL1": 20.0
+   },
+   "total": 31.0
+  },
+  {
+   "jobId": "517227",
+   "name": "26/27 - RESIDENCE HOTELS - GEO/SEO Consultancy",
+   "status": "Ongoing",
+   "client": "RESIDENCE HOTELS",
+   "startDate": "2026-07-01",
+   "endDate": "2027-06-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 5.0,
+    "PL1": 50.0
+   },
+   "total": 55.0
+  },
+  {
+   "jobId": "511347",
+   "name": "SEO-IA Assessment TEBIS",
+   "status": "Ongoing",
+   "client": "TEBIS",
+   "startDate": "2026-02-01",
+   "endDate": "2026-04-30",
+   "pl": {
+    "PL4": 2.0,
+    "PL3": 0.0,
+    "PL2": 7.0,
+    "PL1": 13.0
+   },
+   "total": 22.0
+  },
+  {
+   "jobId": "511397",
+   "name": "26 RIUNITE | SEO Managed CANTINE RIUNITE",
+   "status": "Ongoing",
+   "client": "CANTINE RIUNITE",
+   "startDate": "2026-01-07",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 4.0,
+    "PL1": 17.0
+   },
+   "total": 21.0
+  },
+  {
+   "jobId": "508618",
+   "name": "2025_DANJOHN_OttimizzazioneSEO",
+   "status": "Finished",
+   "client": "DAN JOHN",
+   "startDate": "2025-11-10",
+   "endDate": "2026-02-16",
+   "pl": {
+    "PL4": 4.5,
+    "PL3": 0.0,
+    "PL2": 7.0,
+    "PL1": 13.0
+   },
+   "total": 24.5
+  },
+  {
+   "jobId": "511309",
+   "name": "FY_2026_FTX (FREE TO X) - AUTOSTRADE PER L'ITALIA",
+   "status": "Ongoing",
+   "client": "FREE TO X",
+   "startDate": "2026-01-31",
+   "endDate": "2026-06-30",
+   "pl": {
+    "PL4": 1.0,
+    "PL3": 0.0,
+    "PL2": 12.0,
+    "PL1": 30.5
+   },
+   "total": 43.5
+  },
+  {
+   "jobId": "509157",
+   "name": "2026_PICTET_Attività Ongoing gen-dic",
+   "status": "Ongoing",
+   "client": "PICTET",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 39.5
+   },
+   "total": 39.5
+  },
+  {
+   "jobId": "514035",
+   "name": "26 - RCS Academy - Digital support",
+   "status": "Ongoing",
+   "client": "RCS",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 24.0,
+    "PL1": 0.0
+   },
+   "total": 24.0
+  },
+  {
+   "jobId": "513753",
+   "name": "H26 - EDENRED UTA Mobility - SEO",
+   "status": "Ongoing",
+   "client": "EDENRED",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 12.0,
+    "PL1": 0.0
+   },
+   "total": 12.0
+  },
+  {
+   "jobId": "516267",
+   "name": "2026_WINDTRE_W3B_MiniSiti_SEO-Content",
+   "status": "Ongoing",
+   "client": "WIND3",
+   "startDate": "2026-06-01",
+   "endDate": "2026-09-30",
+   "pl": {
+    "PL4": 4.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 16.0
+   },
+   "total": 20.0
+  },
+  {
+   "jobId": "513039",
+   "name": "LMDV Hospitality - Restyling siti web",
+   "status": "Ongoing",
+   "client": "LMDV HOSPITALITY",
+   "startDate": "2026-02-01",
+   "endDate": "2026-11-30",
+   "pl": {
+    "PL4": 1.5,
+    "PL3": 0.0,
+    "PL2": 6.0,
+    "PL1": 12.0
+   },
+   "total": 19.5
+  },
+  {
+   "jobId": "507178",
+   "name": "NAMED - Redesign sito Specchiasol.it",
+   "status": "Ongoing",
+   "client": "NAMED",
+   "startDate": "2025-10-01",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 4.5,
+    "PL1": 15.5
+   },
+   "total": 20.0
+  },
+  {
+   "jobId": "513743",
+   "name": "26/27 (apr-mar) - Bluserena - Website Maintenance + SEO + Stape (licenza)",
+   "status": "Ongoing",
+   "client": "BLUSERENA",
+   "startDate": "2026-04-01",
+   "endDate": "2027-03-31",
+   "pl": {
+    "PL4": 2.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 20.0
+   },
+   "total": 22.0
+  },
+  {
+   "jobId": "503573",
+   "name": "KONICA MINOLTA Digital Marketing Support FY25-26",
+   "status": "Finished",
+   "client": "KONICA MINOLTA",
+   "startDate": "2025-05-01",
+   "endDate": "2026-04-30",
+   "pl": {
+    "PL4": 1.5,
+    "PL3": 0.0,
+    "PL2": 10.0,
+    "PL1": 10.0
+   },
+   "total": 21.5
+  },
+  {
+   "jobId": "502355",
+   "name": "DoD Launch",
+   "status": "Ongoing",
+   "client": "ARSENALE",
+   "startDate": "2025-03-01",
+   "endDate": "2026-02-02",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 2.0,
+    "PL2": 4.0,
+    "PL1": 14.0
+   },
+   "total": 20.0
+  },
+  {
+   "jobId": "509745",
+   "name": "2026_Go to market B2C AUDAX RENOVABLES",
+   "status": "Ongoing",
+   "client": "AUDAX",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 1.0,
+    "PL3": 0.0,
+    "PL2": 2.0,
+    "PL1": 4.0
+   },
+   "total": 7.0
+  },
+  {
+   "jobId": "509636",
+   "name": "2025_2026_OVS_SEO&SEA",
+   "status": "Finished",
+   "client": "OVS",
+   "startDate": "2025-11-01",
+   "endDate": "2026-04-30",
+   "pl": {
+    "PL4": 1.5,
+    "PL3": 0.0,
+    "PL2": 4.0,
+    "PL1": 7.0
+   },
+   "total": 12.5
+  },
+  {
+   "jobId": "516859",
+   "name": "2026_DOMINO_REDESIGN & SUPPORTO DIGITAL (OPEN) - RCS",
+   "status": "Ongoing",
+   "client": "RCS",
+   "startDate": "2026-05-15",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 16.0
+   },
+   "total": 16.0
+  },
+  {
+   "jobId": "510978",
+   "name": "26 PIAZZA MESTIERI | Assessment & fix SEO",
+   "status": "Finished",
+   "client": "PIAZZA DEI MESTIERI",
+   "startDate": "2026-03-02",
+   "endDate": "2026-04-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 15.0
+   },
+   "total": 15.0
+  },
+  {
+   "jobId": "511297",
+   "name": "Digital Roadmap 2026 PONZIO",
+   "status": "Ongoing",
+   "client": "PONZIO",
+   "startDate": "2026-01-01",
+   "endDate": "2026-10-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 3.0,
+    "PL1": 12.0
+   },
+   "total": 15.0
+  },
+  {
+   "jobId": "511697",
+   "name": "SG - Seo Sea Glass - 2026 SAINT GOBAIN",
+   "status": "Ongoing",
+   "client": "SAINT GOBAIN",
+   "startDate": "2026-01-08",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 2.0,
+    "PL2": 0.0,
+    "PL1": 8.0
+   },
+   "total": 10.0
+  },
+  {
+   "jobId": "511698",
+   "name": "Logli - SEO - 2026",
+   "status": "Ongoing",
+   "client": "LOGLI",
+   "startDate": "2026-01-07",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 2.0,
+    "PL2": 0.0,
+    "PL1": 8.0
+   },
+   "total": 10.0
+  },
+  {
+   "jobId": "515948",
+   "name": "2026 - CHIESI Workshop GEO",
+   "status": "Finished",
+   "client": "CHIESI",
+   "startDate": "2026-04-01",
+   "endDate": "2026-05-31",
+   "pl": {
+    "PL4": 1.0,
+    "PL3": 0.0,
+    "PL2": 2.0,
+    "PL1": 2.5
+   },
+   "total": 5.5
+  },
+  {
+   "jobId": "500500",
+   "name": "ASTRAZENECA AZ - Social Media LLC 2025",
+   "status": "Finished",
+   "client": "ASTRAZENECA",
+   "startDate": "2025-03-01",
+   "endDate": "2026-02-28",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 10.0
+   },
+   "total": 10.0
+  },
+  {
+   "jobId": "511055",
+   "name": "2026 PUBLITALIA - Media per AdManager MEDIASET",
+   "status": "Ongoing",
+   "client": "MEDIASET",
+   "startDate": "2026-02-16",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.5,
+    "PL3": 0.0,
+    "PL2": 2.0,
+    "PL1": 8.0
+   },
+   "total": 10.5
+  },
+  {
+   "jobId": "514487",
+   "name": "2026 PUBLITALIA - Duplicazione AdManager Spagna e Germania MEDIASET",
+   "status": "Ongoing",
+   "client": "MEDIASET",
+   "startDate": "2026-04-01",
+   "endDate": "2026-10-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 11.0
+   },
+   "total": 11.0
+  },
+  {
+   "jobId": "513274",
+   "name": "26 - KEMPISKI - Website Content The Augustine History",
+   "status": "Finished",
+   "client": "KEMPISKI",
+   "startDate": "2026-03-01",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 7.0
+   },
+   "total": 7.0
+  },
+  {
+   "jobId": "508411",
+   "name": "25/26 (ott-mag) - ZENITA - Digital&Media",
+   "status": "Ongoing",
+   "client": "ZENITA",
+   "startDate": "2025-10-01",
+   "endDate": "2026-05-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 2.0,
+    "PL1": 4.0
+   },
+   "total": 6.0
+  },
+  {
+   "jobId": "508892",
+   "name": "TEVA - Attività ongoing 2026",
+   "status": "Ongoing",
+   "client": "TEVA",
+   "startDate": "2025-12-09",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 5.8
+   },
+   "total": 5.8
+  },
+  {
+   "jobId": "512112",
+   "name": "Medora_UXUIRefresh ROCHE",
+   "status": "Ongoing",
+   "client": "ROCHE",
+   "startDate": "2026-03-02",
+   "endDate": "2026-05-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 0.0
+   },
+   "total": 0.0
+  },
+  {
+   "jobId": "511952",
+   "name": "26 SEO Corporate increase GEO P&G",
+   "status": "Ongoing",
+   "client": "P&G",
+   "startDate": "2026-02-02",
+   "endDate": "2026-06-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 3.0
+   },
+   "total": 3.0
+  },
+  {
+   "jobId": "504659",
+   "name": "FY_2025MOVYON_PianoEditoriale AUTOSTRADE PER L'ITALIA",
+   "status": "Ongoing",
+   "client": "MOVYON",
+   "startDate": "2025-10-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 1.0,
+    "PL1": 2.0
+   },
+   "total": 3.0
+  },
+  {
+   "jobId": "513296",
+   "name": "26 - RCS Academy - Lezioni",
+   "status": "Ongoing",
+   "client": "RCS",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 1.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 0.0
+   },
+   "total": 1.0
+  },
+  {
+   "jobId": "509944",
+   "name": "2026_PICTET_Attività Ongoing_post engagement",
+   "status": "Ongoing",
+   "client": "PICTET",
+   "startDate": "2025-12-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 0.4
+   },
+   "total": 0.4
+  },
+  {
+   "jobId": "510479",
+   "name": "Supporto SEO Link building 2026 CLUB DEL SOLE",
+   "status": "Ongoing",
+   "client": "CLUB DEL SOLE",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 0.0
+   },
+   "total": 0.0
+  },
+  {
+   "jobId": "516400",
+   "name": "2026 H2_SUBARU_WebExperience_Maintenance",
+   "status": "Ongoing",
+   "client": "SUBARU",
+   "startDate": "2026-06-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 6.0
+   },
+   "total": 6.0
+  },
+  {
+   "jobId": "516626",
+   "name": "FERRETTI Group - Add-on Digital Presence Assessment Allied Marine 2026",
+   "status": "Ongoing",
+   "client": "FERRETTI",
+   "startDate": "2026-05-01",
+   "endDate": "2026-07-31",
+   "pl": {
+    "PL4": 0.5,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 3.5
+   },
+   "total": 4.0
+  },
+  {
+   "jobId": "517373",
+   "name": "OneSearch Project 26/27 – Professional Fees SWAROVSKI",
+   "status": "Ongoing",
+   "client": "SWAROVSKI",
+   "startDate": "2026-07-01",
+   "endDate": "2027-06-30",
+   "pl": {
+    "PL4": 52.0,
+    "PL3": 48.0,
+    "PL2": 220.0,
+    "PL1": 182.0
+   },
+   "total": 502.0
+  },
+  {
+   "jobId": "517376",
+   "name": "OneSearch Project 26/27 – Performance Bonuses SWAROVSKI",
+   "status": "Ongoing",
+   "client": "SWAROVSKI",
+   "startDate": "2026-07-01",
+   "endDate": "2027-06-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 0.0
+   },
+   "total": 0.0
+  },
+  {
+   "jobId": "517039",
+   "name": "2026_REPLAY_Kleecks&ServiziProfessionali (FASHION BOX)",
+   "status": "Ongoing",
+   "client": "FASHION BOX",
+   "startDate": "2026-06-22",
+   "endDate": "2027-06-21",
+   "pl": {
+    "PL4": 10.0,
+    "PL3": 18.0,
+    "PL2": 0.0,
+    "PL1": 24.0
+   },
+   "total": 52.0
+  },
+  {
+   "jobId": "512007",
+   "name": "Tim STAR_2026_set-up + maintenance layer base",
+   "status": "Ongoing",
+   "client": "TIM",
+   "startDate": "2026-04-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 4.0,
+    "PL1": 0.0
+   },
+   "total": 4.0
+  },
+  {
+   "jobId": "517595",
+   "name": "HALEON - Social Media Listening Betotal",
+   "status": "Ongoing",
+   "client": "HALEON",
+   "startDate": "2026-07-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.5,
+    "PL3": 0.0,
+    "PL2": 6.0,
+    "PL1": 0.0
+   },
+   "total": 6.5
+  },
+  {
+   "jobId": "514739",
+   "name": "Globeducate_Media_2026 STRATEGIC EDUCATION GROUP",
+   "status": "Ongoing",
+   "client": "STRATEGIC EDUCATION GROUP",
+   "startDate": "2026-09-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 1.0,
+    "PL2": 6.0,
+    "PL1": 20.0
+   },
+   "total": 27.0
+  },
+  {
+   "jobId": "517686",
+   "name": "DAVIDOFF - Ecommerce Launch Phase 3",
+   "status": "Ongoing",
+   "client": "ZINO DAVIDOFF",
+   "startDate": "2026-07-13",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 7.0,
+    "PL3": 0.0,
+    "PL2": 14.0,
+    "PL1": 35.0
+   },
+   "total": 56.0
+  },
+  {
+   "jobId": "",
+   "name": "Totale",
+   "status": "",
+   "client": "",
+   "startDate": "",
+   "endDate": "",
+   "pl": {
+    "PL4": 540.0,
+    "PL3": 504.5,
+    "PL2": 2954.0,
+    "PL1": 6604.45
+   },
+   "total": 10602.949999999999
+  }
+ ],
+ "content": [
+  {
+   "jobId": "479064",
+   "name": "NEN_Programma Loyalty_tender_2025-26_maintenance (A2A)",
+   "status": "Ongoing",
+   "client": "A2A",
+   "startDate": "2025-06-01",
+   "endDate": "2028-05-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 2.0,
+    "PL1": 10.0
+   },
+   "total": 12.0
+  },
+  {
+   "jobId": "511477",
+   "name": "Loyalty B2C - Setup Concorso Bravo 30 ALPITOUR",
+   "status": "Finished",
+   "client": "ALPITOUR",
+   "startDate": "2026-01-07",
+   "endDate": "2026-04-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 1.3
+   },
+   "total": 1.3
+  },
+  {
+   "jobId": "510854",
+   "name": "2026 Amplifon Concorso Crociera Italia GIUSTO",
+   "status": "Ongoing",
+   "client": "AMPLIFON",
+   "startDate": "2026-01-12",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 0.0
+   },
+   "total": 0.0
+  },
+  {
+   "jobId": "482169",
+   "name": "2025_AMTRUST_Cyber_Servizi",
+   "status": "Finished",
+   "client": "AMTRUST",
+   "startDate": "2025-02-21",
+   "endDate": "2026-01-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.5,
+    "PL2": 0.0,
+    "PL1": 2.0
+   },
+   "total": 2.5
+  },
+  {
+   "jobId": "502355",
+   "name": "DoD Launch",
+   "status": "Ongoing",
+   "client": "ARSENALE",
+   "startDate": "2025-01-07",
+   "endDate": "2026-09-15",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 7.0,
+    "PL1": 38.0
+   },
+   "total": 45.0
+  },
+  {
+   "jobId": "513083",
+   "name": "26 - Artesole - Manfredi Hotels - SEO, Media e manutenzione",
+   "status": "Ongoing",
+   "client": "ARTESOLE",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 2.0,
+    "PL2": 0.0,
+    "PL1": 9.0
+   },
+   "total": 11.0
+  },
+  {
+   "jobId": "500500",
+   "name": "ASTRAZENECA AZ - Social Media LLC 2025",
+   "status": "Finished",
+   "client": "ASTRAZENECA",
+   "startDate": "2025-03-01",
+   "endDate": "2026-02-28",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 13.5
+   },
+   "total": 13.5
+  },
+  {
+   "jobId": "502994",
+   "name": "BANCACFPLUS - 2025 - Supporto marketing",
+   "status": "Finished",
+   "client": "BANCA CF+",
+   "startDate": "2025-03-01",
+   "endDate": "2026-02-28",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 4.0,
+    "PL1": 26.0
+   },
+   "total": 30.0
+  },
+  {
+   "jobId": "503382",
+   "name": "2025_BBPM_Media Agency",
+   "status": "Finished",
+   "client": "BBPM",
+   "startDate": "2025-03-03",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 4.5
+   },
+   "total": 4.5
+  },
+  {
+   "jobId": "501836",
+   "name": "25 BOCCONI | Mktg Ops Orientamento",
+   "status": "Finished",
+   "client": "BOCCONI",
+   "startDate": "2025-03-03",
+   "endDate": "2026-02-28",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 6.0,
+    "PL1": 83.0
+   },
+   "total": 89.0
+  },
+  {
+   "jobId": "513289",
+   "name": "2026_BPER_Volley_ASD set up",
+   "status": "Finished",
+   "client": "BPER",
+   "startDate": "2026-01-01",
+   "endDate": "2026-05-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 5.0
+   },
+   "total": 5.0
+  },
+  {
+   "jobId": "489713",
+   "name": "2025 H2 Creatività e Operation CARREFOUR",
+   "status": "Finished",
+   "client": "CARREFOUR",
+   "startDate": "2025-07-01",
+   "endDate": "2026-01-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 12.0
+   },
+   "total": 12.0
+  },
+  {
+   "jobId": "504594",
+   "name": "Programma Loyalty Città di Livigno - Disegno, business case ed implementazione",
+   "status": "Ongoing",
+   "client": "CITTA' DI LIVIGNO",
+   "startDate": "2025-06-10",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 1.0,
+    "PL2": 0.0,
+    "PL1": 5.0
+   },
+   "total": 6.0
+  },
+  {
+   "jobId": "509193",
+   "name": "2026 CNO Whatsapp: Gestione Canale e Concorsi (CONAD)",
+   "status": "Ongoing",
+   "client": "CONAD",
+   "startDate": "2026-01-06",
+   "endDate": "2026-12-28",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 1.25,
+    "PL1": 9.0
+   },
+   "total": 10.25
+  },
+  {
+   "jobId": "506624",
+   "name": "25/26 - Conserve Italia (VALFRUTTA) - Supporto produzione contenuti Magazine",
+   "status": "Finished",
+   "client": "CONSERVE ITALIA",
+   "startDate": "2025-07-01",
+   "endDate": "2026-06-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 4.0,
+    "PL1": 25.0
+   },
+   "total": 29.0
+  },
+  {
+   "jobId": "509178",
+   "name": "Engagement Platform - Integrazione MGM + 5 Partner COSTA CROCIERE",
+   "status": "Ongoing",
+   "client": "COSTA CROCIERE",
+   "startDate": "2025-11-01",
+   "endDate": "2026-11-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 2.5,
+    "PL1": 0.0
+   },
+   "total": 2.5
+  },
+  {
+   "jobId": "504471",
+   "name": "2025_CA_Engagement Set Up CREDITE AGRICOLE",
+   "status": "Ongoing",
+   "client": "CREDITE AGRICOLE",
+   "startDate": "2025-09-01",
+   "endDate": "2026-10-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 4.4
+   },
+   "total": 4.4
+  },
+  {
+   "jobId": "511069",
+   "name": "2026 - DIGITAL RENT - Supporto Marketing",
+   "status": "Ongoing",
+   "client": "DIGITAL RENT",
+   "startDate": "2026-01-07",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 5.0,
+    "PL2": 0.0,
+    "PL1": 0.0
+   },
+   "total": 5.0
+  },
+  {
+   "jobId": "503497",
+   "name": "2025_E.ON_Contest_lottery digital_CR_wave4_UXUI",
+   "status": "Finished",
+   "client": "E.ON",
+   "startDate": "2025-02-20",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 1.0,
+    "PL2": 0.0,
+    "PL1": 11.5
+   },
+   "total": 12.5
+  },
+  {
+   "jobId": "483943",
+   "name": "2025_E.ON_Contest_lottery digital",
+   "status": "Finished",
+   "client": "E.ON",
+   "startDate": "2025-01-01",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 2.0,
+    "PL1": 6.0
+   },
+   "total": 8.0
+  },
+  {
+   "jobId": "507106",
+   "name": "2025_EDISON_Programma Loyalty",
+   "status": "Ongoing",
+   "client": "EDISON",
+   "startDate": "2025-11-03",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 0.0
+   },
+   "total": 0.0
+  },
+  {
+   "jobId": "513171",
+   "name": "2026_ENEL Loyalty Canoni AMS + Cloud 2026",
+   "status": "Ongoing",
+   "client": "ENEL",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 3.0,
+    "PL2": 9.0,
+    "PL1": 12.0
+   },
+   "total": 24.0
+  },
+  {
+   "jobId": "511272",
+   "name": "2026_ENEL_Concorso IW Amici di Maria_Piattaforma Tech",
+   "status": "Ongoing",
+   "client": "ENEL",
+   "startDate": "2026-01-13",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.5,
+    "PL2": 2.0,
+    "PL1": 0.0
+   },
+   "total": 2.5
+  },
+  {
+   "jobId": "483016",
+   "name": "2025_ENEL nuova loyalty EPW",
+   "status": "Finished",
+   "client": "ENEL",
+   "startDate": "2025-02-20",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 2.0
+   },
+   "total": 2.0
+  },
+  {
+   "jobId": "513945",
+   "name": "2026_ENEL_Strategia Loyalty_Continuation 2° Anno",
+   "status": "Ongoing",
+   "client": "ENEL",
+   "startDate": "2026-02-01",
+   "endDate": "2027-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 2.0
+   },
+   "total": 2.0
+  },
+  {
+   "jobId": "512272",
+   "name": "ENI Cliente Unico | MA - Setup LU",
+   "status": "Ongoing",
+   "client": "ENI",
+   "startDate": "2026-01-01",
+   "endDate": "2026-07-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 28.5
+   },
+   "total": 28.5
+  },
+  {
+   "jobId": "510111",
+   "name": "Enilive_Marketing Automation_CR+Extra Supporto_2025_2026 ENILIVE",
+   "status": "Ongoing",
+   "client": "ENI",
+   "startDate": "2025-12-01",
+   "endDate": "2026-07-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 3.0,
+    "PL2": 0.0,
+    "PL1": 12.0
+   },
+   "total": 15.0
+  },
+  {
+   "jobId": "510513",
+   "name": "ENILIVE_Challenge_Loyalty_Insieme_2026",
+   "status": "Finished",
+   "client": "ENI",
+   "startDate": "2026-01-01",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 3.0,
+    "PL2": 0.0,
+    "PL1": 4.5
+   },
+   "total": 7.5
+  },
+  {
+   "jobId": "510150",
+   "name": "Enilive_Più Insieme_Maintenance servizi_Q4 2025",
+   "status": "Finished",
+   "client": "ENI",
+   "startDate": "2025-10-01",
+   "endDate": "2026-02-28",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 3.0,
+    "PL1": 0.0
+   },
+   "total": 3.0
+  },
+  {
+   "jobId": "506339",
+   "name": "EURONICS_new loyalty_2025",
+   "status": "Finished",
+   "client": "EURONICS",
+   "startDate": "2025-09-01",
+   "endDate": "2026-02-28",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 6.0
+   },
+   "total": 6.0
+  },
+  {
+   "jobId": "514052",
+   "name": "EURONICS_concorso anniversario_2026",
+   "status": "Ongoing",
+   "client": "EURONICS",
+   "startDate": "2026-03-30",
+   "endDate": "2027-02-28",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 6.0
+   },
+   "total": 6.0
+  },
+  {
+   "jobId": "508857",
+   "name": "EURONICS-Loyalty & CRM_2026",
+   "status": "Ongoing",
+   "client": "EURONICS",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 4.0
+   },
+   "total": 4.0
+  },
+  {
+   "jobId": "507026",
+   "name": "507026_2025-26 FASTWEB Club",
+   "status": "Ongoing",
+   "client": "FASTWEB",
+   "startDate": "2025-10-01",
+   "endDate": "2026-09-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 18.0
+   },
+   "total": 18.0
+  },
+  {
+   "jobId": "512225",
+   "name": "FINDO_Servizi Professionali_2026 FINDOMESTIC",
+   "status": "Ongoing",
+   "client": "FINDOMESTIC",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 8.9
+   },
+   "total": 8.9
+  },
+  {
+   "jobId": "516605",
+   "name": "26_Findo_Inziativa Mediaworld_lug26 FINDOMESTIC",
+   "status": "Ongoing",
+   "client": "FINDOMESTIC",
+   "startDate": "2026-05-01",
+   "endDate": "2026-09-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.25,
+    "PL2": 2.0,
+    "PL1": 0.0
+   },
+   "total": 2.25
+  },
+  {
+   "jobId": "513506",
+   "name": "26_FINDOMESTIC Club evolutive UX/UI",
+   "status": "Finished",
+   "client": "FINDOMESTIC",
+   "startDate": "2026-01-01",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 0.0
+   },
+   "total": 0.0
+  },
+  {
+   "jobId": "512834",
+   "name": "Flos SEO 2026",
+   "status": "Ongoing",
+   "client": "FLOS B&B ITALIA",
+   "startDate": "2026-01-23",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 7.0
+   },
+   "total": 7.0
+  },
+  {
+   "jobId": "511309",
+   "name": "FY_2026_FTX FREE TO X (AUTOSTRADE PER L'ITALIA)",
+   "status": "Ongoing",
+   "client": "FREE TO X",
+   "startDate": "2026-01-31",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 1.0,
+    "PL2": 0.0,
+    "PL1": 3.0
+   },
+   "total": 4.0
+  },
+  {
+   "jobId": "513311",
+   "name": "2026_KPI_ContactStrategy_Analisi_Report HARMONT & BLAINE",
+   "status": "Ongoing",
+   "client": "HARMONT & BLAINE",
+   "startDate": "2026-03-02",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 5.0,
+    "PL1": 5.0
+   },
+   "total": 10.0
+  },
+  {
+   "jobId": "507102",
+   "name": "IGT_Incentive_2026",
+   "status": "Ongoing",
+   "client": "IGT",
+   "startDate": "2025-09-17",
+   "endDate": "2027-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 2.25
+   },
+   "total": 2.25
+  },
+  {
+   "jobId": "509639",
+   "name": "INNOCEAN_Hyundai_Gestione Social & Media_2026",
+   "status": "Ongoing",
+   "client": "INNOCEAN",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 5.7,
+    "PL2": 0.0,
+    "PL1": 57.0
+   },
+   "total": 62.7
+  },
+  {
+   "jobId": "511873",
+   "name": "IBD_creatività app launch_mar'26 INTESA",
+   "status": "Ongoing",
+   "client": "INTESA SAN PAOLO",
+   "startDate": "2026-01-01",
+   "endDate": "2026-06-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 3.0,
+    "PL2": 0.0,
+    "PL1": 29.9
+   },
+   "total": 32.9
+  },
+  {
+   "jobId": "517727",
+   "name": "IBD_creatività app launch_wave2_ott'26 INTESA",
+   "status": "Ongoing",
+   "client": "INTESA SAN PAOLO",
+   "startDate": "2026-06-15",
+   "endDate": "2026-10-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 8.0
+   },
+   "total": 8.0
+  },
+  {
+   "jobId": "512095",
+   "name": "2026_IREN_Loyalty - setup+canoni26+concorsi&regol26",
+   "status": "Ongoing",
+   "client": "IREN",
+   "startDate": "2026-02-09",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 16.0
+   },
+   "total": 16.0
+  },
+  {
+   "jobId": "482438",
+   "name": "2025 SWEP: rollout (ISP)",
+   "status": "Finished",
+   "client": "ISP",
+   "startDate": "2025-01-01",
+   "endDate": "2026-02-28",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 28.0,
+    "PL1": 650.0
+   },
+   "total": 678.0
+  },
+  {
+   "jobId": "510408",
+   "name": "2026 SWEP: Addendum rollout (ISP)",
+   "status": "Ongoing",
+   "client": "ISP",
+   "startDate": "2026-01-01",
+   "endDate": "2026-09-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 13.0,
+    "PL2": 0.0,
+    "PL1": 407.0
+   },
+   "total": 420.0
+  },
+  {
+   "jobId": "508743",
+   "name": "2026 IOL - Supporto campagne SFMC",
+   "status": "Ongoing",
+   "client": "ITALIA ON LINE",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 0.0
+   },
+   "total": 0.0
+  },
+  {
+   "jobId": "503573",
+   "name": "KONICA MINOLTA Digital Marketing Support FY25-26",
+   "status": "Finished",
+   "client": "KONICA MINOLTA",
+   "startDate": "2025-05-01",
+   "endDate": "2026-04-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 9.0
+   },
+   "total": 9.0
+  },
+  {
+   "jobId": "508448",
+   "name": "2026 - CREATIVITA 2026 LEROY MERLIN",
+   "status": "Ongoing",
+   "client": "LEROY MERLIN",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 50.0
+   },
+   "total": 50.0
+  },
+  {
+   "jobId": "513039",
+   "name": "LMDV Hospitality - Restyling siti web",
+   "status": "Ongoing",
+   "client": "LMDV HOSPITALITY",
+   "startDate": "2026-02-01",
+   "endDate": "2026-11-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 6.0,
+    "PL2": 0.0,
+    "PL1": 25.0
+   },
+   "total": 31.0
+  },
+  {
+   "jobId": "504148",
+   "name": "25 - LUNGARNO COLLECTION - New Website",
+   "status": "Ongoing",
+   "client": "LUNGARNO COLLECTION",
+   "startDate": "2025-05-01",
+   "endDate": "2026-03-15",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 4.0,
+    "PL2": 0.0,
+    "PL1": 7.0
+   },
+   "total": 11.0
+  },
+  {
+   "jobId": "509304",
+   "name": "2026 MD CRM & Loyalty ecosystem - OPEX 2026",
+   "status": "Ongoing",
+   "client": "MD",
+   "startDate": "2026-01-21",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 4.0,
+    "PL2": 0.0,
+    "PL1": 4.0
+   },
+   "total": 8.0
+  },
+  {
+   "jobId": "513325",
+   "name": "2026 MD InstantWin Concorso Maggio",
+   "status": "Finished",
+   "client": "MD",
+   "startDate": "2026-03-09",
+   "endDate": "2026-06-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.25,
+    "PL2": 0.0,
+    "PL1": 1.0
+   },
+   "total": 1.25
+  },
+  {
+   "jobId": "510599",
+   "name": "2026 PUBLITALIA - Media per AdManager (anticipo)",
+   "status": "Ongoing",
+   "client": "MEDIASET",
+   "startDate": "2026-01-07",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 2.0
+   },
+   "total": 2.0
+  },
+  {
+   "jobId": "511055",
+   "name": "2026 PUBLITALIA - Media per AdManager (anticipo)",
+   "status": "Ongoing",
+   "client": "MEDIASET",
+   "startDate": "2026-02-16",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 4.0
+   },
+   "total": 4.0
+  },
+  {
+   "jobId": "514509",
+   "name": "2026 PUBLITALIA - Media per AdManager Spagna",
+   "status": "Ongoing",
+   "client": "MEDIASET",
+   "startDate": "2026-05-11",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 2.0
+   },
+   "total": 2.0
+  },
+  {
+   "jobId": "516728",
+   "name": "2026 PUBLITALIA - Media per AdManager (Germania)",
+   "status": "Ongoing",
+   "client": "MEDIASET",
+   "startDate": "2026-09-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 2.0
+   },
+   "total": 2.0
+  },
+  {
+   "jobId": "504659",
+   "name": "FY_2025Movyon_PianoEditoriale (AUTOSTRADA PER L'ITALIA)",
+   "status": "Ongoing",
+   "client": "MOVYON",
+   "startDate": "2025-10-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 0.0
+   },
+   "total": 0.0
+  },
+  {
+   "jobId": "507178",
+   "name": "NAMED - Redesign sito Specchiasol.it",
+   "status": "Ongoing",
+   "client": "NAMED",
+   "startDate": "2025-10-01",
+   "endDate": "2026-07-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 2.0,
+    "PL2": 0.0,
+    "PL1": 10.5
+   },
+   "total": 12.5
+  },
+  {
+   "jobId": "511501",
+   "name": "NAMED - Campagna NamedSport 2026",
+   "status": "Ongoing",
+   "client": "NAMED",
+   "startDate": "2026-03-01",
+   "endDate": "2027-02-28",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 2.3,
+    "PL2": 0.0,
+    "PL1": 6.0
+   },
+   "total": 8.3
+  },
+  {
+   "jobId": "511297",
+   "name": "Digital Roadmap 2026 PONZIO",
+   "status": "Ongoing",
+   "client": "PONZIO",
+   "startDate": "2026-01-01",
+   "endDate": "2026-10-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 29.5,
+    "PL2": 0.0,
+    "PL1": 12.0
+   },
+   "total": 41.5
+  },
+  {
+   "jobId": "513296",
+   "name": "26 - RCS Academy - Lezioni",
+   "status": "Ongoing",
+   "client": "RCS",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 1.0,
+    "PL2": 0.0,
+    "PL1": 0.0
+   },
+   "total": 1.0
+  },
+  {
+   "jobId": "513121",
+   "name": "RMA_IW Aprile 2026 (REALE MUTUA)",
+   "status": "Ongoing",
+   "client": "REALE MUTUA",
+   "startDate": "2026-03-01",
+   "endDate": "2026-07-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 1.0
+   },
+   "total": 1.0
+  },
+  {
+   "jobId": "517227",
+   "name": "26/27 - RESIDENCE HOTELS - GEO/SEO Consultancy",
+   "status": "Ongoing",
+   "client": "RESIDENCE HOTELS",
+   "startDate": "2026-07-01",
+   "endDate": "2027-06-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 2.0,
+    "PL1": 7.0
+   },
+   "total": 9.0
+  },
+  {
+   "jobId": "513136",
+   "name": "2026_Digital&MediaSupport RICHARD GINORI",
+   "status": "Ongoing",
+   "client": "RICHARD GINORI",
+   "startDate": "2026-03-01",
+   "endDate": "2027-02-28",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 36.0
+   },
+   "total": 36.0
+  },
+  {
+   "jobId": "501686",
+   "name": "2025_Digital&MediaSupport RICHARD GINORI",
+   "status": "Finished",
+   "client": "RICHARD GINORI",
+   "startDate": "2025-03-01",
+   "endDate": "2026-02-28",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 36.0
+   },
+   "total": 36.0
+  },
+  {
+   "jobId": "510070",
+   "name": "2026_SAMSUNG_CRM B2B",
+   "status": "Ongoing",
+   "client": "SAMSUNG",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 10.0,
+    "PL1": 0.0
+   },
+   "total": 10.0
+  },
+  {
+   "jobId": "514181",
+   "name": "SISAL_Landing_SisalFunClub",
+   "status": "Ongoing",
+   "client": "SISAL",
+   "startDate": "2026-04-06",
+   "endDate": "2026-05-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.5,
+    "PL2": 0.0,
+    "PL1": 1.0
+   },
+   "total": 1.5
+  },
+  {
+   "jobId": "509677",
+   "name": "2026_SUBARU_WebExperience_Maintenance",
+   "status": "Ongoing",
+   "client": "SUBARU",
+   "startDate": "2025-11-01",
+   "endDate": "2026-12-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 10.0,
+    "PL1": 25.0
+   },
+   "total": 35.0
+  },
+  {
+   "jobId": "516400",
+   "name": "2026 H2_SUBARU_WebExperience_Maintenance",
+   "status": "Ongoing",
+   "client": "SUBARU",
+   "startDate": "2026-06-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 6.0,
+    "PL1": 17.0
+   },
+   "total": 23.0
+  },
+  {
+   "jobId": "476759",
+   "name": "2024_SUBARU_WebExperience",
+   "status": "Finished",
+   "client": "SUBARU",
+   "startDate": "2024-01-01",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 25.0
+   },
+   "total": 25.0
+  },
+  {
+   "jobId": "508565",
+   "name": "SUBARU Minigame",
+   "status": "Finished",
+   "client": "SUBARU",
+   "startDate": "2025-11-01",
+   "endDate": "2026-01-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 2.0,
+    "PL2": 0.0,
+    "PL1": 1.0
+   },
+   "total": 3.0
+  },
+  {
+   "jobId": "512007",
+   "name": "TIM STAR_2026_set-up + maintenance layer base",
+   "status": "Ongoing",
+   "client": "TIM",
+   "startDate": "2026-04-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 8.0
+   },
+   "total": 8.0
+  },
+  {
+   "jobId": "509094",
+   "name": "TRENITALIA_FY26_frecciafun Q1",
+   "status": "Finished",
+   "client": "TRENITALIA",
+   "startDate": "2026-01-01",
+   "endDate": "2026-03-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 6.0
+   },
+   "total": 6.0
+  },
+  {
+   "jobId": "501761",
+   "name": "TRENITALIA_FY25_Concorso MICO",
+   "status": "Finished",
+   "client": "TRENITALIA",
+   "startDate": "2025-07-01",
+   "endDate": "2026-01-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.5,
+    "PL2": 0.0,
+    "PL1": 5.0
+   },
+   "total": 5.5
+  },
+  {
+   "jobId": "513309",
+   "name": "TRENITALIA_FY26_CR contratto",
+   "status": "Finished",
+   "client": "TRENITALIA",
+   "startDate": "2026-04-01",
+   "endDate": "2026-04-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 2.0
+   },
+   "total": 2.0
+  },
+  {
+   "jobId": "503811",
+   "name": "TRENITALIA_FY25_CR extra punti Amex",
+   "status": "Finished",
+   "client": "TRENITALIA",
+   "startDate": "2025-05-26",
+   "endDate": "2026-01-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 0.5
+   },
+   "total": 0.5
+  },
+  {
+   "jobId": "511155",
+   "name": "CRM Roadmap 2026 UNIEURO",
+   "status": "Ongoing",
+   "client": "UNIEURO",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 12.5
+   },
+   "total": 12.5
+  },
+  {
+   "jobId": "511558",
+   "name": "UNISALUTE_Omnicanalità2026",
+   "status": "Ongoing",
+   "client": "UNISALUTE",
+   "startDate": "2026-01-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 24.2,
+    "PL2": 0.0,
+    "PL1": 0.0
+   },
+   "total": 24.2
+  },
+  {
+   "jobId": "511653",
+   "name": "2026_WINDTRE_WINDAY_Maintenance_Plus_H1",
+   "status": "Ongoing",
+   "client": "WIND3",
+   "startDate": "2026-01-01",
+   "endDate": "2026-06-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 12.0,
+    "PL2": 30.0,
+    "PL1": 24.0
+   },
+   "total": 66.0
+  },
+  {
+   "jobId": "511863",
+   "name": "2026_WINDTRE_WINDAY_Maintenance_Plus_H2",
+   "status": "Ongoing",
+   "client": "WIND3",
+   "startDate": "2026-07-01",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 12.0,
+    "PL2": 30.0,
+    "PL1": 24.0
+   },
+   "total": 66.0
+  },
+  {
+   "jobId": "516267",
+   "name": "2026_WINDTRE_W3B_MiniSiti_SEO-Content",
+   "status": "Ongoing",
+   "client": "WIND3",
+   "startDate": "2026-06-01",
+   "endDate": "2026-09-30",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 5.0
+   },
+   "total": 5.0
+  },
+  {
+   "jobId": "508411",
+   "name": "25/26 (ott-mag) - ZENITA - Digital&Media MATICMIND",
+   "status": "Ongoing",
+   "client": "ZENITA",
+   "startDate": "2025-10-01",
+   "endDate": "2026-05-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 2.0,
+    "PL2": 0.0,
+    "PL1": 7.0
+   },
+   "total": 9.0
+  },
+  {
+   "jobId": "517033",
+   "name": "2026 EUROSPIN Creativita AI setup + 4 campagne",
+   "status": "Ongoing",
+   "client": "EUROSPIN",
+   "startDate": "2026-07-08",
+   "endDate": "2026-12-18",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 7.0
+   },
+   "total": 7.0
+  },
+  {
+   "jobId": "514361",
+   "name": "PM_attività club",
+   "status": "Ongoing",
+   "client": "PHILIP MORRIS",
+   "startDate": "2026-04-15",
+   "endDate": "2026-07-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 2.5
+   },
+   "total": 2.5
+  },
+  {
+   "jobId": "513856",
+   "name": "2026_ACEA_Design Intranet",
+   "status": "Ongoing",
+   "client": "ACEA",
+   "startDate": "2026-04-09",
+   "endDate": "2026-12-31",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 0.0,
+    "PL2": 0.0,
+    "PL1": 40.0
+   },
+   "total": 40.0
+  },
+  {
+   "jobId": "",
+   "name": "Totale",
+   "status": "",
+   "client": "",
+   "startDate": "",
+   "endDate": "",
+   "pl": {
+    "PL4": 0.0,
+    "PL3": 144.2,
+    "PL2": 165.75,
+    "PL1": 1981.25
+   },
+   "total": 2291.2
+  }
+ ],
+ "people": [
+  {
+   "name": "Alessia Oggero",
+   "email": "alessia.oggero@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Senior Consultant",
+   "clickup": "Yes",
+   "projects": [
+    "ISP",
+    "Ginori"
+   ]
+  },
+  {
+   "name": "Alessandro Corti",
+   "email": "alessandro.corti@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Analyst",
+   "clickup": "Yes",
+   "projects": [
+    "ISP",
+    "Gessi",
+    "Ariston"
+   ]
+  },
+  {
+   "name": "Andrea Carlucci",
+   "email": "andrea.carlucci@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Associate",
+   "clickup": "Yes",
+   "projects": [
+    "Named",
+    "Freetox",
+    "Capholding",
+    "Mediaset",
+    "Next Yacht Group"
+   ]
+  },
+  {
+   "name": "Angelica Gallera",
+   "email": "angelica.gallera@jakala.com",
+   "country": "IT",
+   "sub": "Content",
+   "rank": "Content Marketing Consultant",
+   "clickup": "No",
+   "projects": []
+  },
+  {
+   "name": "Ariadna Luchian",
+   "email": "ariadna.luchian@jakala.com",
+   "country": "UK",
+   "sub": "SEO",
+   "rank": "SEO Senior Consultant",
+   "clickup": "No",
+   "projects": []
+  },
+  {
+   "name": "Carola Natali",
+   "email": "carola.natali@jakala.com",
+   "country": "IT",
+   "sub": "Content",
+   "rank": "Content Marketing Consultant",
+   "clickup": "No",
+   "projects": []
+  },
+  {
+   "name": "Chiara Fossati",
+   "email": "chiara.fossati@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Associate Manager",
+   "clickup": "Yes",
+   "projects": [
+    "Silversea",
+    "Explora Journeys",
+    "Prada",
+    "Miu Miu",
+    "Enervit",
+    "Flos",
+    "B&B Italia"
+   ]
+  },
+  {
+   "name": "Diana Cimino",
+   "email": "diana.cimino@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Senior Associate",
+   "clickup": "No",
+   "projects": [
+    "Sole24Ore",
+    "Open",
+    "Lanieri",
+    "Edenred",
+    "RCS",
+    "First Stop"
+   ]
+  },
+  {
+   "name": "Diego Barberio",
+   "email": "diego.barberio@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Expert Lead",
+   "clickup": "Yes",
+   "projects": [
+    "GNV",
+    "A2A",
+    "Plenitude",
+    "Alperia"
+   ]
+  },
+  {
+   "name": "Elena Abate",
+   "email": "elena.abate@jakala.com",
+   "country": "IT",
+   "sub": "Content",
+   "rank": "Content Marketing Associate",
+   "clickup": "No",
+   "projects": []
+  },
+  {
+   "name": "Eliana Izzo",
+   "email": "eliana.izzo@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Associate",
+   "clickup": "Yes",
+   "projects": [
+    "GNV",
+    "Silversea"
+   ]
+  },
+  {
+   "name": "Ella Chesnaye",
+   "email": "ella.chesnaye@jakala.com",
+   "country": "UK",
+   "sub": "SEO",
+   "rank": "SEO Consultant",
+   "clickup": "Yes",
+   "projects": [
+    "Kempinski",
+    "Explora Journeys",
+    "Hotel de Rome",
+    "Svarowski"
+   ]
+  },
+  {
+   "name": "Eva Breuker",
+   "email": "eva.breuker@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Expert Lead",
+   "clickup": "No",
+   "projects": []
+  },
+  {
+   "name": "Federico Gennari Santori",
+   "email": "federico.gennari@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Senior Manager",
+   "clickup": "Yes",
+   "projects": []
+  },
+  {
+   "name": "Gabriella La Fata",
+   "email": "gabriella.lafata@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Associate",
+   "clickup": "Yes",
+   "projects": [
+    "Forte Village",
+    "Zona",
+    "B&B Italia",
+    "First Stop",
+    "Alperia",
+    "Flos"
+   ]
+  },
+  {
+   "name": "Gabriele Mereu Milla",
+   "email": "gabriele.mereumilia@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Analyst",
+   "clickup": "Yes",
+   "projects": [
+    "A2A",
+    "Forte Village",
+    "Manfredi Hotels",
+    "Kiton",
+    "Infocamere",
+    "Saint-Gobain",
+    "Cantine Riunite",
+    "Up-Life"
+   ]
+  },
+  {
+   "name": "Giulia Pignatiello",
+   "email": "giulia.pignatiello@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Consultant",
+   "clickup": "Yes",
+   "projects": [
+    "Ariston",
+    "Breitling"
+   ]
+  },
+  {
+   "name": "Ilaria Carlini",
+   "email": "ilaria.carlini@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Senior Consultant",
+   "clickup": "Yes",
+   "projects": [
+    "Breitling",
+    "Benetton",
+    "Named",
+    "BBPM"
+   ]
+  },
+  {
+   "name": "Irene Vivona",
+   "email": "irene.vivona@jakala.com",
+   "country": "IT",
+   "sub": "Content",
+   "rank": "Content Marketing Associate",
+   "clickup": "No",
+   "projects": []
+  },
+  {
+   "name": "Jamie D'Alessandro",
+   "email": "jamie.dalessandro@jakala.com",
+   "country": "US",
+   "sub": "SEO",
+   "rank": "DMA Associate Manager",
+   "clickup": "No",
+   "projects": []
+  },
+  {
+   "name": "Laura Ireland",
+   "email": "laura.ireland@jakala.com",
+   "country": "UK",
+   "sub": "SEO",
+   "rank": "SEO Senior Manager",
+   "clickup": "Yes",
+   "projects": []
+  },
+  {
+   "name": "Laura Marchetti",
+   "email": "laura.marchetti@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Consultant",
+   "clickup": "No",
+   "projects": [
+    "Sole24Ore",
+    "Scholl",
+    "Flos",
+    "UniSalute",
+    "Saint-Gobain",
+    "Cantine Riunite",
+    "Teva Italia",
+    "Cribis",
+    "Mobili Fiver",
+    "Open",
+    "Subaru"
+   ]
+  },
+  {
+   "name": "Lisa Bencivenni",
+   "email": "lisa.bencivenni@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Senior Associate",
+   "clickup": "Yes",
+   "projects": [
+    "Boggi",
+    "Duferco",
+    "ISP",
+    "Fratelli Rossetti",
+    "Ariston"
+   ]
+  },
+  {
+   "name": "Martina Posella",
+   "email": "martina.posella@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Consultant",
+   "clickup": "Yes",
+   "projects": [
+    "ISP",
+    "Ginori",
+    "Residence Hotels"
+   ]
+  },
+  {
+   "name": "Margherita Musmeci",
+   "email": "margherita.musmeci@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Analyst",
+   "clickup": "No",
+   "projects": [
+    "Pictet",
+    "Daikin",
+    "RCS",
+    "Cribis",
+    "Fratelli Rossetti",
+    "MSC"
+   ]
+  },
+  {
+   "name": "Rebecca Yu",
+   "email": "rebecca.yu@jakala.com",
+   "country": "UK",
+   "sub": "SEO",
+   "rank": "SEO Associate Manager",
+   "clickup": "Yes",
+   "projects": [
+    "MSC",
+    "Kempinski",
+    "Svarowski"
+   ]
+  },
+  {
+   "name": "Riccardo Trost",
+   "email": "riccardo.trost@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Manager",
+   "clickup": "Yes",
+   "projects": []
+  },
+  {
+   "name": "Rossana Venturella",
+   "email": "rossana.venturella@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Senior Consultant",
+   "clickup": "Yes",
+   "projects": [
+    "Ariston",
+    "Club del Sole",
+    "Cribis",
+    "Lungarno Collection",
+    "Daikin",
+    "Scholl",
+    "Banca CF+",
+    "Konica Minolta",
+    "Freetox"
+   ]
+  },
+  {
+   "name": "Sara Pianigiani",
+   "email": "sara.pianigiani@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Consultant",
+   "clickup": "Yes",
+   "projects": [
+    "Benetton",
+    "BBPM",
+    "Kempinski",
+    "Manfredi Hotels",
+    "Bluserena",
+    "Infocamere",
+    "Kiton"
+   ]
+  },
+  {
+   "name": "Stefania Ubezio",
+   "email": "stefania.ubezio@jakala.com",
+   "country": "IT",
+   "sub": "Content",
+   "rank": "Content Marketing Consultant",
+   "clickup": "No",
+   "projects": []
+  },
+  {
+   "name": "Teresa Raschetti",
+   "email": "teresa.raschetti@jakala.com",
+   "country": "IT",
+   "sub": "Content",
+   "rank": "Content Marketing Associate",
+   "clickup": "Yes",
+   "projects": []
+  },
+  {
+   "name": "Yuri Ramirez",
+   "email": "yuri.ramirez@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Associate",
+   "clickup": "Yes",
+   "projects": [
+    "Ariston",
+    "Boggi",
+    "Enervit",
+    "Ginori",
+    "GNV",
+    "Kempinski",
+    "Replay Jeans"
+   ]
+  },
+  {
+   "name": "Yvan Scognamiglio",
+   "email": "yvan.scognamiglio@jakala.com",
+   "country": "IT",
+   "sub": "Content",
+   "rank": "Content Marketing Manager",
+   "clickup": "Yes",
+   "projects": []
+  },
+  {
+   "name": "Valentina Franco",
+   "email": "valentina.franco@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Consultant",
+   "clickup": "Yes",
+   "projects": [
+    "Explora Journeys",
+    "Enervit",
+    "Wind",
+    "Very Mobile"
+   ]
+  },
+  {
+   "name": "Valentina Nicoli",
+   "email": "valentina.nicoli@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Associate",
+   "clickup": "Yes",
+   "projects": [
+    "Ariston",
+    "Pictet",
+    "MSC",
+    "RCS",
+    "Ponzio Aluminium"
+   ]
+  },
+  {
+   "name": "Vittorio Caposiena",
+   "email": "vittorio.caposiena@jakala.com",
+   "country": "IT",
+   "sub": "SEO",
+   "rank": "SEO Senior Expert Lead",
+   "clickup": "Yes",
+   "projects": []
+  }
+ ],
+ "raw": [
+  {
+   "client": "A2A",
+   "name": "Diego Barberio",
+   "rank": "SEO Expert Lead",
+   "active": "Yes"
+  },
+  {
+   "client": "A2A",
+   "name": "Gabriele Mereu Milla",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Alperia",
+   "name": "Diego Barberio",
+   "rank": "SEO Expert Lead",
+   "active": "Yes"
+  },
+  {
+   "client": "Alperia",
+   "name": "Gabriella La Fata",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Ariston",
+   "name": "Lisa Bencivenni",
+   "rank": "SEO Senior Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Ariston",
+   "name": "Alessandro Corti",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Ariston",
+   "name": "Valentina Nicoli",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Ariston",
+   "name": "Giulia Pignatiello",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Ariston",
+   "name": "Yuri Ramirez",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Ariston",
+   "name": "Rossana Venturella",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "B&B Italia",
+   "name": "Chiara Fossati",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "B&B Italia",
+   "name": "Gabriella La Fata",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Banca CF+",
+   "name": "Rossana Venturella",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "BBPM",
+   "name": "Ilaria Carlini",
+   "rank": "SEO Senior Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "BBPM",
+   "name": "Sara Pianigiani",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Benetton",
+   "name": "Ilaria Carlini",
+   "rank": "SEO Senior Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Benetton",
+   "name": "Sara Pianigiani",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Bluserena",
+   "name": "Sara Pianigiani",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Boggi",
+   "name": "Lisa Bencivenni",
+   "rank": "SEO Senior Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Boggi",
+   "name": "Yuri Ramirez",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Boggi",
+   "name": "Andrea Carlucci",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Breitling",
+   "name": "Ilaria Carlini",
+   "rank": "SEO Senior Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Breitling",
+   "name": "Giulia Pignatiello",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Cantine Riunite",
+   "name": "Gabriele Mereu Milla",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Capholding",
+   "name": "Andrea Carlucci",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Club del Sole",
+   "name": "Rossana Venturella",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Cribis",
+   "name": "Margherita Musmeci",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Cribis",
+   "name": "Rossana Venturella",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Daikin",
+   "name": "Margherita Musmeci",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Daikin",
+   "name": "Rossana Venturella",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Duferco",
+   "name": "Lisa Bencivenni",
+   "rank": "SEO Senior Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Edenred",
+   "name": "Diana Cimino",
+   "rank": "SEO Senior Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Enervit",
+   "name": "Chiara Fossati",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Enervit",
+   "name": "Valentina Franco",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Enervit",
+   "name": "Yuri Ramirez",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Explora Journeys",
+   "name": "Ella Chesnaye",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Explora Journeys",
+   "name": "Chiara Fossati",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Explora Journeys",
+   "name": "Valentina Franco",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Explora Journeys",
+   "name": "Laura Ireland",
+   "rank": "SEO Senior Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "First Stop",
+   "name": "Diana Cimino",
+   "rank": "SEO Senior Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "First Stop",
+   "name": "Gabriella La Fata",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Flos",
+   "name": "Chiara Fossati",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Flos",
+   "name": "Gabriella La Fata",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Flos",
+   "name": "Leonardo Brambille",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Forte Village",
+   "name": "Gabriella La Fata",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Forte Village",
+   "name": "Gabriele Mereu Milla",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Fratelli Rossetti",
+   "name": "Lisa Bencivenni",
+   "rank": "SEO Senior Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Fratelli Rossetti",
+   "name": "Margherita Musmeci",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Freetox",
+   "name": "Andrea Carlucci",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Freetox",
+   "name": "Rossana Venturella",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Gessi",
+   "name": "Vittorio Caposiena",
+   "rank": "SEO Senior Expert Lead",
+   "active": "Yes"
+  },
+  {
+   "client": "Gessi",
+   "name": "Alessandro Corti",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Ginori",
+   "name": "Alessia Oggero",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Ginori",
+   "name": "Martina Posella",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Ginori",
+   "name": "Yuri Ramirez",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "GNV",
+   "name": "Diego Barberio",
+   "rank": "SEO Expert Lead",
+   "active": "Yes"
+  },
+  {
+   "client": "GNV",
+   "name": "Eliana Izzo",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "GNV",
+   "name": "Yuri Ramirez",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Hotel de Rome",
+   "name": "Ella Chesnaye",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Infocamere",
+   "name": "Gabriele Mereu Milla",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Infocamere",
+   "name": "Sara Pianigiani",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "ISP",
+   "name": "Lisa Bencivenni",
+   "rank": "SEO Senior Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "ISP",
+   "name": "Alessandro Corti",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "ISP",
+   "name": "Alessia Oggero",
+   "rank": "SEO Senior Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "ISP",
+   "name": "Martina Posella",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Kempinski",
+   "name": "Ella Chesnaye",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Kempinski",
+   "name": "Sara Pianigiani",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Kempinski",
+   "name": "Yuri Ramirez",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Kempinski",
+   "name": "Rebecca Yu",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Kempinski",
+   "name": "Laura Ireland",
+   "rank": "SEO Senior Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Kiton",
+   "name": "Gabriele Mereu Milla",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Kiton",
+   "name": "Sara Pianigiani",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Konica Minolta",
+   "name": "Rossana Venturella",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Lanieri",
+   "name": "Diana Cimino",
+   "rank": "SEO Senior Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Lungarno Collection",
+   "name": "Rossana Venturella",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Manfredi Hotels",
+   "name": "Gabriele Mereu Milla",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Manfredi Hotels",
+   "name": "Sara Pianigiani",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Mediaset",
+   "name": "Andrea Carlucci",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Miu Miu",
+   "name": "Chiara Fossati",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Mobili Fiver",
+   "name": "Eva Breuker",
+   "rank": "Expert Lead",
+   "active": "Yes"
+  },
+  {
+   "client": "Mobili Fiver",
+   "name": "Vittorio Caposiena",
+   "rank": "SEO Senior Expert Lead",
+   "active": "Yes"
+  },
+  {
+   "client": "MSC",
+   "name": "Valentina Nicoli",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "MSC",
+   "name": "Rebecca Yu",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "MSC",
+   "name": "Margherita Musmeci",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Named",
+   "name": "Ilaria Carlini",
+   "rank": "SEO Senior Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Named",
+   "name": "Andrea Carlucci",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Next Yacht Group",
+   "name": "Andrea Carlucci",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Open",
+   "name": "Diana Cimino",
+   "rank": "SEO Senior Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Open",
+   "name": "Leonardo Brambille",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Pictet",
+   "name": "Margherita Musmeci",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Pictet",
+   "name": "Valentina Nicoli",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Plenitude",
+   "name": "Diego Barberio",
+   "rank": "SEO Expert Lead",
+   "active": "Yes"
+  },
+  {
+   "client": "Plenitude",
+   "name": "Leonardo Brambille",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Ponzio Aluminium",
+   "name": "Valentina Nicoli",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Prada",
+   "name": "Chiara Fossati",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "RCS",
+   "name": "Diana Cimino",
+   "rank": "SEO Senior Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "RCS",
+   "name": "Margherita Musmeci",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "RCS",
+   "name": "Valentina Nicoli",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Replay Jeans",
+   "name": "Yuri Ramirez",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Residence Hotels",
+   "name": "Martina Posella",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Saint-Gobain",
+   "name": "Gabriele Mereu Milia",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Scholl",
+   "name": "Eliana Izzo",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Scholl",
+   "name": "Rossana Venturella",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Silversea",
+   "name": "Chiara Fossati",
+   "rank": "SEO Associate Manager",
+   "active": "Closed 08/26"
+  },
+  {
+   "client": "Silversea",
+   "name": "Eliana Izzo",
+   "rank": "SEO Associate",
+   "active": "Closed 08/26"
+  },
+  {
+   "client": "Sole 24 Ore",
+   "name": "Diana Cimino",
+   "rank": "SEO Senior Associate",
+   "active": "Yes"
+  },
+  {
+   "client": "Sole 24 Ore",
+   "name": "Leonardo Brambille",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Subaru",
+   "name": "Yvan Scognamiglio",
+   "rank": "SEO Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Swarowski",
+   "name": "Ella Chesnaye",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Swarowski",
+   "name": "Rebecca Yu",
+   "rank": "SEO Associate Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Swarowski",
+   "name": "Laura Ireland",
+   "rank": "SEO Senior Manager",
+   "active": "Yes"
+  },
+  {
+   "client": "Swarowski",
+   "name": "Ariadna Luchian",
+   "rank": "SEO Senior Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Teva Italia",
+   "name": "Laura Marchetti",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "UniSalute",
+   "name": "Yvan Scognamiglio",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Up-Life",
+   "name": "Gabriele Mereu Milla",
+   "rank": "SEO Analyst",
+   "active": "Yes"
+  },
+  {
+   "client": "Very Mobile",
+   "name": "Valentina Franco",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Wind",
+   "name": "Valentina Franco",
+   "rank": "SEO Consultant",
+   "active": "Yes"
+  },
+  {
+   "client": "Zona",
+   "name": "Gabriella La Fata",
+   "rank": "SEO Associate",
+   "active": "Yes"
+  }
+ ],
+ "seo_hdr": [
+  "",
+  "JOB ID",
+  "Progetto",
+  "Status",
+  "Cliente",
+  "Data inizio JOB",
+  "Data chiusura JOB",
+  "PL 4",
+  "PL 3",
+  "PL 2",
+  "PL 1",
+  "Total",
+  ""
+ ],
+ "content_hdr": [
+  "",
+  "JOB ID",
+  "Progetto",
+  "Status",
+  "Cliente",
+  "Data inizio JOB",
+  "Data chiusura JOB",
+  "PL 4",
+  "PL 3",
+  "PL 2",
+  "PL 1",
+  "Total"
+ ]
+}
