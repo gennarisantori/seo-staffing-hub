@@ -491,7 +491,8 @@ var ADMDEF={
   perceived:'Perceived = days people report they spend, billable and non-billable together, derived from the percentage weight each of them set on every project, compared with their capacity. It shows how loaded the team believes it is.',
   billability:'Billability = how the reported days split between billable client work and non-billable work (internal, management, presale, training, leave).',
   utilization:'Utilization rate = billable days divided by available capacity. It shows how much of the total available time goes to client work.',
-  saturation:'Saturation = days quoted on projects for '+YEAR+' divided by available capacity. It shows how much of the team capacity is already sold.'
+  sellable:'Sellable capacity = capacity x the billability target of the Price Level: the days that can realistically be billed to clients, once the time planned for internal work, management, presale, training and leave is set aside.',
+  saturation:'Saturation = days quoted on projects for '+YEAR+' divided by sellable capacity, so it compares what has been sold with the time the team can realistically bill. Above 100% the level is oversold.'
 };
 function admNote(txt){return '<div class="admnote">'+txt+'</div>';}
 function admLegend(items){return '<div class="admleg">'+items.map(function(x){return '<span><b>'+x[0]+'</b> '+x[1]+'</span>';}).join('')+'</div>';}
@@ -582,7 +583,7 @@ function admSaturation(){
     h+='<label class="tgtbox"><span>'+plLabel(k)+'</span><span style="font-size:10px;color:var(--t3)">'+esc(plRanksTxt(D,k))+'</span><span class="tgtin"><input type="number" min="1" max="100" step="5" value="'+tgtOf(k)+'" onchange="setTgt(\''+k+'\',this.value)">%</span></label>';
   });
   h+='</div><button class="b bo" style="margin-top:10px" onclick="resetTgt()">Reset to defaults</button></div>';
-  h+='<div class="ucard"><div class="uct">Saturation '+YEAR+'</div><div class="ucs">'+ADMDEF.saturation+' '+ADMDEF.quoted+'</div>'
+  h+='<div class="ucard"><div class="uct">Saturation '+YEAR+'</div><div class="ucs">'+ADMDEF.saturation+' '+ADMDEF.sellable+' '+ADMDEF.quoted+'</div>'
    +'<table class="utbl"><thead><tr><th>Price Level</th><th class="r">People</th><th class="r">Capacity (d)</th><th class="r">Target</th><th class="r">Sellable (d)</th><th class="r">Quoted '+YEAR+' (d)</th><th class="r">Real saturation</th><th class="r">On gross capacity</th></tr></thead><tbody>';
   PLkeys.forEach(function(k){
     var cap=D.plCap[k],sell=D.plSell[k],q=D.quoted[k];
@@ -853,6 +854,14 @@ html = html.replace(
 html = html.replace(
     'function doEM(id){const m=S.m.find(x=>x.id===id);if(!m)return;m.name=document.getElementById("xn").value;',
     'function doEM(id){const m=S.m.find(x=>x.id===id);if(!m)return;m.name=document.getElementById("xn").value;m.email=(document.getElementById("xe").value||"").trim().toLowerCase()||_emailFromName(m.name);', 1)
+
+# ── P0. Spell the units and the "sellable" label out in full ──
+html = html.replace(' (d)', ' (days)')
+html = html.replace('Sellable (days)', 'Sellable capacity (days)')
+html = html.replace("['Sellable','capacity x the billability target of each Price Level']",
+                    "['Sellable capacity','capacity x the billability target: the days that can realistically be billed to clients']")
+html = html.replace("['Sellable','capacity x target, the days that can actually be sold']",
+                    "['Sellable capacity','capacity x target: the days that can realistically be billed to clients']")
 
 # ── P3. Load the billability targets wherever people/projects are read ──
 LOAD_ANCHOR = 'if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}}'
