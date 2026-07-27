@@ -363,6 +363,12 @@ theme_css = (
     ".admnote{margin-top:12px;padding:9px 12px;background:#f6f8fa;border-left:3px solid #185fa5;border-radius:0 6px 6px 0;font-size:12px;color:var(--t2);line-height:1.5}"
     ".admleg{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-size:11.5px;color:var(--t2);line-height:1.5}"
     ".admleg b{color:#15171c}"
+    ".tgtrow{display:flex;gap:10px;flex-wrap:wrap}"
+    ".tgtbox{flex:1;min-width:190px;display:flex;flex-direction:column;gap:3px;background:#f8f9fb;border:1px solid var(--bd);border-radius:10px;padding:11px 13px}"
+    ".tgtbox>span:first-child{font-weight:700;font-size:12px;color:#15171c}"
+    ".tgtin{display:flex;align-items:center;gap:5px;margin-top:4px;font-size:13px;color:var(--t2)}"
+    ".tgtin input{width:70px;padding:6px 8px;border:1px solid var(--bd);border-radius:7px;background:#fff;color:var(--tx);font-family:inherit;font-size:14px;font-weight:700;text-align:right}"
+    ".tgtin input:focus{outline:none;border-color:#185fa5}"
 )
 html = html.replace('</style>', theme_css + '</style>', 1)
 
@@ -466,9 +472,15 @@ function admData(){
   var used=order.filter(function(r){return rows[r].n>0;});
   var plCap={PL4:0,PL3:0,PL2:0,PL1:0},plBill={PL4:0,PL3:0,PL2:0,PL1:0},plNb={PL4:0,PL3:0,PL2:0,PL1:0},plN={PL4:0,PL3:0,PL2:0,PL1:0},plRanks={PL4:[],PL3:[],PL2:[],PL1:[]};
   used.forEach(function(r){var k='PL'+rows[r].pl;plCap[k]+=rows[r].cap;plBill[k]+=rows[r].bill;plNb[k]+=rows[r].nb;plN[k]+=rows[r].n;plRanks[k].push(r);});
+  // Sellable capacity = capacity x the billability target set for that Price Level
+  var tgt={},plSell={PL4:0,PL3:0,PL2:0,PL1:0};
+  PLkeys.forEach(function(k){tgt[k]=tgtOf(k);plSell[k]=plCap[k]*tgt[k]/100;});
   return {rows:rows,used:used,quoted:quoted,quotedAll:quotedAll,nProjects:np,
-          plCap:plCap,plBill:plBill,plNb:plNb,plN:plN,plRanks:plRanks};
+          plCap:plCap,plBill:plBill,plNb:plNb,plN:plN,plRanks:plRanks,tgt:tgt,plSell:plSell};
 }
+function tgtOf(k){var v=(S.t&&S.t[k]);v=parseFloat(v);return (isFinite(v)&&v>0)?v:DEFT[k];}
+function setTgt(k,v){v=parseFloat(v);if(!isFinite(v)||v<=0||v>100)return;S.t=Object.assign({},S.t);S.t[k]=v;sv();R();}
+function resetTgt(){S.t=Object.assign({},DEFT);sv();R();}
 function plLabel(k){return 'Price Level '+k.replace('PL','');}
 function plRanksTxt(D,k){return D.plRanks[k].length?D.plRanks[k].join(', '):'-';}
 function admSub(k,l){return '<a class="nav-item'+((S.aTab||'overview')===k?' active':'')+'" onclick="S.aTab=\''+k+'\';R()">'+l+'</a>';}
@@ -497,21 +509,21 @@ function renderAdmin(){
 }
 // ── Overview: the four headline metrics side by side, per Price Level ──
 function admOverview(){
-  var D=admData(),tQ=0,tQA=0,tC=0,tB=0,tNb=0,tN=0;
-  PLkeys.forEach(function(k){tQ+=D.quoted[k];tQA+=D.quotedAll[k];tC+=D.plCap[k];tB+=D.plBill[k];tNb+=D.plNb[k];tN+=D.plN[k];});
-  var sat=tC?tQ/tC*100:0,util=tC?tB/tC*100:0,perc=tC?(tB+tNb)/tC*100:0;
+  var D=admData(),tQ=0,tQA=0,tC=0,tB=0,tNb=0,tN=0,tS=0;
+  PLkeys.forEach(function(k){tQ+=D.quoted[k];tQA+=D.quotedAll[k];tC+=D.plCap[k];tB+=D.plBill[k];tNb+=D.plNb[k];tN+=D.plN[k];tS+=D.plSell[k];});
+  var sat=tS?tQ/tS*100:0,gsat=tC?tQ/tC*100:0,util=tC?tB/tC*100:0,perc=tC?(tB+tNb)/tC*100:0;
   var h='<div class="ucard"><div class="uct">Overview '+YEAR+'</div><div class="ucs">Headcount, active projects and the four headline metrics for the year. Every figure is expressed in working days.</div>'
-   +'<div class="ametrics">'+amCard('People',tN,'')+amCard('Projects',D.nProjects,'')+amCard('Capacity (d)',_d0(tC),'')+amCard('Quoted '+YEAR+' (d)',_d0(tQ),'#185fa5')+'</div>'
-   +'<div class="ametrics" style="margin-top:10px">'+amCard('Perceived',_p0(perc),sc(perc))+amCard('Billable share',_p0(tB+tNb?tB/(tB+tNb)*100:0),'#185fa5')+amCard('Utilization rate',_p0(util),sc(util))+amCard('Saturation',_p0(sat),sc(sat))+'</div>'
-   +admLegend([['Perceived','reported days / capacity'],['Billable share','billable / reported days'],['Utilization rate','billable days / capacity'],['Saturation','quoted days / capacity']])+'</div>';
+   +'<div class="ametrics">'+amCard('People',tN,'')+amCard('Projects',D.nProjects,'')+amCard('Capacity (d)',_d0(tC),'')+amCard('Sellable (d)',_d0(tS),'')+amCard('Quoted '+YEAR+' (d)',_d0(tQ),'#185fa5')+'</div>'
+   +'<div class="ametrics" style="margin-top:10px">'+amCard('Perceived',_p0(perc),sc(perc))+amCard('Billable share',_p0(tB+tNb?tB/(tB+tNb)*100:0),'#185fa5')+amCard('Utilization rate',_p0(util),sc(util))+amCard('Real saturation',_p0(sat),sc(sat))+'</div>'
+   +admLegend([['Perceived','reported days / capacity'],['Billable share','billable / reported days'],['Utilization rate','billable days / capacity'],['Sellable','capacity x the billability target of each Price Level'],['Real saturation','quoted days / sellable days ('+_p0(gsat)+' on gross capacity)']])+'</div>';
   h+='<div class="ucard"><div class="uct">By Price Level</div><div class="ucs">'+ADMDEF.capacity+' '+ADMDEF.quoted+'</div>'
-   +'<table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Capacity (d)</th><th class="r">Quoted '+YEAR+' (d)</th><th class="r">Perceived</th><th class="r">Utilization</th><th class="r">Saturation</th></tr></thead><tbody>';
+   +'<table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Capacity (d)</th><th class="r">Target</th><th class="r">Sellable (d)</th><th class="r">Quoted '+YEAR+' (d)</th><th class="r">Perceived</th><th class="r">Utilization</th><th class="r">Real saturation</th></tr></thead><tbody>';
   PLkeys.forEach(function(k){
-    var cap=D.plCap[k],q=D.quoted[k],b=D.plBill[k],nb=D.plNb[k];
-    var pe=cap?(b+nb)/cap*100:0,u=cap?b/cap*100:0,s=cap?q/cap*100:(q>0?999:0);
-    h+='<tr><td><b>'+plLabel(k)+'</b></td><td style="font-size:11px;color:var(--t2)">'+esc(plRanksTxt(D,k))+'</td><td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(cap)+'</td><td class="r">'+_d0(q)+'</td><td class="r" style="color:'+sc(pe)+'">'+_p0(pe)+'</td><td class="r" style="color:'+sc(u)+'">'+_p0(u)+'</td><td class="r"><b style="color:'+sc(s)+'">'+(s>900?'no capacity':_p0(s))+'</b></td></tr>';
+    var cap=D.plCap[k],sell=D.plSell[k],q=D.quoted[k],b=D.plBill[k],nb=D.plNb[k];
+    var pe=cap?(b+nb)/cap*100:0,u=cap?b/cap*100:0,s=sell?q/sell*100:(q>0?999:0);
+    h+='<tr><td><b>'+plLabel(k)+'</b></td><td style="font-size:11px;color:var(--t2)">'+esc(plRanksTxt(D,k))+'</td><td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(cap)+'</td><td class="r">'+_p0(D.tgt[k])+'</td><td class="r">'+_d0(sell)+'</td><td class="r">'+_d0(q)+'</td><td class="r" style="color:'+sc(pe)+'">'+_p0(pe)+'</td><td class="r" style="color:'+sc(u)+'">'+_p0(u)+'</td><td class="r"><b style="color:'+sc(s)+'">'+(s>900?'no capacity':_p0(s))+'</b></td></tr>';
   });
-  h+='<tr class="tot"><td>Total</td><td></td><td class="r">'+tN+'</td><td class="r">'+_d0(tC)+'</td><td class="r">'+_d0(tQ)+'</td><td class="r">'+_p0(perc)+'</td><td class="r">'+_p0(util)+'</td><td class="r">'+_p0(sat)+'</td></tr>';
+  h+='<tr class="tot"><td>Total</td><td></td><td class="r">'+tN+'</td><td class="r">'+_d0(tC)+'</td><td class="r">'+_p0(tC?tS/tC*100:0)+'</td><td class="r">'+_d0(tS)+'</td><td class="r">'+_d0(tQ)+'</td><td class="r">'+_p0(perc)+'</td><td class="r">'+_p0(util)+'</td><td class="r">'+_p0(sat)+'</td></tr>';
   h+='</tbody></table>'+admNote('Quoted days for the full contract length, ignoring the year split, add up to '+_d0(tQA)+' days.')+'</div>';
   return h;
 }
@@ -561,19 +573,26 @@ function admUtilization(){
    +admNote('The gap to 100% is the share of available time not sold to clients: internal work, presale, training, leave or idle capacity.')+'</div>';
   return h;
 }
-// ── Saturation: quoted days against capacity ──
+// ── Saturation: quoted days against the sellable capacity implied by the targets ──
 function admSaturation(){
-  var D=admData(),tc=0,tq=0,tb=0,tN=0;
-  var h='<div class="ucard"><div class="uct">Saturation '+YEAR+'</div><div class="ucs">'+ADMDEF.saturation+' '+ADMDEF.quoted+'</div>'
-   +'<table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Capacity (d)</th><th class="r">Quoted '+YEAR+' (d)</th><th class="r">Saturation</th></tr></thead><tbody>';
+  var D=admData(),tc=0,tq=0,tb=0,tN=0,ts=0;
+  // editable billability targets
+  var h='<div class="ucard"><div class="uct">Billability targets</div><div class="ucs">Share of the year each Price Level is expected to sell to clients. The rest is planned for internal work, management, presale, training and leave. These targets set the sellable capacity used by the real saturation below.</div><div class="tgtrow">';
   PLkeys.forEach(function(k){
-    var cap=D.plCap[k],q=D.quoted[k],s=cap?q/cap*100:(q>0?999:0);
-    tc+=cap;tq+=q;tb+=D.plBill[k];tN+=D.plN[k];
-    h+='<tr><td><b>'+plLabel(k)+'</b></td><td style="font-size:11px;color:var(--t2)">'+esc(plRanksTxt(D,k))+'</td><td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(cap)+'</td><td class="r">'+_d0(q)+'</td><td class="r"><b style="color:'+sc(s)+'">'+(s>900?'no capacity':_p0(s))+'</b>'+_bar(s,sc(s))+'</td></tr>';
+    h+='<label class="tgtbox"><span>'+plLabel(k)+'</span><span style="font-size:10px;color:var(--t3)">'+esc(plRanksTxt(D,k))+'</span><span class="tgtin"><input type="number" min="1" max="100" step="5" value="'+tgtOf(k)+'" onchange="setTgt(\''+k+'\',this.value)">%</span></label>';
   });
-  h+='<tr class="tot"><td>Total</td><td></td><td class="r">'+tN+'</td><td class="r">'+_d0(tc)+'</td><td class="r">'+_d0(tq)+'</td><td class="r">'+_p0(tc?tq/tc*100:0)+'</td></tr></tbody></table>'
-   +admLegend([['Capacity','people x 220 working days'],['Quoted '+YEAR,'days sold on the quotes, pro rata for the year'],['Saturation','quoted days / capacity']])
-   +admNote('Above 100% the level is sold beyond its own capacity, so the work has to be covered by other levels, external resources or a longer schedule.')+'</div>';
+  h+='</div><button class="b bo" style="margin-top:10px" onclick="resetTgt()">Reset to defaults</button></div>';
+  h+='<div class="ucard"><div class="uct">Saturation '+YEAR+'</div><div class="ucs">'+ADMDEF.saturation+' '+ADMDEF.quoted+'</div>'
+   +'<table class="utbl"><thead><tr><th>Price Level</th><th class="r">People</th><th class="r">Capacity (d)</th><th class="r">Target</th><th class="r">Sellable (d)</th><th class="r">Quoted '+YEAR+' (d)</th><th class="r">Real saturation</th><th class="r">On gross capacity</th></tr></thead><tbody>';
+  PLkeys.forEach(function(k){
+    var cap=D.plCap[k],sell=D.plSell[k],q=D.quoted[k];
+    var s=sell?q/sell*100:(q>0?999:0),g=cap?q/cap*100:(q>0?999:0);
+    tc+=cap;tq+=q;tb+=D.plBill[k];tN+=D.plN[k];ts+=sell;
+    h+='<tr><td><b>'+plLabel(k)+'</b><div style="font-size:10px;color:var(--t3);font-weight:400">'+esc(plRanksTxt(D,k))+'</div></td><td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(cap)+'</td><td class="r">'+_p0(D.tgt[k])+'</td><td class="r"><b>'+_d0(sell)+'</b></td><td class="r">'+_d0(q)+'</td><td class="r"><b style="color:'+sc(s)+'">'+(s>900?'no capacity':_p0(s))+'</b>'+_bar(s,sc(s))+'</td><td class="r" style="color:var(--t3)">'+(g>900?'-':_p0(g))+'</td></tr>';
+  });
+  h+='<tr class="tot"><td>Total</td><td class="r">'+tN+'</td><td class="r">'+_d0(tc)+'</td><td class="r">'+_p0(tc?ts/tc*100:0)+'</td><td class="r">'+_d0(ts)+'</td><td class="r">'+_d0(tq)+'</td><td class="r">'+_p0(ts?tq/ts*100:0)+'</td><td class="r">'+_p0(tc?tq/tc*100:0)+'</td></tr></tbody></table>'
+   +admLegend([['Capacity','people x 220 working days'],['Target','share of the year expected to be billable'],['Sellable','capacity x target, the days that can actually be sold'],['Quoted '+YEAR,'days sold on the quotes, pro rata for the year'],['Real saturation','quoted days / sellable days'],['On gross capacity','quoted days / capacity, ignoring the target']])
+   +admNote('Real saturation is the meaningful one: above 100% the level is sold beyond the time it can realistically bill, so the work has to be covered by other levels, external resources or a longer schedule.')+'</div>';
   // quoted versus what the team reports
   h+='<div class="ucard"><div class="uct">Quoted versus billable reported</div><div class="ucs">What was sold on the quotes for '+YEAR+' compared with the billable days the team reports. A large gap means quoted work is not reflected in what people say they are doing.</div>'
    +'<table class="utbl"><thead><tr><th>Price Level</th><th class="r">Quoted '+YEAR+' (d)</th><th class="r">Billable reported (d)</th><th class="r">Difference</th></tr></thead><tbody>';
@@ -801,6 +820,17 @@ html = html.replace(
 html = html.replace('let fap=[...ps].filter(p=>p.totalDays>0);',
                     'let fap=[...ps].filter(p=>p.totalDays>0&&canEditProject(p));', 1)
 
+# ── P. Billability targets per Price Level (editable, shared through Firebase) ──
+# P1. Defaults + state
+html = html.replace('const PLkeys=',
+                    'const DEFT={PL4:50,PL3:75,PL2:80,PL1:90};\nconst PLkeys=', 1)
+html = html.replace('let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),',
+                    'let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),t:Object.assign({},DEFT),', 1)
+# P2. Persist them on save (loading is wired further down, once step N has run)
+html = html.replace('dbRef.set({m:S.m,p:S.p})', 'dbRef.set({m:S.m,p:S.p,t:S.t})', 1)
+html = html.replace('localStorage.setItem("sfv11",JSON.stringify({m:S.m,p:S.p}))',
+                    'localStorage.setItem("sfv11",JSON.stringify({m:S.m,p:S.p,t:S.t}))', 1)
+
 # ── N. Email per team resource (robust user<->resource link) + rename in seed ──
 # N1. Seed rename so resets/new data are correct too.
 html = html.replace('name:"Federico Gennari Santori"', 'name:"Federico Gennari"', 1)
@@ -823,6 +853,16 @@ html = html.replace(
 html = html.replace(
     'function doEM(id){const m=S.m.find(x=>x.id===id);if(!m)return;m.name=document.getElementById("xn").value;',
     'function doEM(id){const m=S.m.find(x=>x.id===id);if(!m)return;m.name=document.getElementById("xn").value;m.email=(document.getElementById("xe").value||"").trim().toLowerCase()||_emailFromName(m.name);', 1)
+
+# ── P3. Load the billability targets wherever people/projects are read ──
+LOAD_ANCHOR = 'if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}}'
+assert html.count(LOAD_ANCHOR) == 2, 'unexpected load sites: %d' % html.count(LOAD_ANCHOR)
+html = html.replace(LOAD_ANCHOR, LOAD_ANCHOR + 'if(d&&d.t)S.t=Object.assign({},DEFT,d.t);')
+LIVE_ANCHOR = 'if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}R()}'
+assert LIVE_ANCHOR in html, 'realtime load site not found'
+html = html.replace(LIVE_ANCHOR,
+                    'if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}}'
+                    'if(d&&d.t)S.t=Object.assign({},DEFT,d.t);R()', 1)
 
 with io.open(OUT, 'w', encoding='utf-8') as f:
     f.write(html)
