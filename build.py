@@ -903,6 +903,36 @@ html = html.replace(
     'To give this project more, lower another one first.");'
     'pct=room;if(pct<=0){delete p.asgn[mid];sv();R();return}}', 1)
 
+# Person panel: the effort/billability summary is an admin-only read. Members get
+# the project list to fill in, without a load figure for themselves or anyone else.
+PANEL_SUMMARY = ('<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:11px;color:var(--t2)">Total effort:</span>'
+                 '<span style="font-family:var(--mn);font-size:16px;font-weight:700;color:${efC}">${ef.toFixed(0)}%</span>'
+                 '<span style="font-size:10px;color:var(--t3)">· ${d} d · Avail: ${(100-ef).toFixed(0)}%</span></div>\n'
+                 '<div style="display:flex;gap:12px;font-size:10px;margin-bottom:8px"><span style="color:var(--a2)">Billable: <b>${eb.toFixed(0)}%</b></span>'
+                 '<span style="color:var(--t3)">Non bill.: <b>${enb.toFixed(0)}%</b></span></div>')
+assert PANEL_SUMMARY in html, 'person panel summary not found'
+html = html.replace(PANEL_SUMMARY, '${isAdmin()?`' + PANEL_SUMMARY + '`:``}', 1)
+
+# Same rule everywhere else a per-person load figure is on screen.
+# Assign > by person: hide the load badge and the effort bar in the people list.
+ASSIGN_BADGE = ('<span class="sb" style="background:${sc(ef)}18;color:${sc(ef)};font-size:8px">${sl(ef)}</span>')
+assert ASSIGN_BADGE in html, 'assign person badge not found'
+html = html.replace(ASSIGN_BADGE, '${isAdmin()?`' + ASSIGN_BADGE + '`:``}', 1)
+# Assign > candidate rows (both the per-Price-Level list and the "Other" list):
+# hide "Effort: x%" and the availability figure.
+CAND_EFFORT = '<br><span>Effort: ${ef.toFixed(0)}%</span>'
+CAND_AVAIL = '<div class="cavail" style="color:${sc(ef)}">${av.toFixed(0)}%</div>'
+assert html.count(CAND_EFFORT) == 2, 'candidate effort spans: %d' % html.count(CAND_EFFORT)
+assert html.count(CAND_AVAIL) == 2, 'candidate avail cells: %d' % html.count(CAND_AVAIL)
+html = html.replace(CAND_EFFORT, '${isAdmin()?`' + CAND_EFFORT + '`:``}')
+html = html.replace(CAND_AVAIL, '${isAdmin()?`' + CAND_AVAIL + '`:``}')
+# Matrix: the closing "TOTAL EFFORT" row is a per-person load ranking.
+MATRIX_TOTAL = ('h+=`<tr><td class="sc" style="padding:6px 8px;border-top:2px solid var(--bh);font-weight:700;font-size:10px;color:var(--t2);text-align:left">TOTAL EFFORT</td>`;\n'
+                'mm.forEach(m=>{const ef=mEf(m.id);h+=`<td style="border-top:2px solid var(--bh);text-align:center;font-family:var(--mn);font-size:9px;font-weight:700;color:${sc(ef)}">${ef.toFixed(0)}%</td>`});\n'
+                'h+=`</tr>')
+assert MATRIX_TOTAL in html, 'matrix total row not found'
+html = html.replace(MATRIX_TOTAL, 'if(isAdmin()){' + MATRIX_TOTAL + '`;}\nh+=`', 1)
+
 # Team tab: drop the per-person load columns (with the cap in place they are always
 # 100% and invite comparison). Keep the roster: name, role, capacity, projects.
 TEAM_TH_EFFORT = ('<th${ts.col===\'ef\'?\' class="sorted"\':\'\'}><div class="thw" ${thH(\'t\',\'ef\')}>Total effort ${arrI(\'t\',\'ef\')}</div>'

@@ -577,8 +577,8 @@ if(S.sm){const m=ms.find(x=>x.id===S.sm);if(m){
 const ef=mEf(m.id),eb=mEfBill(m.id),enb=mEfNB(m.id),d=mDays(m.id),mp=ps.filter(p=>p.asgn?.[m.id]>0),efC=sc(ef);
 h+=`<div class="pn"><div class="ph"><div><div class="pt">${esc(m.name)}</div><div class="ps2" style="color:${RC[m.role]||'#999'}">${m.role} · ${m.cap} days/yr</div></div>
 <div style="display:flex;gap:4px">${isAdmin()?`<button class="b ba" onclick="emM('${m.id}')">✎</button><button class="b br" onclick="dM('${m.id}')">✕</button>`:``}<button class="b bo" onclick="S.sm=null;R()">←</button></div></div>
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:11px;color:var(--t2)">Total effort:</span><span style="font-family:var(--mn);font-size:16px;font-weight:700;color:${efC}">${ef.toFixed(0)}%</span><span style="font-size:10px;color:var(--t3)">· ${d} d · Avail: ${(100-ef).toFixed(0)}%</span></div>
-<div style="display:flex;gap:12px;font-size:10px;margin-bottom:8px"><span style="color:var(--a2)">Billable: <b>${eb.toFixed(0)}%</b></span><span style="color:var(--t3)">Non bill.: <b>${enb.toFixed(0)}%</b></span></div>
+${isAdmin()?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:11px;color:var(--t2)">Total effort:</span><span style="font-family:var(--mn);font-size:16px;font-weight:700;color:${efC}">${ef.toFixed(0)}%</span><span style="font-size:10px;color:var(--t3)">· ${d} d · Avail: ${(100-ef).toFixed(0)}%</span></div>
+<div style="display:flex;gap:12px;font-size:10px;margin-bottom:8px"><span style="color:var(--a2)">Billable: <b>${eb.toFixed(0)}%</b></span><span style="color:var(--t3)">Non bill.: <b>${enb.toFixed(0)}%</b></span></div>`:``}
 <div class="psc">Projects (${mp.length})</div>`;
 mp.sort((a,b)=>(b.asgn[m.id]||0)-(a.asgn[m.id]||0)).forEach(p=>{const pe=p.asgn[m.id]||0,de=(pe/100)*m.cap;
 h+=`<div class="pr2" ${p.nb?'style="border-left:2px solid var(--t3)"':''}><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nb?'<span style="font-size:8px;color:var(--t3)">NB </span>':''}${esc(p.client||p.name)}</div>
@@ -698,14 +698,14 @@ h+=`<div class="role-sec"><div class="role-hdr"><span style="color:${PLC[plNum]|
 <span style="font-size:10px;color:${adr>=dr?'var(--gn)':'var(--yl)'}">${dr>0?(adr/dr*100).toFixed(0):0}%</span></div>`;
 cands.forEach(m=>{const ef=mEf(m.id);const av=100-ef;const isOn=ap.asgn?.[m.id]>0;
 h+=`<div class="cand" onclick="togLink('${ap.id}','${m.id}')"><div class="ck${isOn?' on':''}">${isOn?'✓':''}</div>
-<div class="cn2"><b>${esc(m.name)}</b> <span style="font-size:9px;color:${RC[m.role]||'#999'}">${m.role}</span><br><span>Effort: ${ef.toFixed(0)}%</span></div><div class="cavail" style="color:${sc(ef)}">${av.toFixed(0)}%</div></div>`});
+<div class="cn2"><b>${esc(m.name)}</b> <span style="font-size:9px;color:${RC[m.role]||'#999'}">${m.role}</span>${isAdmin()?`<br><span>Effort: ${ef.toFixed(0)}%</span>`:``}</div>${isAdmin()?`<div class="cavail" style="color:${sc(ef)}">${av.toFixed(0)}%</div>`:``}</div>`});
 h+=`</div>`});
 const usedPLs=rn.map(k=>+k.replace('PL',''));const othr=ms.filter(m=>!usedPLs.includes(rPL(m.role)));
 if(othr.length){h+=`<details style="margin-top:8px"><summary style="font-size:10px;color:var(--t3);cursor:pointer;font-weight:600">Other (${othr.length})</summary>`;
 othr.forEach(m=>{const ef=mEf(m.id);const av=100-ef;const isOn=ap.asgn?.[m.id]>0;
 h+=`<div class="cand" onclick="togLink('${ap.id}','${m.id}')"><div class="ck${isOn?' on':''}">${isOn?'✓':''}</div>
-<div class="cn2"><b>${esc(m.name)}</b> <span style="color:${RC[m.role]||'#999'};font-size:9px">${m.role}</span><br><span>Effort: ${ef.toFixed(0)}%</span></div>
-<div class="cavail" style="color:${sc(ef)}">${av.toFixed(0)}%</div></div>`});
+<div class="cn2"><b>${esc(m.name)}</b> <span style="color:${RC[m.role]||'#999'};font-size:9px">${m.role}</span>${isAdmin()?`<br><span>Effort: ${ef.toFixed(0)}%</span>`:``}</div>
+${isAdmin()?`<div class="cavail" style="color:${sc(ef)}">${av.toFixed(0)}%</div>`:``}</div>`});
 h+=`</details>`}
 } else if(S.aStep==='review'){
 h+=`<div class="abar"><div><span style="font-weight:700;font-size:14px">${esc(ap.name)}</span><br><span style="font-size:11px;color:var(--t3)">${esc(ap.client)} · ${ap.totalDays} Quoted days</span></div>
@@ -738,7 +738,7 @@ const ef=mEf(m.id);const pc=ps.filter(p=>p.asgn?.[m.id]>0).length;
 h+=`<div class="ap${S.aM===m.id?' sel':''}" onclick="S.aM='${m.id}';S.aStep='assign';R()">
 <div style="display:flex;justify-content:space-between;align-items:flex-start">
 <div class="an">${esc(m.name)}</div>
-<span class="sb" style="background:${sc(ef)}18;color:${sc(ef)};font-size:8px">${sl(ef)}</span></div>
+${isAdmin()?`<span class="sb" style="background:${sc(ef)}18;color:${sc(ef)};font-size:8px">${sl(ef)}</span>`:``}</div>
 <div class="ac2" style="color:${RC[m.role]||'#999'}">${m.role}</div>
 <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
 <div style="flex:1;height:3px;background:rgba(0,0,0,.05);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.min(ef/1.2,100)}%;background:${sc(ef)};border-radius:2px"></div></div>
@@ -857,9 +857,10 @@ const ed=S._ec&&S._ec.pid===p.id&&S._ec.mid===m.id;
 if(ed)h+=`<td style="border-bottom:1px solid rgba(0,0,0,.02);padding:1px"><input class="mxi" id="mxe" type="number" min="0" max="100" step="5" value="${pc}" onblur="cMx('${p.id}','${m.id}')" onkeydown="kMx(event,'${p.id}','${m.id}')"></td>`;
 else h+=`<td style="border-bottom:1px solid rgba(0,0,0,.02)" onclick="oMx('${p.id}','${m.id}')"><div class="mx ${on?'on':'off'}">${on?pc+'%':''}</div></td>`});
 h+=`</tr>`});
-h+=`<tr><td class="sc" style="padding:6px 8px;border-top:2px solid var(--bh);font-weight:700;font-size:10px;color:var(--t2);text-align:left">TOTAL EFFORT</td>`;
+if(isAdmin()){h+=`<tr><td class="sc" style="padding:6px 8px;border-top:2px solid var(--bh);font-weight:700;font-size:10px;color:var(--t2);text-align:left">TOTAL EFFORT</td>`;
 mm.forEach(m=>{const ef=mEf(m.id);h+=`<td style="border-top:2px solid var(--bh);text-align:center;font-family:var(--mn);font-size:9px;font-weight:700;color:${sc(ef)}">${ef.toFixed(0)}%</td>`});
-h+=`</tr></tbody></table></div></div>`}
+h+=`</tr>`;}
+h+=`</tbody></table></div></div>`}
 
 if(S.vw==='admin'&&isAdmin()){
 h+='<div style="flex:1;min-width:0;max-width:1120px;margin:0 auto;width:100%">'+renderAdmin()+'</div>';
