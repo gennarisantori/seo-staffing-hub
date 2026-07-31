@@ -913,30 +913,6 @@ PANEL_SUMMARY = ('<div style="display:flex;align-items:center;gap:8px;margin-bot
 assert PANEL_SUMMARY in html, 'person panel summary not found'
 html = html.replace(PANEL_SUMMARY, '${isAdmin()?`' + PANEL_SUMMARY + '`:``}', 1)
 
-# A member reads percentages only on their own rows: in a colleague's panel and in
-# the project team list the figures are replaced by the name alone.
-PERSON_ROW_CTL = ('<div style="display:flex;align-items:center;gap:4px"><input class="pi" type="number" min="0" max="100" step="5" value="${pe}" '
-                  'onchange="setE(\'${p.id}\',\'${m.id}\',parseFloat(this.value)||0)"><span style="font-size:9px;color:var(--t3)">%</span>'
-                  '<span style="font-family:var(--mn);font-size:9px;color:var(--a2)">${de.toFixed(0)}d</span>'
-                  '<button class="rb" onclick="rmE(\'${p.id}\',\'${m.id}\')">×</button>')
-assert PERSON_ROW_CTL in html, 'person panel row controls not found'
-html = html.replace(PERSON_ROW_CTL,
-                    '<div style="display:flex;align-items:center;gap:4px">${(isAdmin()||myResourceIds().indexOf(m.id)>=0)?`'
-                    '<input class="pi" type="number" min="0" max="100" step="5" value="${pe}" '
-                    'onchange="setE(\'${p.id}\',\'${m.id}\',parseFloat(this.value)||0)"><span style="font-size:9px;color:var(--t3)">%</span>'
-                    '<span style="font-family:var(--mn);font-size:9px;color:var(--a2)">${de.toFixed(0)}d</span>'
-                    '<button class="rb" onclick="rmE(\'${p.id}\',\'${m.id}\')">×</button>`:``}', 1)
-
-PROJECT_ROW = 'asg.forEach(a=>{const de=(a.pct/100)*(a.m.cap||220);'
-assert PROJECT_ROW in html, 'project panel row loop not found'
-html = html.replace(PROJECT_ROW, PROJECT_ROW + 'const _own=isAdmin()||myResourceIds().indexOf(a.mid)>=0;', 1)
-PROJECT_ROW_CTL = ('<div style="display:flex;align-items:center;gap:3px">${_ce?`<input class="pi" type="number" min="0" max="100" step="5" value="${a.pct}" '
-                   'onchange="setE(\'${p.id}\',\'${a.mid}\',parseFloat(this.value)||0)">`:`<span class="pi" style="border-color:transparent;text-align:center">${a.pct}</span>`}'
-                   '<span style="font-size:8px;color:var(--t3)">%</span><span style="font-family:var(--mn);font-size:8px;color:var(--a2)">${de.toFixed(0)}d</span>'
-                   '${_ce?`<button class="rb" onclick="rmE(\'${p.id}\',\'${a.mid}\')">×</button>`:``}</div>')
-assert PROJECT_ROW_CTL in html, 'project panel row controls not found'
-html = html.replace(PROJECT_ROW_CTL, '<div style="display:flex;align-items:center;gap:3px">${_own?`' + PROJECT_ROW_CTL[len('<div style="display:flex;align-items:center;gap:3px">'):-len('</div>')] + '`:``}</div>', 1)
-
 # Same rule everywhere else a per-person load figure is on screen.
 # Assign > by person: hide the load badge and the effort bar in the people list.
 ASSIGN_BADGE = ('<span class="sb" style="background:${sc(ef)}18;color:${sc(ef)};font-size:8px">${sl(ef)}</span>')
