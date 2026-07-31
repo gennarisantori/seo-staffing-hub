@@ -363,6 +363,12 @@ theme_css = (
     ".admnote{margin-top:12px;padding:9px 12px;background:#f6f8fa;border-left:3px solid #185fa5;border-radius:0 6px 6px 0;font-size:12px;color:var(--t2);line-height:1.5}"
     ".admleg{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-size:11.5px;color:var(--t2);line-height:1.5}"
     ".admleg b{color:#15171c}"
+    ".perbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:10px 12px;background:#f2f4f7;border:1px solid var(--bd);border-radius:10px;font-size:12px;color:var(--t2)}"
+    ".perbar>span:first-child{font-weight:700;color:#15171c;text-transform:uppercase;letter-spacing:.04em;font-size:11px}"
+    ".perbtn{padding:5px 12px;border-radius:7px;border:1px solid var(--bd);background:#fff;color:var(--t2);font-family:inherit;font-size:12px;cursor:pointer}"
+    ".perbtn:hover{border-color:#185fa5;color:#185fa5}"
+    ".perbtn.on{background:#185fa5;border-color:#185fa5;color:#fff;font-weight:600}"
+    ".perinfo{margin-left:auto;font-size:11px;color:var(--t3)}"
     ".tgtrow{display:flex;gap:10px;flex-wrap:wrap}"
     ".tgtbox{flex:1;min-width:190px;display:flex;flex-direction:column;gap:3px;background:#f8f9fb;border:1px solid var(--bd);border-radius:10px;padding:11px 13px}"
     ".tgtbox>span:first-child{font-weight:700;font-size:12px;color:#15171c}"
@@ -391,7 +397,7 @@ hend = html.index(hend_marker, hstart) + len(hend_marker)
 new_header = r"""var _nm=_user?((_profile&&_profile.displayName)||_user.email):'';
 var _ini=_nm?_nm.split(/[ ._-]+/).filter(Boolean).slice(0,2).map(function(s){return s.charAt(0).toUpperCase();}).join(''):'';
 var _uHtml=_user?('<div class="avatar">'+_ini+'</div><span class="topnav-user">'+esc(_nm)+'</span><button class="signout-btn" onclick="fbSignOut()">Esci</button>'):'';
-const TABS=[["team","👥 Team"],["projects","📁 Progetti"],["matrix","🔢 Matrice"],["assign","⚡️ Assegna"]];
+const TABS=[["team","👥 Team"],["projects","📁 Progetti"],["matrix","🔢 Matrice"],["assign","⚡️ Assegna"],["history","📅 History"]];
 if(isAdmin())TABS.push(["admin","⚙️ Admin"]);
 let h=`<div class="topnav"><div class="topnav-left"><span class="topnav-logo"><img class="brand-mark" src="jakala-logo.png" alt="JAKALA"><span>SEO Staffing Hub</span></span><div class="topnav-nav">${TABS.map(([k,l])=>`<a class="nav-item${S.vw===k?' active':''}" onclick="sw('${k}')">${l}</a>`).join('')}</div>${S.vw!=='admin'?`<input class="topsearch" placeholder="Cerca..." value="${esc(S.q)}" oninput="S.q=this.value;R()">`:''}</div><div class="topnav-right">${_uHtml}</div></div>`;
 h+=`<div class="ct">`;"""
@@ -405,7 +411,10 @@ html = html.replace('function sw(v){S.vw=v;S.sm=null;S.sp=null;R()}',
 # I3. Render the Admin view inside the content area (admins only; nothing for others)
 anchor_ap = 'h+=`</div>`;document.getElementById("AP").innerHTML=h;'
 assert anchor_ap in html, 'AP render anchor not found'
-admin_branch = r"""if(S.vw==='admin'&&isAdmin()){
+admin_branch = r"""if(S.vw==='history'){
+h+='<div style="flex:1;min-width:0;max-width:1100px;margin:0 auto;width:100%">'+renderHistory()+'</div>';
+}
+if(S.vw==='admin'&&isAdmin()){
 h+='<div style="flex:1;min-width:0;max-width:1120px;margin:0 auto;width:100%">'+renderAdmin()+'</div>';
 }
 """
@@ -470,7 +479,7 @@ function yearShare(p){
 function admData(){
   var rows={},order=[];
   RH.forEach(function(r){rows[r]={rank:r,pl:rPL(r),n:0,cap:0,bill:0,nb:0};order.push(r);});
-  S.m.forEach(function(m){var r=rows[m.role];if(!r)return;var c=m.cap||220;r.n++;r.cap+=c;r.bill+=mEfBill(m.id)/100*c;r.nb+=mEfNB(m.id)/100*c;});
+  S.m.forEach(function(m){var r=rows[m.role];if(!r)return;var c=m.cap||220;var sh=periodShares(m.id);r.n++;r.cap+=c;r.bill+=sh.bill/100*c;r.nb+=sh.nb/100*c;});
   var quoted={PL4:0,PL3:0,PL2:0,PL1:0},quotedAll={PL4:0,PL3:0,PL2:0,PL1:0},np=0;
   S.p.forEach(function(p){
     if(p.nb)return;
@@ -487,6 +496,23 @@ function admData(){
   return {rows:rows,used:used,quoted:quoted,quotedAll:quotedAll,nProjects:np,
           plCap:plCap,plBill:plBill,plNb:plNb,plN:plN,plRanks:plRanks,tgt:tgt,plSell:plSell};
 }
+// Admin figures read either the week being forecast or the average of the last N weeks.
+function periodShares(mid){
+  var per=S.aPer===undefined?1:S.aPer;
+  if(per===1)return {bill:mEfBill(mid),nb:mEfNB(mid)};
+  return avgShares(mid,per===0?0:per);
+}
+function periodLabel(){
+  var per=S.aPer===undefined?1:S.aPer;
+  return per===1?('current week ('+weekLabel(S.wk)+')'):per===0?'all recorded weeks':('last '+per+' weeks');
+}
+function periodPicker(){
+  var per=S.aPer===undefined?1:S.aPer,ws=weeksAvailable().length,c=complianceOf(S.wk);
+  return '<div class="perbar"><span>Period'+iHelp('period')+'</span>'
+    +[[1,'Current week'],[4,'Last 4 weeks'],[12,'Last 12 weeks'],[0,'All weeks']].map(function(o){
+        return '<button class="perbtn'+(per===o[0]?' on':'')+'" onclick="S.aPer='+o[0]+';R()">'+o[1]+'</button>';}).join('')
+    +'<span class="perinfo">'+ws+' week'+(ws===1?'':'s')+' recorded · '+c.done+'/'+c.total+' people filled in '+weekLabel(S.wk)+'</span></div>';
+}
 function tgtOf(k){var v=(S.t&&S.t[k]);v=parseFloat(v);return (isFinite(v)&&v>0)?v:DEFT[k];}
 function setTgt(k,v){v=parseFloat(v);if(!isFinite(v)||v<=0||v>100)return;S.t=Object.assign({},S.t);S.t[k]=v;sv();R();}
 function resetTgt(){S.t=Object.assign({},DEFT);sv();R();}
@@ -501,6 +527,7 @@ var ADMDEF={
   billability:'Billability = how the reported days split between billable client work and non-billable work (internal, management, presale, training, leave).',
   utilization:'Utilization rate = billable days the team reports divided by sellable capacity. It shows whether people report as much client work as their billability target expects. Above 100% they report more client work than planned, below 100% less.',
   sellable:'Sellable capacity = capacity x the billability target of the Price Level: the days that can realistically be billed to clients, once the time planned for internal work, management, presale, training and leave is set aside.',
+  period:'Reported figures come from weekly forecasts: each person states how the coming week will be split. Over a period the weeks a person filled in are averaged, and that average is projected onto their yearly capacity. Weeks left empty are not counted as zero, they are simply missing, so coverage is shown next to the picker.',
   target:'Billability target = the share of the year a Price Level is expected to sell to clients. Editable in the Saturation view; it drives sellable capacity, utilization and saturation.',
   saturation:'Saturation = days quoted on projects for '+YEAR+' divided by sellable capacity, so it compares what has been sold with the time the team can realistically bill. Above 100% the level is oversold.'
 };
@@ -511,6 +538,8 @@ function admLegend(items){return '<div class="admleg">'+items.map(function(x){re
 function renderAdmin(){
   var t=S.aTab||'overview';
   var h='<div class="admsub">'+admSub('overview','Overview')+admSub('perceived','Perceived')+admSub('billability','Billability')+admSub('utilization','Utilization')+admSub('saturation','Saturation')+admSub('people','People')+admSub('users','Users')+'</div>';
+  // Reported figures are weekly forecasts, so every view built on them carries a period picker.
+  if(['overview','perceived','billability','utilization','people'].indexOf(t)>=0)h+=periodPicker();
   if(t==='perceived')h+=admPerceived();
   else if(t==='billability')h+=admBillability();
   else if(t==='utilization')h+=admUtilization();
@@ -619,7 +648,7 @@ function admSaturation(){
 // ── People: billability / allocation / perception per team member ──
 function admPeople(){
   var rows=S.m.map(function(m){
-    var c=m.cap||220,ef=mEf(m.id),eb=mEfBill(m.id),enb=mEfNB(m.id);
+    var c=m.cap||220,ef=mEf(m.id),_sh=periodShares(m.id),eb=_sh.bill,enb=_sh.nb;
     return {m:m,cap:c,ef:ef,bill:eb/100*c,nb:enb/100*c,util:eb,alloc:Math.round(ef/100*c*10)/10,
             avail:100-ef,pc:S.p.filter(function(p){return p.asgn&&p.asgn[m.id]>0&&!p.nb;}).length,status:sl(ef)};
   }).sort(function(a,b){return b.util-a.util;});
@@ -855,6 +884,151 @@ html = html.replace(
 html = html.replace('let fap=[...ps].filter(p=>p.totalDays>0);',
                     'let fap=[...ps].filter(p=>p.totalDays>0&&canEditProject(p));', 1)
 
+# ── W. Weekly forecasting: percentages describe the week ahead, are archived every
+#       week and carried forward, so yearly figures come from the weekly average.
+WEEK_JS = r"""
+// ── Weekly forecast plumbing ──────────────────────────────────────────────
+// A member fills in how the coming week will be split. On Friday the target
+// moves to the next week: the forecast just closed is archived and the
+// percentages are carried forward as the starting point.
+function isoWeek(d){
+  var t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  t.setUTCDate(t.getUTCDate()+4-(t.getUTCDay()||7));                 // Thursday of that week
+  var y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));
+  var n=Math.ceil(((t-y0)/864e5+1)/7);
+  return t.getUTCFullYear()+'-W'+(n<10?'0'+n:n);
+}
+// From Friday on, the forecast being edited is for the week ahead.
+function targetWeek(now){
+  var d=now||new Date(),day=d.getDay();                              // 0 Sun .. 6 Sat
+  var fwd=new Date(d);
+  if(day===0)fwd.setDate(d.getDate()+1);                             // Sunday -> next week
+  else if(day>=5)fwd.setDate(d.getDate()+(8-day));                   // Fri/Sat -> next Monday
+  return isoWeek(fwd);
+}
+function weekLabel(w){return w?w.replace('-W',' W'):'';}
+function snapshotAlloc(){
+  var snap={};
+  S.p.forEach(function(p){
+    if(!p.asgn)return;
+    Object.keys(p.asgn).forEach(function(mid){
+      if(p.asgn[mid]>0){(snap[mid]=snap[mid]||{})[p.id]=p.asgn[mid];}
+    });
+  });
+  return snap;
+}
+// Close the week that just ended and keep its percentages as the new starting point.
+function rollWeek(){
+  var cur=targetWeek();
+  if(!S.wk){S.wk=cur;return false;}
+  if(S.wk===cur)return false;
+  S.hist=S.hist||{};
+  S.hist[S.wk]=snapshotAlloc();
+  S.wk=cur;
+  return true;
+}
+// Percentages a person had on a given week (falls back to the live forecast).
+function allocOfWeek(mid,w){
+  if(!w||w===S.wk){var cur={};S.p.forEach(function(p){if(p.asgn&&p.asgn[mid]>0)cur[p.id]=p.asgn[mid];});return cur;}
+  return (S.hist&&S.hist[w]&&S.hist[w][mid])||{};
+}
+function weeksAvailable(){
+  var ws=Object.keys(S.hist||{});
+  if(S.wk&&ws.indexOf(S.wk)<0)ws.push(S.wk);
+  return ws.sort();
+}
+// Average billable / non-billable share over the last n weeks (0 = every week).
+function avgShares(mid,n){
+  var ws=weeksAvailable();
+  if(n>0)ws=ws.slice(-n);
+  if(!ws.length)return {bill:0,nb:0,weeks:0,filled:0};
+  var b=0,nb=0,filled=0;
+  ws.forEach(function(w){
+    var a=allocOfWeek(mid,w),wb=0,wn=0,any=false;
+    Object.keys(a).forEach(function(pid){
+      var p=S.p.find(function(x){return x.id===pid;});
+      if(!p)return;
+      any=true;
+      if(p.nb)wn+=a[pid];else wb+=a[pid];
+    });
+    if(any){filled++;b+=wb;nb+=wn;}
+  });
+  // Average over the weeks the person actually filled in: a missing week is not
+  // zero effort, it is no data, and counting it as zero would understate everyone
+  // who joined later or skipped an update. Coverage is reported separately.
+  return {bill:filled?b/filled:0,nb:filled?nb/filled:0,weeks:ws.length,filled:filled};
+}
+// How many people filled in the current week.
+function complianceOf(w){
+  var done=0;
+  S.m.forEach(function(m){if(Object.keys(allocOfWeek(m.id,w)).length)done++;});
+  return {done:done,total:S.m.length};
+}
+// Edit a past week: a forecast can be corrected once reality disagreed with it.
+function setWeekE(mid,w,pid,val){
+  var pct=parseFloat(val)||0;
+  if(w===S.wk){setE(pid,mid,pct);return;}
+  if(!(isAdmin()||myResourceIds().indexOf(mid)>=0))return;
+  S.hist=S.hist||{};S.hist[w]=S.hist[w]||{};S.hist[w][mid]=Object.assign({},S.hist[w][mid]);
+  var mine=S.hist[w][mid],other=0;
+  Object.keys(mine).forEach(function(k){if(k!==pid)other+=mine[k];});
+  if(pct+other>100){
+    var room=Math.max(100-other,0);
+    alert('Percentages split that week, so they add up to 100%.\n\nAssigned elsewhere that week: '+other.toFixed(0)+'%\nStill free: '+room.toFixed(0)+'%');
+    pct=room;
+  }
+  if(pct>0)mine[pid]=Math.round(pct*10)/10;else delete mine[pid];
+  if(!Object.keys(mine).length)delete S.hist[w][mid];else S.hist[w][mid]=mine;
+  sv();R();
+}
+function histPerson(){
+  if(isAdmin())return S.hSel||(myResourceIds()[0])||(S.m[0]&&S.m[0].id);
+  return myResourceIds()[0]||null;
+}
+// ── History view: the weeks a person forecast, and the room to correct them ──
+function renderHistory(){
+  var mid=histPerson();
+  if(!mid)return '<div class="ucard"><div class="uct">History</div><div class="ucs">Your account is not linked to a team member yet, so there is no forecast history to show. An administrator can align your name or email in the Team tab.</div></div>';
+  var me=S.m.find(function(x){return x.id===mid;})||{};
+  var ws=weeksAvailable().slice(-10).reverse();
+  var editable=isAdmin()||myResourceIds().indexOf(mid)>=0;
+  // every project this person touched over the shown weeks
+  var pids=[];
+  ws.forEach(function(w){Object.keys(allocOfWeek(mid,w)).forEach(function(pid){if(pids.indexOf(pid)<0)pids.push(pid);});});
+  var picker=isAdmin()?'<select class="si" style="width:220px" onchange="S.hSel=this.value;R()">'+S.m.slice().sort(function(a,b){return a.name.localeCompare(b.name);}).map(function(m){return '<option value="'+m.id+'"'+(m.id===mid?' selected':'')+'>'+esc(m.name)+'</option>';}).join('')+'</select>':'';
+  var h='<div class="ucard"><div class="uct">Forecast history</div><div class="ucs">Percentages describe how a week is split, filled in for the week ahead. '+(editable?'You can correct a past week when reality turned out differently: totals stay capped at 100%.':'Read only: you can correct your own weeks.')+'</div>'
+   +(picker?'<div style="margin-bottom:12px">'+picker+'</div>':'')
+   +'<div style="font-size:13px;color:var(--t2);margin-bottom:10px"><b style="color:#15171c">'+esc(me.name||'')+'</b> · '+esc(me.role||'')+' · current week <b>'+weekLabel(S.wk)+'</b></div>';
+  if(!pids.length)return h+'<div class="admnote">No forecast recorded yet.</div></div>';
+  h+='<div style="overflow-x:auto"><table class="utbl"><thead><tr><th style="min-width:220px">Project</th>'
+   +ws.map(function(w){return '<th class="r">'+weekLabel(w)+(w===S.wk?' <span style="font-size:9px;color:#185fa5">now</span>':'')+'</th>';}).join('')+'</tr></thead><tbody>';
+  pids.forEach(function(pid){
+    var p=S.p.find(function(x){return x.id===pid;});if(!p)return;
+    h+='<tr><td><div style="font-weight:600">'+(p.nb?'<span style="font-size:9px;color:var(--t3)">NB </span>':'')+esc(p.client||p.name)+'</div><div style="font-size:10px;color:var(--t3)">'+esc(p.name)+'</div></td>';
+    ws.forEach(function(w){
+      var v=allocOfWeek(mid,w)[pid]||0;
+      h+='<td class="r">'+(editable
+        ? '<input class="pi" type="number" min="0" max="100" step="5" value="'+v+'" onchange="setWeekE(\''+mid+'\',\''+w+'\',\''+pid+'\',this.value)">'
+        : (v?v+'%':'<span style="color:var(--t3)">-</span>'))+'</td>';
+    });
+    h+='</tr>';
+  });
+  h+='<tr class="tot"><td>Total</td>'+ws.map(function(w){
+    var a=allocOfWeek(mid,w),t=0;Object.keys(a).forEach(function(k){t+=a[k];});
+    return '<td class="r" style="color:'+(t>100?'#b32a1c':t<100?'#8a5a0c':'#2f6e12')+'">'+t.toFixed(0)+'%</td>';
+  }).join('')+'</tr>';
+  return h+'</tbody></table></div>'
+   +admNote('A week that adds up to less than 100% means part of that time was never assigned.')+'</div>';
+}
+"""
+html = html.replace('function mEf(mid){', WEEK_JS + '\nfunction mEf(mid){', 1)
+
+# State + persistence for the weekly archive
+# targetWeek() is a hoisted function declaration, so the current week is known even
+# before anything is loaded from Firebase.
+html = html.replace('let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),',
+                    'let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),wk:targetWeek(),hist:{},', 1)
+
 # ── P. Billability targets per Price Level (editable, shared through Firebase) ──
 # P1. Defaults + state
 html = html.replace('const PLkeys=',
@@ -862,7 +1036,7 @@ html = html.replace('const PLkeys=',
 html = html.replace('let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),',
                     'let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),t:Object.assign({},DEFT),', 1)
 # P2. Persist them on save (loading is wired further down, once step N has run)
-html = html.replace('dbRef.set({m:S.m,p:S.p})', 'dbRef.set({m:S.m,p:S.p,t:S.t})', 1)
+html = html.replace('dbRef.set({m:S.m,p:S.p})', 'dbRef.set({m:S.m,p:S.p,t:S.t,wk:S.wk,hist:S.hist})', 1)
 html = html.replace('localStorage.setItem("sfv11",JSON.stringify({m:S.m,p:S.p}))',
                     'localStorage.setItem("sfv11",JSON.stringify({m:S.m,p:S.p,t:S.t}))', 1)
 
@@ -969,12 +1143,17 @@ html = html.replace("['Sellable','capacity x target, the days that can actually 
 # ── P3. Load the billability targets wherever people/projects are read ──
 LOAD_ANCHOR = 'if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}}'
 assert html.count(LOAD_ANCHOR) == 2, 'unexpected load sites: %d' % html.count(LOAD_ANCHOR)
-html = html.replace(LOAD_ANCHOR, LOAD_ANCHOR + 'if(d&&d.t)S.t=Object.assign({},DEFT,d.t);')
+# Restore targets and the weekly archive, then close any week that has ended.
+LOAD_EXTRA = ('if(d&&d.t)S.t=Object.assign({},DEFT,d.t);'
+              'if(d){S.wk=d.wk||S.wk;S.hist=d.hist||S.hist||{};}'
+              'try{if(rollWeek())sv();}catch(e){}')
+html = html.replace(LOAD_ANCHOR, LOAD_ANCHOR + LOAD_EXTRA)
 LIVE_ANCHOR = 'if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}R()}'
 assert LIVE_ANCHOR in html, 'realtime load site not found'
 html = html.replace(LIVE_ANCHOR,
                     'if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}}'
-                    'if(d&&d.t)S.t=Object.assign({},DEFT,d.t);R()', 1)
+                    'if(d&&d.t)S.t=Object.assign({},DEFT,d.t);'
+                    'if(d){S.wk=d.wk||S.wk;S.hist=d.hist||S.hist||{};}R()', 1)
 
 with io.open(OUT, 'w', encoding='utf-8') as f:
     f.write(html)
