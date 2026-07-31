@@ -369,6 +369,15 @@ theme_css = (
     ".tgtin{display:flex;align-items:center;gap:5px;margin-top:4px;font-size:13px;color:var(--t2)}"
     ".tgtin input{width:70px;padding:6px 8px;border:1px solid var(--bd);border-radius:7px;background:#fff;color:var(--tx);font-family:inherit;font-size:14px;font-weight:700;text-align:right}"
     ".tgtin input:focus{outline:none;border-color:#185fa5}"
+    # "i" help badge with a tooltip on hover / focus / tap
+    ".ihelp{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;margin-left:5px;border-radius:50%;background:#d7dde5;color:#42454c;font-size:9px;font-weight:800;font-style:italic;cursor:help;vertical-align:middle;position:relative;text-transform:none;letter-spacing:0;user-select:none}"
+    ".ihelp:hover,.ihelp:focus{background:#185fa5;color:#fff;outline:none}"
+    ".ihelp::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:270px;background:#15171c;color:#fff;font-size:11.5px;font-weight:400;font-style:normal;line-height:1.5;letter-spacing:0;text-align:left;text-transform:none;padding:9px 11px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.22);opacity:0;visibility:hidden;transition:opacity .12s;z-index:60;pointer-events:none;white-space:normal}"
+    ".ihelp::before{content:'';position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#15171c;opacity:0;visibility:hidden;transition:opacity .12s;z-index:61}"
+    ".ihelp:hover::after,.ihelp:focus::after,.ihelp:hover::before,.ihelp:focus::before{opacity:1;visibility:visible}"
+    ".utbl th .ihelp::after{width:250px}"
+    ".utbl th:last-child .ihelp::after,.ametric:last-child .ihelp::after{left:auto;right:-6px;transform:none}"
+    ".utbl th:last-child .ihelp::before,.ametric:last-child .ihelp::before{left:auto;right:4px;transform:none}"
 )
 html = html.replace('</style>', theme_css + '</style>', 1)
 
@@ -436,7 +445,7 @@ function renderUsers(){
   return '<div class="ucard"><div class="uct">Invited emails (access list)</div><div class="ucs">Only invited emails can register and sign in. Choose the role at invite time: the person receives it on first login. Then share the app link and the invited person registers, setting their own password.</div>'+inviteForm+'<table class="utbl"><thead><tr><th>Email</th><th>Role on first login</th><th class="ctr">Action</th></tr></thead><tbody>'+invRows+'</tbody></table></div>'
     +'<div class="ucard"><div class="uct">Users</div><div class="ucs">Users appear here automatically after their first login. From here you can change their role or disable their access.</div><table class="utbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th class="ctr">Actions</th></tr></thead><tbody>'+usrRows+'</tbody></table></div>';
 }
-function amCard(label,val,color){return '<div class="ametric"><div class="aml">'+label+'</div><div class="amv"'+(color?(' style="color:'+color+'"'):'')+'>'+val+'</div></div>';}
+function amCard(label,val,color,info){return '<div class="ametric"><div class="aml">'+label+(info?iHelp(info):'')+'</div><div class="amv"'+(color?(' style="color:'+color+'"'):'')+'>'+val+'</div></div>';}
 function uDoInvite(){var e=(document.getElementById('u-email')||{}).value||'';var r=(document.getElementById('u-role')||{}).value||'member';if(!e.trim())return;uAddInvite(e,r).then(uLoad).catch(function(err){alert('Invito fallito: '+(err.message||err));});}
 function uRmInvite(e){if(!confirm('Remove the invite for '+e+'?'))return;uRemoveInvite(e).then(uLoad).catch(function(err){alert(err.message||err);});}
 function uChgInviteRole(e,r){uSetInviteRole(e,r).then(uLoad).catch(function(err){alert(err.message||err);});}
@@ -490,11 +499,14 @@ var ADMDEF={
   quoted:'Quoted days = days sold on the price quotes, counted pro rata for '+YEAR+': a project running beyond the year contributes only the share of its contract that falls inside it.',
   perceived:'Perceived = days people report they spend, billable and non-billable together, derived from the percentage weight each of them set on every project, compared with their capacity. It shows how loaded the team believes it is.',
   billability:'Billability = how the reported days split between billable client work and non-billable work (internal, management, presale, training, leave).',
-  utilization:'Utilization rate = billable days divided by available capacity. It shows how much of the total available time goes to client work.',
+  utilization:'Utilization rate = billable days the team reports divided by sellable capacity. It shows whether people report as much client work as their billability target expects. Above 100% they report more client work than planned, below 100% less.',
   sellable:'Sellable capacity = capacity x the billability target of the Price Level: the days that can realistically be billed to clients, once the time planned for internal work, management, presale, training and leave is set aside.',
+  target:'Billability target = the share of the year a Price Level is expected to sell to clients. Editable in the Saturation view; it drives sellable capacity, utilization and saturation.',
   saturation:'Saturation = days quoted on projects for '+YEAR+' divided by sellable capacity, so it compares what has been sold with the time the team can realistically bill. Above 100% the level is oversold.'
 };
 function admNote(txt){return '<div class="admnote">'+txt+'</div>';}
+// Small "i" that reveals a metric definition on hover, focus or tap.
+function iHelp(key){var t=ADMDEF[key];if(!t)return '';return '<span class="ihelp" tabindex="0" role="button" aria-label="What is this?" data-tip="'+esc(t)+'">i</span>';}
 function admLegend(items){return '<div class="admleg">'+items.map(function(x){return '<span><b>'+x[0]+'</b> '+x[1]+'</span>';}).join('')+'</div>';}
 function renderAdmin(){
   var t=S.aTab||'overview';
@@ -512,16 +524,16 @@ function renderAdmin(){
 function admOverview(){
   var D=admData(),tQ=0,tQA=0,tC=0,tB=0,tNb=0,tN=0,tS=0;
   PLkeys.forEach(function(k){tQ+=D.quoted[k];tQA+=D.quotedAll[k];tC+=D.plCap[k];tB+=D.plBill[k];tNb+=D.plNb[k];tN+=D.plN[k];tS+=D.plSell[k];});
-  var sat=tS?tQ/tS*100:0,gsat=tC?tQ/tC*100:0,util=tC?tB/tC*100:0,perc=tC?(tB+tNb)/tC*100:0;
-  var h='<div class="ucard"><div class="uct">Overview '+YEAR+'</div><div class="ucs">Headcount, active projects and the four headline metrics for the year. Every figure is expressed in working days.</div>'
-   +'<div class="ametrics">'+amCard('People',tN,'')+amCard('Projects',D.nProjects,'')+amCard('Capacity (d)',_d0(tC),'')+amCard('Sellable (d)',_d0(tS),'')+amCard('Quoted '+YEAR+' (d)',_d0(tQ),'#185fa5')+'</div>'
-   +'<div class="ametrics" style="margin-top:10px">'+amCard('Perceived',_p0(perc),sc(perc))+amCard('Billable share',_p0(tB+tNb?tB/(tB+tNb)*100:0),'#185fa5')+amCard('Utilization rate',_p0(util),sc(util))+amCard('Real saturation',_p0(sat),sc(sat))+'</div>'
-   +admLegend([['Perceived','reported days / capacity'],['Billable share','billable / reported days'],['Utilization rate','billable days / capacity'],['Sellable','capacity x the billability target of each Price Level'],['Real saturation','quoted days / sellable days ('+_p0(gsat)+' on gross capacity)']])+'</div>';
+  var sat=tS?tQ/tS*100:0,gsat=tC?tQ/tC*100:0,util=tS?tB/tS*100:0,perc=tC?(tB+tNb)/tC*100:0;
+  var h='<div class="ucard"><div class="uct">Overview '+YEAR+'</div><div class="ucs">Headcount, active projects and the four headline metrics for the year. Every figure is expressed in working days. Hover the i next to a metric for its definition.</div>'
+   +'<div class="ametrics">'+amCard('People',tN,'')+amCard('Projects',D.nProjects,'')+amCard('Capacity (d)',_d0(tC),'','capacity')+amCard('Sellable (d)',_d0(tS),'','sellable')+amCard('Quoted '+YEAR+' (d)',_d0(tQ),'#185fa5','quoted')+'</div>'
+   +'<div class="ametrics" style="margin-top:10px">'+amCard('Perceived',_p0(perc),sc(perc),'perceived')+amCard('Billable share',_p0(tB+tNb?tB/(tB+tNb)*100:0),'#185fa5','billability')+amCard('Utilization rate',_p0(util),sc(util),'utilization')+amCard('Real saturation',_p0(sat),sc(sat),'saturation')+'</div>'
+   +admNote('Saturation is measured against sellable capacity; on gross capacity it would read '+_p0(gsat)+'.')+'</div>';
   h+='<div class="ucard"><div class="uct">By Price Level</div><div class="ucs">'+ADMDEF.capacity+' '+ADMDEF.quoted+'</div>'
-   +'<table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Capacity (d)</th><th class="r">Target</th><th class="r">Sellable (d)</th><th class="r">Quoted '+YEAR+' (d)</th><th class="r">Perceived</th><th class="r">Utilization</th><th class="r">Real saturation</th></tr></thead><tbody>';
+   +'<table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Capacity (d)'+iHelp('capacity')+'</th><th class="r">Target'+iHelp('target')+'</th><th class="r">Sellable (d)'+iHelp('sellable')+'</th><th class="r">Quoted '+YEAR+' (d)'+iHelp('quoted')+'</th><th class="r">Perceived'+iHelp('perceived')+'</th><th class="r">Utilization'+iHelp('utilization')+'</th><th class="r">Real saturation'+iHelp('saturation')+'</th></tr></thead><tbody>';
   PLkeys.forEach(function(k){
     var cap=D.plCap[k],sell=D.plSell[k],q=D.quoted[k],b=D.plBill[k],nb=D.plNb[k];
-    var pe=cap?(b+nb)/cap*100:0,u=cap?b/cap*100:0,s=sell?q/sell*100:(q>0?999:0);
+    var pe=cap?(b+nb)/cap*100:0,u=sell?b/sell*100:0,s=sell?q/sell*100:(q>0?999:0);
     h+='<tr><td><b>'+plLabel(k)+'</b></td><td style="font-size:11px;color:var(--t2)">'+esc(plRanksTxt(D,k))+'</td><td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(cap)+'</td><td class="r">'+_p0(D.tgt[k])+'</td><td class="r">'+_d0(sell)+'</td><td class="r">'+_d0(q)+'</td><td class="r" style="color:'+sc(pe)+'">'+_p0(pe)+'</td><td class="r" style="color:'+sc(u)+'">'+_p0(u)+'</td><td class="r"><b style="color:'+sc(s)+'">'+(s>900?'no capacity':_p0(s))+'</b></td></tr>';
   });
   h+='<tr class="tot"><td>Total</td><td></td><td class="r">'+tN+'</td><td class="r">'+_d0(tC)+'</td><td class="r">'+_p0(tC?tS/tC*100:0)+'</td><td class="r">'+_d0(tS)+'</td><td class="r">'+_d0(tQ)+'</td><td class="r">'+_p0(perc)+'</td><td class="r">'+_p0(util)+'</td><td class="r">'+_p0(sat)+'</td></tr>';
@@ -532,7 +544,7 @@ function admOverview(){
 function admPerceived(){
   var D=admData(),tc=0,tp=0,tN=0;
   var h='<div class="ucard"><div class="uct">Perceived</div><div class="ucs">'+ADMDEF.perceived+'</div>'
-   +'<table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Capacity (d)</th><th class="r">Reported (d)</th><th class="r">Perceived</th></tr></thead><tbody>';
+   +'<table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Capacity (d)'+iHelp('capacity')+'</th><th class="r">Reported (d)</th><th class="r">Perceived'+iHelp('perceived')+'</th></tr></thead><tbody>';
   PLkeys.forEach(function(k){
     var cap=D.plCap[k],rep=D.plBill[k]+D.plNb[k],p=cap?rep/cap*100:0;
     tc+=cap;tp+=rep;tN+=D.plN[k];
@@ -547,7 +559,7 @@ function admPerceived(){
 function admBillability(){
   var D=admData(),tb=0,tn=0,tN=0;
   var h='<div class="ucard"><div class="uct">Billability</div><div class="ucs">'+ADMDEF.billability+'</div>'
-   +'<table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Reported (d)</th><th class="r">Billable (d)</th><th class="r">Non-billable (d)</th><th class="r">Billable share</th></tr></thead><tbody>';
+   +'<table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Reported (d)</th><th class="r">Billable (d)</th><th class="r">Non-billable (d)</th><th class="r">Billable share'+iHelp('billability')+'</th></tr></thead><tbody>';
   PLkeys.forEach(function(k){
     var b=D.plBill[k],nb=D.plNb[k],rep=b+nb,s=rep?b/rep*100:0;
     tb+=b;tn+=nb;tN+=D.plN[k];
@@ -559,19 +571,19 @@ function admBillability(){
    +admNote('This view splits the days people report. To compare billable days with the time actually available, see Utilization.')+'</div>';
   return h;
 }
-// ── Utilization: billable days against capacity ──
+// ── Utilization: billable days reported against sellable capacity ──
 function admUtilization(){
-  var D=admData(),tb=0,tc=0,tN=0;
-  var h='<div class="ucard"><div class="uct">Utilization rate</div><div class="ucs">'+ADMDEF.utilization+'</div>'
-   +'<table class="utbl"><thead><tr><th>Price Level</th><th>HR ranks</th><th class="r">People</th><th class="r">Capacity (d)</th><th class="r">Billable (d)</th><th class="r">Utilization rate</th></tr></thead><tbody>';
+  var D=admData(),tb=0,tc=0,ts=0,tN=0;
+  var h='<div class="ucard"><div class="uct">Utilization rate</div><div class="ucs">'+ADMDEF.utilization+' '+ADMDEF.sellable+'</div>'
+   +'<table class="utbl"><thead><tr><th>Price Level</th><th class="r">People</th><th class="r">Capacity (d)'+iHelp('capacity')+'</th><th class="r">Target'+iHelp('target')+'</th><th class="r">Sellable (d)'+iHelp('sellable')+'</th><th class="r">Billable reported (d)</th><th class="r">Utilization rate'+iHelp('utilization')+'</th></tr></thead><tbody>';
   PLkeys.forEach(function(k){
-    var cap=D.plCap[k],b=D.plBill[k],u=cap?b/cap*100:0;
-    tb+=b;tc+=cap;tN+=D.plN[k];
-    h+='<tr><td><b>'+plLabel(k)+'</b></td><td style="font-size:11px;color:var(--t2)">'+esc(plRanksTxt(D,k))+'</td><td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(cap)+'</td><td class="r" style="color:#185fa5">'+_d0(b)+'</td><td class="r"><b style="color:'+sc(u)+'">'+_p0(u)+'</b>'+_bar(u,sc(u))+'</td></tr>';
+    var cap=D.plCap[k],sell=D.plSell[k],b=D.plBill[k],u=sell?b/sell*100:0;
+    tb+=b;tc+=cap;ts+=sell;tN+=D.plN[k];
+    h+='<tr><td><b>'+plLabel(k)+'</b><div style="font-size:10px;color:var(--t3);font-weight:400">'+esc(plRanksTxt(D,k))+'</div></td><td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(cap)+'</td><td class="r">'+_p0(D.tgt[k])+'</td><td class="r">'+_d0(sell)+'</td><td class="r" style="color:#185fa5">'+_d0(b)+'</td><td class="r"><b style="color:'+sc(u)+'">'+_p0(u)+'</b>'+_bar(u,sc(u))+'</td></tr>';
   });
-  h+='<tr class="tot"><td>Total</td><td></td><td class="r">'+tN+'</td><td class="r">'+_d0(tc)+'</td><td class="r">'+_d0(tb)+'</td><td class="r">'+_p0(tc?tb/tc*100:0)+'</td></tr></tbody></table>'
-   +admLegend([['Capacity','people x 220 working days'],['Billable','days on client projects'],['Utilization rate','billable days / capacity']])
-   +admNote('The gap to 100% is the share of available time not sold to clients: internal work, presale, training, leave or idle capacity.')+'</div>';
+  h+='<tr class="tot"><td>Total</td><td class="r">'+tN+'</td><td class="r">'+_d0(tc)+'</td><td class="r">'+_p0(tc?ts/tc*100:0)+'</td><td class="r">'+_d0(ts)+'</td><td class="r">'+_d0(tb)+'</td><td class="r">'+_p0(ts?tb/ts*100:0)+'</td></tr></tbody></table>'
+   +admLegend([['Sellable','capacity x the billability target'],['Billable reported','days on client projects, from the percentages people set'],['Utilization rate','billable reported / sellable capacity']])
+   +admNote('100% means the team reports exactly the client work its targets expect. Below 100% part of the billable time is not showing up on projects; above 100% people report more client work than planned.')+'</div>';
   return h;
 }
 // ── Saturation: quoted days against the sellable capacity implied by the targets ──
@@ -584,7 +596,7 @@ function admSaturation(){
   });
   h+='</div><button class="b bo" style="margin-top:10px" onclick="resetTgt()">Reset to defaults</button></div>';
   h+='<div class="ucard"><div class="uct">Saturation '+YEAR+'</div><div class="ucs">'+ADMDEF.saturation+' '+ADMDEF.sellable+' '+ADMDEF.quoted+'</div>'
-   +'<table class="utbl"><thead><tr><th>Price Level</th><th class="r">People</th><th class="r">Capacity (d)</th><th class="r">Target</th><th class="r">Sellable (d)</th><th class="r">Quoted '+YEAR+' (d)</th><th class="r">Real saturation</th><th class="r">On gross capacity</th></tr></thead><tbody>';
+   +'<table class="utbl"><thead><tr><th>Price Level</th><th class="r">People</th><th class="r">Capacity (d)'+iHelp('capacity')+'</th><th class="r">Target'+iHelp('target')+'</th><th class="r">Sellable (d)'+iHelp('sellable')+'</th><th class="r">Quoted '+YEAR+' (d)'+iHelp('quoted')+'</th><th class="r">Real saturation'+iHelp('saturation')+'</th><th class="r">On gross capacity</th></tr></thead><tbody>';
   PLkeys.forEach(function(k){
     var cap=D.plCap[k],sell=D.plSell[k],q=D.quoted[k];
     var s=sell?q/sell*100:(q>0?999:0),g=cap?q/cap*100:(q>0?999:0);
@@ -596,7 +608,7 @@ function admSaturation(){
    +admNote('Real saturation is the meaningful one: above 100% the level is sold beyond the time it can realistically bill, so the work has to be covered by other levels, external resources or a longer schedule.')+'</div>';
   // quoted versus what the team reports
   h+='<div class="ucard"><div class="uct">Quoted versus billable reported</div><div class="ucs">What was sold on the quotes for '+YEAR+' compared with the billable days the team reports. A large gap means quoted work is not reflected in what people say they are doing.</div>'
-   +'<table class="utbl"><thead><tr><th>Price Level</th><th class="r">Quoted '+YEAR+' (d)</th><th class="r">Billable reported (d)</th><th class="r">Difference</th></tr></thead><tbody>';
+   +'<table class="utbl"><thead><tr><th>Price Level</th><th class="r">Quoted '+YEAR+' (d)'+iHelp('quoted')+'</th><th class="r">Billable reported (d)</th><th class="r">Difference</th></tr></thead><tbody>';
   PLkeys.forEach(function(k){
     var q=D.quoted[k],b=D.plBill[k],df=b-q;
     h+='<tr><td><b>'+plLabel(k)+'</b></td><td class="r">'+_d0(q)+'</td><td class="r">'+_d0(b)+'</td><td class="r" style="color:'+(df>=0?'#2f6e12':'#b32a1c')+'">'+(df>0?'+':'')+_d0(df)+'</td></tr>';
@@ -611,14 +623,36 @@ function admPeople(){
     return {m:m,cap:c,ef:ef,bill:eb/100*c,nb:enb/100*c,util:eb,alloc:Math.round(ef/100*c*10)/10,
             avail:100-ef,pc:S.p.filter(function(p){return p.asgn&&p.asgn[m.id]>0&&!p.nb;}).length,status:sl(ef)};
   }).sort(function(a,b){return b.util-a.util;});
-  var h='<div class="ucard"><div class="uct">People</div><div class="ucs">The same metrics for each team member: perceived load, billable split, utilization rate and how many projects they are on.</div>'
-   +'<table class="utbl"><thead><tr><th>Name</th><th>HR rank</th><th class="r">Capacity (d)</th><th class="r">Reported (d)</th><th class="r">Perceived</th><th class="r">Billable (d)</th><th class="r">Non-bill. (d)</th><th class="r">Billable share</th><th class="r">Utilization</th><th class="r">Projects</th><th>Status</th></tr></thead><tbody>';
+  // distance from each person's own billability target
+  var below=[],above=[],onTgt=0;
   rows.forEach(function(x){
-    var rep=x.bill+x.nb,pe=x.cap?rep/x.cap*100:0,bs=rep?x.bill/rep*100:0;
-    h+='<tr><td style="font-weight:600">'+esc(x.m.name)+'</td><td style="color:'+(RC[x.m.role]||'#999')+';font-size:11px">'+esc(x.m.role)+'</td><td class="r">'+_d0(x.cap)+'</td><td class="r">'+_d0(rep)+'</td><td class="r" style="color:'+sc(pe)+'">'+_p0(pe)+'</td><td class="r" style="color:#185fa5">'+_d0(x.bill)+'</td><td class="r" style="color:var(--t3)">'+_d0(x.nb)+'</td><td class="r">'+_p0(bs)+'</td><td class="r"><b style="color:'+sc(x.util)+'">'+_p0(x.util)+'</b></td><td class="r">'+x.pc+'</td><td><span class="sb" style="background:'+sc(x.ef)+'18;color:'+sc(x.ef)+'">'+x.status+'</span></td></tr>';
+    var t=tgtOf('PL'+rPL(x.m.role)),tgtD=x.cap*t/100,gap=x.bill-tgtD,gp=x.cap?gap/x.cap*100:0;
+    x.tgt=t;x.tgtD=tgtD;x.gap=gap;x.gp=gp;
+    if(gp<=-5)below.push(x);else if(gp>=5)above.push(x);else onTgt++;
+  });
+  var h='<div class="ucard"><div class="uct">Distance from the billability target</div><div class="ucs">'+ADMDEF.target+' Each person is measured against the target of their own Price Level: the gap is the billable days they report minus the days the target expects. People within 5 points of their target count as on track.</div>'
+   +'<div class="ametrics">'+amCard('Below target',below.length,below.length?'#b32a1c':'')+amCard('On target (+/-5pp)',onTgt,'#2f6e12')+amCard('Above target',above.length,above.length?'#185fa5':'')+'</div>';
+  function gapTable(list,title,note){
+    if(!list.length)return '<div class="admnote" style="margin-top:16px"><b>'+title+':</b> nobody.</div>';
+    var t='<div class="uct" style="font-size:14px;margin-top:20px">'+title+'</div><div class="ucs" style="margin-bottom:10px">'+note+'</div>'
+     +'<table class="utbl"><thead><tr><th>Name</th><th>HR rank</th><th class="r">Capacity (days)</th><th class="r">Target'+iHelp('target')+'</th><th class="r">Target (days)</th><th class="r">Billable reported (days)</th><th class="r">Gap (days)</th><th class="r">Gap (pp)</th></tr></thead><tbody>';
+    list.sort(function(a,b){return Math.abs(b.gp)-Math.abs(a.gp);}).forEach(function(x){
+      var col=x.gap<0?'#b32a1c':'#185fa5';
+      t+='<tr><td style="font-weight:600">'+esc(x.m.name)+'</td><td style="color:'+(RC[x.m.role]||'#999')+';font-size:11px">'+esc(x.m.role)+'</td><td class="r">'+_d0(x.cap)+'</td><td class="r">'+_p0(x.tgt)+'</td><td class="r">'+_d0(x.tgtD)+'</td><td class="r">'+_d0(x.bill)+'</td><td class="r" style="color:'+col+'"><b>'+(x.gap>0?'+':'')+_d0(x.gap)+'</b></td><td class="r" style="color:'+col+'">'+(x.gp>0?'+':'')+_p0(x.gp)+'</td></tr>';
+    });
+    return t+'</tbody></table>';
+  }
+  h+=gapTable(below,'Below target','They report less client work than their target expects: either they are genuinely under-loaded, or billable work is not being recorded.');
+  h+=gapTable(above,'Above target','They report more client work than their target expects, leaving little room for internal work, presale and training.');
+  h+='</div>';
+  h+='<div class="ucard"><div class="uct">People</div><div class="ucs">The same metrics for each team member: perceived load, billable split, utilization against their own target and how many projects they are on.</div>'
+   +'<table class="utbl"><thead><tr><th>Name</th><th>HR rank</th><th class="r">Capacity (d)'+iHelp('capacity')+'</th><th class="r">Reported (d)</th><th class="r">Perceived'+iHelp('perceived')+'</th><th class="r">Billable (d)</th><th class="r">Non-bill. (d)</th><th class="r">Billable share'+iHelp('billability')+'</th><th class="r">Utilization'+iHelp('utilization')+'</th><th class="r">Projects</th><th>Status</th></tr></thead><tbody>';
+  rows.forEach(function(x){
+    var rep=x.bill+x.nb,pe=x.cap?rep/x.cap*100:0,bs=rep?x.bill/rep*100:0,ut=x.tgtD?x.bill/x.tgtD*100:0;
+    h+='<tr><td style="font-weight:600">'+esc(x.m.name)+'</td><td style="color:'+(RC[x.m.role]||'#999')+';font-size:11px">'+esc(x.m.role)+'</td><td class="r">'+_d0(x.cap)+'</td><td class="r">'+_d0(rep)+'</td><td class="r" style="color:'+sc(pe)+'">'+_p0(pe)+'</td><td class="r" style="color:#185fa5">'+_d0(x.bill)+'</td><td class="r" style="color:var(--t3)">'+_d0(x.nb)+'</td><td class="r">'+_p0(bs)+'</td><td class="r"><b style="color:'+sc(ut)+'">'+_p0(ut)+'</b></td><td class="r">'+x.pc+'</td><td><span class="sb" style="background:'+sc(x.ef)+'18;color:'+sc(x.ef)+'">'+x.status+'</span></td></tr>';
   });
   return h+'</tbody></table>'
-   +admLegend([['Capacity','the person\'s yearly working days'],['Reported','days from the percentages they set (billable + non-billable)'],['Perceived','reported days / capacity'],['Billable share','billable / reported days'],['Utilization','billable days / capacity'],['Status','load band based on the total percentage assigned']])+'</div>';
+   +admLegend([['Capacity','the person\'s yearly working days'],['Reported','days from the percentages they set (billable + non-billable)'],['Perceived','reported days / capacity'],['Billable share','billable / reported days'],['Utilization','billable days / the days their own target expects'],['Status','load band based on the total percentage assigned']])+'</div>';
 }
 """
 cut = html.rindex('</script>')
@@ -854,6 +888,40 @@ html = html.replace(
 html = html.replace(
     'function doEM(id){const m=S.m.find(x=>x.id===id);if(!m)return;m.name=document.getElementById("xn").value;',
     'function doEM(id){const m=S.m.find(x=>x.id===id);if(!m)return;m.name=document.getElementById("xn").value;m.email=(document.getElementById("xe").value||"").trim().toLowerCase()||_emailFromName(m.name);', 1)
+
+# ── Q. Percentages are a split of a person's own year, so they cannot exceed 100%.
+#       The cap applies to everyone: to give a project more, take it off another one.
+html = html.replace(
+    'function setE(pid,mid,pct){if(!canEditProjectId(pid))return;const p=S.p.find(x=>x.id===pid);if(!p)return;if(!p.asgn)p.asgn={};const cur=p.asgn[mid]||0;const totO=mEf(mid)-cur;'
+    'if(pct+totO>100&&pct>cur){const ok=confirm(`Warning: total effort will be ${(pct+totO).toFixed(0)}% (over 100%).\\nThe overload will be highlighted. Proceed?`);if(!ok)return}',
+    'function setE(pid,mid,pct){if(!canEditProjectId(pid))return;const p=S.p.find(x=>x.id===pid);if(!p)return;if(!p.asgn)p.asgn={};const cur=p.asgn[mid]||0;const totO=mEf(mid)-cur;'
+    'const mm=S.m.find(x=>x.id===mid);const capD=(mm&&mm.cap)||220;'
+    'if(pct+totO>100){const room=Math.max(100-totO,0);'
+    'alert("Percentages split your own year, so they add up to 100%.\\n\\n'
+    'Assigned elsewhere: "+totO.toFixed(0)+"% ("+(totO/100*capD).toFixed(0)+" of "+capD+" days)\\n'
+    'Still free: "+room.toFixed(0)+"% ("+(room/100*capD).toFixed(0)+" days)\\n\\n'
+    'To give this project more, lower another one first.");'
+    'pct=room;if(pct<=0){delete p.asgn[mid];sv();R();return}}', 1)
+
+# Team tab: drop the per-person load columns (with the cap in place they are always
+# 100% and invite comparison). Keep the roster: name, role, capacity, projects.
+TEAM_TH_EFFORT = ('<th${ts.col===\'ef\'?\' class="sorted"\':\'\'}><div class="thw" ${thH(\'t\',\'ef\')}>Total effort ${arrI(\'t\',\'ef\')}</div>'
+                  '<div class="flt"><select onchange="S.tFlt.status=this.value;R()" onclick="event.stopPropagation()"><option value="">All</option>'
+                  '${statuses.map(s=>`<option value="${s}"${tf.status===s?\' selected\':\'\'}>${s}</option>`).join(\'\')}</select></div></th>')
+assert TEAM_TH_EFFORT in html, 'team effort header not found'
+html = html.replace(TEAM_TH_EFFORT,
+                    '<th${ts.col===\'cap\'?\' class="sorted"\':\'\'}><div class="thw" ${thH(\'t\',\'cap\')}>Capacity (days) ${arrI(\'t\',\'cap\')}</div></th>', 1)
+for th in ['<th${ts.col===\'eb\'?\' class="sorted"\':\'\'}><div class="thw" ${thH(\'t\',\'eb\')}>Billable ${arrI(\'t\',\'eb\')}</div></th>',
+           '<th${ts.col===\'enb\'?\' class="sorted"\':\'\'}><div class="thw" ${thH(\'t\',\'enb\')}>Non-bill. ${arrI(\'t\',\'enb\')}</div></th>']:
+    assert th in html, 'team header not found: %s' % th[:60]
+    html = html.replace(th, '', 1)
+TEAM_TD_LOAD = ('<td><div class="efb"><span class="epct" style="color:${c}">${m.ef.toFixed(0)}%</span><div class="efbr">'
+                '<div class="f" style="width:${Math.min(m.ef/1.2,100)}%;background:${c}"></div>'
+                '<div class="m" style="left:${100/1.2}%"></div></div></div></td>\n'
+                '<td class="num" style="color:var(--a2)">${m.eb.toFixed(0)}%</td>\n'
+                '<td class="num" style="color:var(--t3)">${m.enb.toFixed(0)}%</td>')
+assert TEAM_TD_LOAD in html, 'team load cells not found'
+html = html.replace(TEAM_TD_LOAD, '<td class="num">${m.cap}</td>', 1)
 
 # ── P0. Spell the units and the "sellable" label out in full ──
 html = html.replace(' (d)', ' (days)')
