@@ -369,7 +369,14 @@ theme_css = (
     ".perbtn:hover{border-color:#185fa5;color:#185fa5}"
     ".perbtn.on{background:#185fa5;border-color:#185fa5;color:#fff;font-weight:600}"
     ".perinfo{margin-left:auto;font-size:11px;color:var(--t3)}"
-    ".wkchip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;background:#e6f1fb;color:#185fa5;font-size:12px;font-weight:600;white-space:nowrap}"
+    ".weekbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 24px 0}"
+    ".wkpick{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 11px;border-radius:20px;background:#e6f1fb}"
+    ".wkpick-i{font-size:12px}"
+    ".wkpick select{border:none;background:transparent;color:#185fa5;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;outline:none;padding:2px 4px}"
+    ".histbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}"
+    ".histnav{display:flex;align-items:center;gap:8px;margin-left:auto}"
+    ".histrange{font-size:12px;color:var(--t2);white-space:nowrap}"
+    ".b.bo:disabled{opacity:.4;cursor:not-allowed}"
     ".wkbanner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 24px 0;padding:11px 16px;background:#fff8e6;border:1px solid #f0d9a8;border-radius:10px;font-size:13px;color:#6b4c05}"
     ".wkbanner .b{margin-left:auto}"
     ".weekhead{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:18px}"
@@ -416,9 +423,9 @@ hend = html.index(hend_marker, hstart) + len(hend_marker)
 new_header = r"""var _nm=_user?((_profile&&_profile.displayName)||_user.email):'';
 var _ini=_nm?_nm.split(/[ ._-]+/).filter(Boolean).slice(0,2).map(function(s){return s.charAt(0).toUpperCase();}).join(''):'';
 var _uHtml=_user?('<div class="avatar">'+_ini+'</div><span class="topnav-user">'+esc(_nm)+'</span><button class="signout-btn" onclick="fbSignOut()">Esci</button>'):'';
-const TABS=[["myweek","🗓 My week"],["team","👥 Team"],["projects","📁 Progetti"],["matrix","🔢 Matrice"],["assign","⚡️ Assegna"],["history","📅 History"]];
+const TABS=[["myweek","📌 My week"],["history","📅 History"],["team","👥 Team"],["projects","📁 Progetti"],["matrix","🔢 Matrice"],["assign","⚡️ Assegna"]];
 if(isAdmin())TABS.push(["admin","⚙️ Admin"]);
-let h=`<div class="topnav"><div class="topnav-left"><span class="topnav-logo"><img class="brand-mark" src="jakala-logo.png" alt="JAKALA"><span>SEO Staffing Hub</span></span><div class="topnav-nav">${TABS.map(([k,l])=>`<a class="nav-item${S.vw===k?' active':''}" onclick="sw('${k}')">${l}</a>`).join('')}</div>${S.vw!=='admin'?`<input class="topsearch" placeholder="Cerca..." value="${esc(S.q)}" oninput="S.q=this.value;R()">`:''}</div><div class="topnav-right"><span class="wkchip" title="Every percentage you edit applies to this week">🗓 Week ${weekNo(S.wk)} · ${weekRange(S.wk)}</span>${_uHtml}</div></div>` + weekBanner();
+let h=`<div class="topnav"><div class="topnav-left"><span class="topnav-logo"><img class="brand-mark" src="jakala-logo.png" alt="JAKALA"><span>SEO Staffing Hub</span></span><div class="topnav-nav">${TABS.map(([k,l])=>`<a class="nav-item${S.vw===k?' active':''}" onclick="sw('${k}')">${l}</a>`).join('')}</div>${S.vw!=='admin'?`<input class="topsearch" placeholder="Cerca..." value="${esc(S.q)}" oninput="S.q=this.value;R()">`:''}</div><div class="topnav-right">${_uHtml}</div></div>` + `<div class="weekbar">${weekPicker()}${activeWeek()!==S.wk?`<button class="b bo" onclick="S.vwk=null;R()">Back to current week</button>`:``}</div>` + weekBanner();
 h+=`<div class="ct">`;"""
 html = html[:hstart] + new_header + html[hend:]
 
@@ -948,6 +955,29 @@ function weekRange(w,long){
   return _DNAM[mon.getUTCDay()]+' '+mon.getUTCDate()+(sameMonth?'':' '+mm)+' - '+_DNAM[sun.getUTCDay()]+' '+sun.getUTCDate()+' '+sm;
 }
 function weekNo(w){var m=/-W(\d{1,2})/.exec(w||'');return m?+m[1]:'';}
+// Every ISO week of the year the current forecast belongs to.
+function weeksOfYear(){
+  var y=+((S.wk||'').slice(0,4))||new Date().getFullYear(),out=[],n=1;
+  while(n<=53){
+    var w=y+'-W'+(n<10?'0'+n:n),mon=weekMonday(w);
+    if(!mon||mon.getUTCFullYear()>y&&n>52)break;
+    out.push(w);n++;
+  }
+  return out;
+}
+// The week currently being looked at or edited (defaults to the live one).
+function activeWeek(){return S.vwk||S.wk;}
+function setActiveWeek(w){S.vwk=(w===S.wk)?null:w;R();}
+function weekPicker(){
+  var act=activeWeek();
+  return '<span class="wkpick"><span class="wkpick-i">📌</span>'
+    +'<select onchange="setActiveWeek(this.value)">'
+    +weeksOfYear().map(function(w){
+        var cur=w===S.wk?' (current)':'';
+        return '<option value="'+w+'"'+(w===act?' selected':'')+'>Week '+weekNo(w)+' · '+weekRange(w)+cur+'</option>';
+      }).join('')
+    +'</select></span>';
+}
 // A week counts as filled in only once the person has touched or confirmed it.
 function weekTouched(mid,w){w=w||S.wk;return !!(S.touched&&S.touched[w]&&S.touched[w][mid]);}
 function markTouched(mid,w){
@@ -955,10 +985,10 @@ function markTouched(mid,w){
   S.touched=S.touched||{};S.touched[w]=Object.assign({},S.touched[w]);
   S.touched[w][mid]=Date.now();
 }
-function confirmWeek(){
-  var ids=isAdmin()?myResourceIds():myResourceIds();
+function confirmWeek(w){
+  var ids=myResourceIds();
   if(!ids.length)return;
-  ids.forEach(function(id){markTouched(id);});
+  ids.forEach(function(id){markTouched(id,w||S.wk);});
   sv();R();
 }
 function lastTouched(mid,w){
@@ -1037,46 +1067,50 @@ function setWeekE(mid,w,pid,val){
     alert('Percentages split that week, so they add up to 100%.\n\nAssigned elsewhere that week: '+other.toFixed(0)+'%\nStill free: '+room.toFixed(0)+'%');
     pct=room;
   }
-  if(pct>0)mine[pid]=Math.round(pct*10)/10;else delete mine[pid];
+  if(pct>0)mine[pid]=Math.round(pct*10)/10;else delete mine[pid];markTouched(mid,w);
   if(!Object.keys(mine).length)delete S.hist[w][mid];else S.hist[w][mid]=mine;
   sv();R();
 }
-// ── My week: where everyone, admins included, files the forecast for the week ahead ──
+// ── My week: where everyone, admins included, files the forecast for a week ──
 function renderMyWeek(){
   var ids=myResourceIds(),mid=ids[0];
   if(!mid)return '<div class="ucard"><div class="uct">My week</div><div class="ucs">Your account is not linked to a team member yet, so there is nothing to fill in. An administrator can align your name or email in the Team tab.</div></div>';
+  var w=activeWeek(),live=w===S.wk,past=w<S.wk;
   var me=S.m.find(function(x){return x.id===mid;})||{};
-  var mine=S.p.filter(function(p){return p.asgn&&p.asgn[mid]>0;})
-              .sort(function(a,b){return (b.asgn[mid]||0)-(a.asgn[mid]||0);});
-  var used=mine.reduce(function(t,p){return t+(p.asgn[mid]||0);},0);
+  var alloc=allocOfWeek(mid,w);
+  var mine=Object.keys(alloc).map(function(pid){return S.p.find(function(x){return x.id===pid;});})
+             .filter(Boolean).sort(function(a,b){return (alloc[b.id]||0)-(alloc[a.id]||0);});
+  var used=Object.keys(alloc).reduce(function(t,k){return t+alloc[k];},0);
   var left=Math.max(100-used,0);
-  var done=weekTouched(mid),ts=lastTouched(mid);
+  var done=weekTouched(mid,w),ts=lastTouched(mid,w);
   var col=used>100?'#b32a1c':used===100?'#2f6e12':'#8a5a0c';
+  var when=live?'Your forecast for':past?'What you filed for':'Your plan for';
   var h='<div class="ucard"><div class="weekhead">'
-   +'<div><div class="wh-t">Your forecast for <b>'+weekRange(S.wk,true)+'</b></div>'
-   +'<div class="wh-s">Week '+weekNo(S.wk)+' · how will you split your time? The total has to reach 100%.</div></div>'
+   +'<div><div class="wh-t">'+when+' <b>'+weekRange(w,true)+'</b></div>'
+   +'<div class="wh-s">Week '+weekNo(w)+(live?' · the week ahead':past?' · already closed, you can still correct it':' · a future week')+'. The total has to reach 100%.</div></div>'
    +'<div class="wh-b"><div class="wh-pct" style="color:'+col+'">'+used.toFixed(0)+'%</div>'
    +'<div class="wh-bar"><div style="width:'+Math.min(used,100)+'%;background:'+col+'"></div></div>'
    +'<div class="wh-left">'+(used>100?'over by '+(used-100).toFixed(0)+'%':left>0?left.toFixed(0)+'% still free':'fully assigned')+'</div></div></div>';
-  h+='<table class="utbl mywk"><thead><tr><th>Project</th><th class="r" style="width:130px">Share of the week</th><th style="width:40px"></th></tr></thead><tbody>';
+  h+='<table class="utbl mywk"><thead><tr><th>Project</th><th class="r" style="width:140px">Share of the week</th><th style="width:40px"></th></tr></thead><tbody>';
+  if(!mine.length)h+='<tr><td colspan="3" style="text-align:center;color:var(--t3);padding:18px">Nothing assigned for this week yet. Pick a project below.</td></tr>';
   mine.forEach(function(p){
-    var v=p.asgn[mid]||0;
+    var v=alloc[p.id]||0;
     h+='<tr><td><div style="font-weight:600">'+(p.nb?'<span class="nbtag">NB</span> ':'')+esc(p.client||p.name)+'</div>'
       +'<div style="font-size:10px;color:var(--t3)">'+esc(p.name)+'</div></td>'
-      +'<td class="r"><input class="pi wkin" type="number" min="0" max="100" step="5" value="'+v+'" onchange="setE(\''+p.id+'\',\''+mid+'\',parseFloat(this.value)||0)"> %</td>'
-      +'<td class="r"><button class="rb" onclick="rmE(\''+p.id+'\',\''+mid+'\')">×</button></td></tr>';
+      +'<td class="r"><input class="pi wkin" type="number" min="0" max="100" step="5" value="'+v+'" onchange="setWeekE(\''+mid+'\',\''+w+'\',\''+p.id+'\',this.value)"> %</td>'
+      +'<td class="r"><button class="rb" onclick="setWeekE(\''+mid+'\',\''+w+'\',\''+p.id+'\',0)">×</button></td></tr>';
   });
   h+='<tr class="tot"><td>Total</td><td class="r" style="color:'+col+'">'+used.toFixed(0)+'%</td><td></td></tr>';
   h+='</tbody></table>';
-  // add a project
-  var avail=S.p.filter(function(p){return !(p.asgn&&p.asgn[mid]>0);})
-               .sort(function(a,b){return (a.nb?-1:0)-(b.nb?-1:0)||b.totalDays-a.totalDays;}).slice(0,40);
+  var avail=S.p.filter(function(p){return !alloc[p.id];})
+               .sort(function(a,b){return (b.nb?1:0)-(a.nb?1:0)||b.totalDays-a.totalDays;}).slice(0,40);
   h+='<div class="psc" style="margin-top:16px">Add a project</div><div class="ac">'
-   +avail.map(function(p){return '<span class="ach" onclick="setE(\''+p.id+'\',\''+mid+'\','+Math.min(left||5,10)+')">+ '+esc(p.client||p.name)+'</span>';}).join('')
+   +avail.map(function(p){return '<span class="ach" onclick="setWeekE(\''+mid+'\',\''+w+'\',\''+p.id+'\','+Math.min(left||5,10)+')">+ '+esc(p.client||p.name)+'</span>';}).join('')
    +'</div>';
   h+='<div class="wk-foot">'
-   +(done?'<span class="wk-ok">Filed'+(ts?' on '+ts:'')+'</span>':'<button class="b bg" onclick="confirmWeek()">Confirm this week</button><span class="wk-hint">Nothing to change? Confirm so the week counts as filed.</span>')
-   +'<a class="wk-link" onclick="sw(\'history\')">See previous weeks</a></div>';
+   +(done?'<span class="wk-ok">Filed'+(ts?' on '+ts:'')+'</span>'
+        :'<button class="b bg" onclick="confirmWeek(\''+w+'\')">Confirm this week</button><span class="wk-hint">Nothing to change? Confirm so the week counts as filed.</span>')
+   +'<a class="wk-link" onclick="sw(\'history\')">See every week</a></div>';
   return h+'</div>';
 }
 // Reminder shown on every page until the current week is filed.
@@ -1095,21 +1129,33 @@ function renderHistory(){
   var mid=histPerson();
   if(!mid)return '<div class="ucard"><div class="uct">History</div><div class="ucs">Your account is not linked to a team member yet, so there is no forecast history to show. An administrator can align your name or email in the Team tab.</div></div>';
   var me=S.m.find(function(x){return x.id===mid;})||{};
-  var ws=weeksAvailable().slice(-10).reverse();
+  var all=weeksOfYear(),N=8;
+  // window ends on the week being looked at, so any period of the year is reachable
+  var anchor=all.indexOf(activeWeek());if(anchor<0)anchor=all.indexOf(S.wk);if(anchor<0)anchor=all.length-1;
+  var off=S.hOff||0;
+  var end=Math.min(Math.max(anchor+1+off,N),all.length),start=Math.max(end-N,0);
+  var ws=all.slice(start,end).reverse();
   var editable=isAdmin()||myResourceIds().indexOf(mid)>=0;
-  // every project this person touched over the shown weeks
   var pids=[];
   ws.forEach(function(w){Object.keys(allocOfWeek(mid,w)).forEach(function(pid){if(pids.indexOf(pid)<0)pids.push(pid);});});
   var picker=isAdmin()?'<select class="si" style="width:220px" onchange="S.hSel=this.value;R()">'+S.m.slice().sort(function(a,b){return a.name.localeCompare(b.name);}).map(function(m){return '<option value="'+m.id+'"'+(m.id===mid?' selected':'')+'>'+esc(m.name)+'</option>';}).join('')+'</select>':'';
-  var h='<div class="ucard"><div class="uct">Forecast history</div><div class="ucs">Percentages describe how a week is split, filled in for the week ahead. '+(editable?'You can correct a past week when reality turned out differently: totals stay capped at 100%.':'Read only: you can correct your own weeks.')+'</div>'
-   +(picker?'<div style="margin-bottom:12px">'+picker+'</div>':'')
+  var h='<div class="ucard"><div class="uct">Forecast history</div><div class="ucs">Percentages describe how a week is split, filed for the week ahead. '+(editable?'You can correct any week when reality turned out differently: totals stay capped at 100%.':'Read only: you can correct your own weeks.')+'</div>'
+   +'<div class="histbar">'+picker
+   +'<span class="histnav"><button class="b bo" onclick="S.hOff=(S.hOff||0)-'+N+';R()">← Earlier</button>'
+   +'<span class="histrange">'+weekRange(ws[ws.length-1])+' → '+weekRange(ws[0])+'</span>'
+   +'<button class="b bo" onclick="S.hOff=Math.min((S.hOff||0)+'+N+',0);R()"'+(end>=all.length?' disabled':'')+'>Later →</button>'
+   +(off?'<button class="b bo" onclick="S.hOff=0;R()">Today</button>':'')+'</span></div>'
    +'<div style="font-size:13px;color:var(--t2);margin-bottom:10px"><b style="color:#15171c">'+esc(me.name||'')+'</b> · '+esc(me.role||'')+' · current week <b>'+weekLabel(S.wk)+'</b></div>';
-  if(!pids.length)return h+'<div class="admnote">No forecast recorded yet.</div></div>';
-  h+='<div style="overflow-x:auto"><table class="utbl"><thead><tr><th style="min-width:220px">Project</th>'
-   +ws.map(function(w){return '<th class="r">'+weekLabel(w)+(w===S.wk?' <span style="font-size:9px;color:#185fa5">now</span>':'')+'</th>';}).join('')+'</tr></thead><tbody>';
+  if(!pids.length)return h+'<div class="admnote">Nothing recorded in this period.</div></div>';
+  h+='<div style="overflow-x:auto"><table class="utbl"><thead><tr><th style="min-width:210px">Project</th>'
+   +ws.map(function(w){
+      var f=weekTouched(mid,w);
+      return '<th class="r" title="'+(f?'filed':'not filed')+'">W'+weekNo(w)+'<div style="font-size:9px;font-weight:400;color:var(--t3)">'+weekRange(w)+'</div>'
+        +(w===S.wk?'<div style="font-size:9px;color:#185fa5">current</div>':(f?'':'<div style="font-size:9px;color:#b32a1c">not filed</div>'))+'</th>';
+     }).join('')+'</tr></thead><tbody>';
   pids.forEach(function(pid){
     var p=S.p.find(function(x){return x.id===pid;});if(!p)return;
-    h+='<tr><td><div style="font-weight:600">'+(p.nb?'<span style="font-size:9px;color:var(--t3)">NB </span>':'')+esc(p.client||p.name)+'</div><div style="font-size:10px;color:var(--t3)">'+esc(p.name)+'</div></td>';
+    h+='<tr><td><div style="font-weight:600">'+(p.nb?'<span class="nbtag">NB</span> ':'')+esc(p.client||p.name)+'</div><div style="font-size:10px;color:var(--t3)">'+esc(p.name)+'</div></td>';
     ws.forEach(function(w){
       var v=allocOfWeek(mid,w)[pid]||0;
       h+='<td class="r">'+(editable
@@ -1120,10 +1166,10 @@ function renderHistory(){
   });
   h+='<tr class="tot"><td>Total</td>'+ws.map(function(w){
     var a=allocOfWeek(mid,w),t=0;Object.keys(a).forEach(function(k){t+=a[k];});
-    return '<td class="r" style="color:'+(t>100?'#b32a1c':t<100?'#8a5a0c':'#2f6e12')+'">'+t.toFixed(0)+'%</td>';
+    return '<td class="r" style="color:'+(t>100?'#b32a1c':t===100?'#2f6e12':'#8a5a0c')+'">'+t.toFixed(0)+'%</td>';
   }).join('')+'</tr>';
   return h+'</tbody></table></div>'
-   +admNote('A week that adds up to less than 100% means part of that time was never assigned.')+'</div>';
+   +admNote('A week under 100% means part of that time was never assigned. Use the arrows to reach any period of the year.')+'</div>';
 }
 """
 html = html.replace('function mEf(mid){', WEEK_JS + '\nfunction mEf(mid){', 1)
