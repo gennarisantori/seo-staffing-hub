@@ -583,7 +583,7 @@ ${isAdmin()?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4
 mp.sort((a,b)=>(b.asgn[m.id]||0)-(a.asgn[m.id]||0)).forEach(p=>{const pe=p.asgn[m.id]||0,de=(pe/100)*m.cap;
 h+=`<div class="pr2" ${p.nb?'style="border-left:2px solid var(--t3)"':''}><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nb?'<span style="font-size:8px;color:var(--t3)">NB </span>':''}${esc(p.client||p.name)}</div>
 <div style="font-size:9px;color:var(--t3)">${esc(p.name)}</div></div>
-<div style="display:flex;align-items:center;gap:4px"><input class="pi" type="number" min="0" max="100" step="5" value="${pe}" onchange="setE('${p.id}','${m.id}',parseFloat(this.value)||0)"><span style="font-size:9px;color:var(--t3)">%</span><span style="font-family:var(--mn);font-size:9px;color:var(--a2)">${de.toFixed(0)}d</span><button class="rb" onclick="rmE('${p.id}','${m.id}')">×</button></div></div>`});
+<div style="display:flex;align-items:center;gap:4px"><input class="pi" type="number" min="0" max="100" step="5" value="${pe}" onchange="setE('${p.id}','${m.id}',parseFloat(this.value)||0)"><span style="font-size:9px;color:var(--t3)">%</span><button class="rb" onclick="rmE('${p.id}','${m.id}')">×</button></div></div>`});
 h+=`<div class="psc">Assign</div><div class="ac">`;
 const av=100-ef;
 ps.filter(p=>!(p.asgn?.[m.id]>0)).sort((a,b)=>b.totalDays-a.totalDays).forEach(p=>{h+=`<span class="ach" onclick="setE('${p.id}','${m.id}',10)"${av<=0?' style="opacity:.5"':''}>+ ${esc(p.client||p.name)}</span>`});

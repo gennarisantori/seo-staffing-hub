@@ -913,6 +913,11 @@ PANEL_SUMMARY = ('<div style="display:flex;align-items:center;gap:8px;margin-bot
 assert PANEL_SUMMARY in html, 'person panel summary not found'
 html = html.replace(PANEL_SUMMARY, '${isAdmin()?`' + PANEL_SUMMARY + '`:``}', 1)
 
+# Person panel rows carry the percentage weight only, no day conversion.
+PERSON_ROW_DAYS = '<span style="font-family:var(--mn);font-size:9px;color:var(--a2)">${de.toFixed(0)}d</span>'
+assert PERSON_ROW_DAYS in html, 'person panel day span not found'
+html = html.replace(PERSON_ROW_DAYS, '', 1)
+
 # Same rule everywhere else a per-person load figure is on screen.
 # Assign > by person: hide the load badge and the effort bar in the people list.
 ASSIGN_BADGE = ('<span class="sb" style="background:${sc(ef)}18;color:${sc(ef)};font-size:8px">${sl(ef)}</span>')
