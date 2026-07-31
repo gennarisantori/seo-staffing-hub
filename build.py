@@ -369,6 +369,25 @@ theme_css = (
     ".perbtn:hover{border-color:#185fa5;color:#185fa5}"
     ".perbtn.on{background:#185fa5;border-color:#185fa5;color:#fff;font-weight:600}"
     ".perinfo{margin-left:auto;font-size:11px;color:var(--t3)}"
+    ".wkchip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;background:#e6f1fb;color:#185fa5;font-size:12px;font-weight:600;white-space:nowrap}"
+    ".wkbanner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 24px 0;padding:11px 16px;background:#fff8e6;border:1px solid #f0d9a8;border-radius:10px;font-size:13px;color:#6b4c05}"
+    ".wkbanner .b{margin-left:auto}"
+    ".weekhead{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:18px}"
+    ".wh-t{font-size:20px;font-weight:700;color:#15171c;letter-spacing:-.01em}"
+    ".wh-s{font-size:13px;color:var(--t2);margin-top:4px}"
+    ".wh-b{min-width:210px}"
+    ".wh-pct{font-size:26px;font-weight:700;text-align:right;line-height:1;font-variant-numeric:tabular-nums}"
+    ".wh-bar{height:8px;background:#e9e8e2;border-radius:4px;overflow:hidden;margin:7px 0 5px}"
+    ".wh-bar>div{height:100%;border-radius:4px;transition:width .3s}"
+    ".wh-left{font-size:11.5px;color:var(--t2);text-align:right}"
+    ".mywk td{vertical-align:middle}"
+    ".wkin{width:70px;font-size:14px;font-weight:700;text-align:right;padding:6px 8px}"
+    ".nbtag{font-size:9px;font-weight:700;color:var(--t3);border:1px solid var(--bd);border-radius:4px;padding:1px 4px}"
+    ".wk-foot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px;padding-top:14px;border-top:1px solid var(--bd)}"
+    ".wk-ok{font-size:13px;font-weight:600;color:#2f6e12}"
+    ".wk-hint{font-size:12px;color:var(--t3)}"
+    ".wk-link{margin-left:auto;font-size:12.5px;color:#185fa5;cursor:pointer}"
+    ".wk-link:hover{text-decoration:underline}"
     ".tgtrow{display:flex;gap:10px;flex-wrap:wrap}"
     ".tgtbox{flex:1;min-width:190px;display:flex;flex-direction:column;gap:3px;background:#f8f9fb;border:1px solid var(--bd);border-radius:10px;padding:11px 13px}"
     ".tgtbox>span:first-child{font-weight:700;font-size:12px;color:#15171c}"
@@ -397,9 +416,9 @@ hend = html.index(hend_marker, hstart) + len(hend_marker)
 new_header = r"""var _nm=_user?((_profile&&_profile.displayName)||_user.email):'';
 var _ini=_nm?_nm.split(/[ ._-]+/).filter(Boolean).slice(0,2).map(function(s){return s.charAt(0).toUpperCase();}).join(''):'';
 var _uHtml=_user?('<div class="avatar">'+_ini+'</div><span class="topnav-user">'+esc(_nm)+'</span><button class="signout-btn" onclick="fbSignOut()">Esci</button>'):'';
-const TABS=[["team","👥 Team"],["projects","📁 Progetti"],["matrix","🔢 Matrice"],["assign","⚡️ Assegna"],["history","📅 History"]];
+const TABS=[["myweek","🗓 My week"],["team","👥 Team"],["projects","📁 Progetti"],["matrix","🔢 Matrice"],["assign","⚡️ Assegna"],["history","📅 History"]];
 if(isAdmin())TABS.push(["admin","⚙️ Admin"]);
-let h=`<div class="topnav"><div class="topnav-left"><span class="topnav-logo"><img class="brand-mark" src="jakala-logo.png" alt="JAKALA"><span>SEO Staffing Hub</span></span><div class="topnav-nav">${TABS.map(([k,l])=>`<a class="nav-item${S.vw===k?' active':''}" onclick="sw('${k}')">${l}</a>`).join('')}</div>${S.vw!=='admin'?`<input class="topsearch" placeholder="Cerca..." value="${esc(S.q)}" oninput="S.q=this.value;R()">`:''}</div><div class="topnav-right">${_uHtml}</div></div>`;
+let h=`<div class="topnav"><div class="topnav-left"><span class="topnav-logo"><img class="brand-mark" src="jakala-logo.png" alt="JAKALA"><span>SEO Staffing Hub</span></span><div class="topnav-nav">${TABS.map(([k,l])=>`<a class="nav-item${S.vw===k?' active':''}" onclick="sw('${k}')">${l}</a>`).join('')}</div>${S.vw!=='admin'?`<input class="topsearch" placeholder="Cerca..." value="${esc(S.q)}" oninput="S.q=this.value;R()">`:''}</div><div class="topnav-right"><span class="wkchip" title="Every percentage you edit applies to this week">🗓 Week ${weekNo(S.wk)} · ${weekRange(S.wk)}</span>${_uHtml}</div></div>` + weekBanner();
 h+=`<div class="ct">`;"""
 html = html[:hstart] + new_header + html[hend:]
 
@@ -411,7 +430,10 @@ html = html.replace('function sw(v){S.vw=v;S.sm=null;S.sp=null;R()}',
 # I3. Render the Admin view inside the content area (admins only; nothing for others)
 anchor_ap = 'h+=`</div>`;document.getElementById("AP").innerHTML=h;'
 assert anchor_ap in html, 'AP render anchor not found'
-admin_branch = r"""if(S.vw==='history'){
+admin_branch = r"""if(S.vw==='myweek'){
+h+='<div style="flex:1;min-width:0;max-width:920px;margin:0 auto;width:100%">'+renderMyWeek()+'</div>';
+}
+if(S.vw==='history'){
 h+='<div style="flex:1;min-width:0;max-width:1100px;margin:0 auto;width:100%">'+renderHistory()+'</div>';
 }
 if(S.vw==='admin'&&isAdmin()){
@@ -907,6 +929,44 @@ function targetWeek(now){
   return isoWeek(fwd);
 }
 function weekLabel(w){return w?w.replace('-W',' W'):'';}
+// Monday..Sunday of an ISO week, written out: "Mon 6 - Sun 12 July".
+var _MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var _DNAM=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function weekMonday(w){
+  var m=/(\d{4})-W(\d{1,2})/.exec(w||'');if(!m)return null;
+  var jan4=new Date(Date.UTC(+m[1],0,4));
+  var mon=new Date(jan4);
+  mon.setUTCDate(jan4.getUTCDate()-((jan4.getUTCDay()||7)-1)+(+m[2]-1)*7);
+  return mon;
+}
+function weekRange(w,long){
+  var mon=weekMonday(w);if(!mon)return '';
+  var sun=new Date(mon);sun.setUTCDate(mon.getUTCDate()+6);
+  var sameMonth=mon.getUTCMonth()===sun.getUTCMonth();
+  var mm=_MON[mon.getUTCMonth()],sm=_MON[sun.getUTCMonth()];
+  if(!long)return mon.getUTCDate()+(sameMonth?'':' '+mm.slice(0,3))+' - '+sun.getUTCDate()+' '+sm.slice(0,3);
+  return _DNAM[mon.getUTCDay()]+' '+mon.getUTCDate()+(sameMonth?'':' '+mm)+' - '+_DNAM[sun.getUTCDay()]+' '+sun.getUTCDate()+' '+sm;
+}
+function weekNo(w){var m=/-W(\d{1,2})/.exec(w||'');return m?+m[1]:'';}
+// A week counts as filled in only once the person has touched or confirmed it.
+function weekTouched(mid,w){w=w||S.wk;return !!(S.touched&&S.touched[w]&&S.touched[w][mid]);}
+function markTouched(mid,w){
+  w=w||S.wk;if(!w||!mid)return;
+  S.touched=S.touched||{};S.touched[w]=Object.assign({},S.touched[w]);
+  S.touched[w][mid]=Date.now();
+}
+function confirmWeek(){
+  var ids=isAdmin()?myResourceIds():myResourceIds();
+  if(!ids.length)return;
+  ids.forEach(function(id){markTouched(id);});
+  sv();R();
+}
+function lastTouched(mid,w){
+  var ts=S.touched&&S.touched[w||S.wk]&&S.touched[w||S.wk][mid];
+  if(!ts)return null;
+  var d=new Date(ts);
+  return _DNAM[d.getDay()]+' '+d.getDate()+' '+_MON[d.getMonth()].slice(0,3);
+}
 function snapshotAlloc(){
   var snap={};
   S.p.forEach(function(p){
@@ -961,7 +1021,7 @@ function avgShares(mid,n){
 // How many people filled in the current week.
 function complianceOf(w){
   var done=0;
-  S.m.forEach(function(m){if(Object.keys(allocOfWeek(m.id,w)).length)done++;});
+  S.m.forEach(function(m){if(weekTouched(m.id,w))done++;});
   return {done:done,total:S.m.length};
 }
 // Edit a past week: a forecast can be corrected once reality disagreed with it.
@@ -980,6 +1040,51 @@ function setWeekE(mid,w,pid,val){
   if(pct>0)mine[pid]=Math.round(pct*10)/10;else delete mine[pid];
   if(!Object.keys(mine).length)delete S.hist[w][mid];else S.hist[w][mid]=mine;
   sv();R();
+}
+// ── My week: where everyone, admins included, files the forecast for the week ahead ──
+function renderMyWeek(){
+  var ids=myResourceIds(),mid=ids[0];
+  if(!mid)return '<div class="ucard"><div class="uct">My week</div><div class="ucs">Your account is not linked to a team member yet, so there is nothing to fill in. An administrator can align your name or email in the Team tab.</div></div>';
+  var me=S.m.find(function(x){return x.id===mid;})||{};
+  var mine=S.p.filter(function(p){return p.asgn&&p.asgn[mid]>0;})
+              .sort(function(a,b){return (b.asgn[mid]||0)-(a.asgn[mid]||0);});
+  var used=mine.reduce(function(t,p){return t+(p.asgn[mid]||0);},0);
+  var left=Math.max(100-used,0);
+  var done=weekTouched(mid),ts=lastTouched(mid);
+  var col=used>100?'#b32a1c':used===100?'#2f6e12':'#8a5a0c';
+  var h='<div class="ucard"><div class="weekhead">'
+   +'<div><div class="wh-t">Your forecast for <b>'+weekRange(S.wk,true)+'</b></div>'
+   +'<div class="wh-s">Week '+weekNo(S.wk)+' · how will you split your time? The total has to reach 100%.</div></div>'
+   +'<div class="wh-b"><div class="wh-pct" style="color:'+col+'">'+used.toFixed(0)+'%</div>'
+   +'<div class="wh-bar"><div style="width:'+Math.min(used,100)+'%;background:'+col+'"></div></div>'
+   +'<div class="wh-left">'+(used>100?'over by '+(used-100).toFixed(0)+'%':left>0?left.toFixed(0)+'% still free':'fully assigned')+'</div></div></div>';
+  h+='<table class="utbl mywk"><thead><tr><th>Project</th><th class="r" style="width:130px">Share of the week</th><th style="width:40px"></th></tr></thead><tbody>';
+  mine.forEach(function(p){
+    var v=p.asgn[mid]||0;
+    h+='<tr><td><div style="font-weight:600">'+(p.nb?'<span class="nbtag">NB</span> ':'')+esc(p.client||p.name)+'</div>'
+      +'<div style="font-size:10px;color:var(--t3)">'+esc(p.name)+'</div></td>'
+      +'<td class="r"><input class="pi wkin" type="number" min="0" max="100" step="5" value="'+v+'" onchange="setE(\''+p.id+'\',\''+mid+'\',parseFloat(this.value)||0)"> %</td>'
+      +'<td class="r"><button class="rb" onclick="rmE(\''+p.id+'\',\''+mid+'\')">×</button></td></tr>';
+  });
+  h+='<tr class="tot"><td>Total</td><td class="r" style="color:'+col+'">'+used.toFixed(0)+'%</td><td></td></tr>';
+  h+='</tbody></table>';
+  // add a project
+  var avail=S.p.filter(function(p){return !(p.asgn&&p.asgn[mid]>0);})
+               .sort(function(a,b){return (a.nb?-1:0)-(b.nb?-1:0)||b.totalDays-a.totalDays;}).slice(0,40);
+  h+='<div class="psc" style="margin-top:16px">Add a project</div><div class="ac">'
+   +avail.map(function(p){return '<span class="ach" onclick="setE(\''+p.id+'\',\''+mid+'\','+Math.min(left||5,10)+')">+ '+esc(p.client||p.name)+'</span>';}).join('')
+   +'</div>';
+  h+='<div class="wk-foot">'
+   +(done?'<span class="wk-ok">Filed'+(ts?' on '+ts:'')+'</span>':'<button class="b bg" onclick="confirmWeek()">Confirm this week</button><span class="wk-hint">Nothing to change? Confirm so the week counts as filed.</span>')
+   +'<a class="wk-link" onclick="sw(\'history\')">See previous weeks</a></div>';
+  return h+'</div>';
+}
+// Reminder shown on every page until the current week is filed.
+function weekBanner(){
+  var mid=myResourceIds()[0];
+  if(!mid||weekTouched(mid))return '';
+  return '<div class="wkbanner">Your forecast for <b>'+weekRange(S.wk,true)+'</b> has not been filed yet.'
+    +'<button class="b bg" onclick="sw(\'myweek\')">Fill it in</button></div>';
 }
 function histPerson(){
   if(isAdmin())return S.hSel||(myResourceIds()[0])||(S.m[0]&&S.m[0].id);
@@ -1027,7 +1132,7 @@ html = html.replace('function mEf(mid){', WEEK_JS + '\nfunction mEf(mid){', 1)
 # targetWeek() is a hoisted function declaration, so the current week is known even
 # before anything is loaded from Firebase.
 html = html.replace('let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),',
-                    'let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),wk:targetWeek(),hist:{},', 1)
+                    'let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),wk:targetWeek(),hist:{},touched:{},', 1)
 
 # ── P. Billability targets per Price Level (editable, shared through Firebase) ──
 # P1. Defaults + state
@@ -1036,7 +1141,7 @@ html = html.replace('const PLkeys=',
 html = html.replace('let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),',
                     'let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),t:Object.assign({},DEFT),', 1)
 # P2. Persist them on save (loading is wired further down, once step N has run)
-html = html.replace('dbRef.set({m:S.m,p:S.p})', 'dbRef.set({m:S.m,p:S.p,t:S.t,wk:S.wk,hist:S.hist})', 1)
+html = html.replace('dbRef.set({m:S.m,p:S.p})', 'dbRef.set({m:S.m,p:S.p,t:S.t,wk:S.wk,hist:S.hist,touched:S.touched||{}})', 1)
 html = html.replace('localStorage.setItem("sfv11",JSON.stringify({m:S.m,p:S.p}))',
                     'localStorage.setItem("sfv11",JSON.stringify({m:S.m,p:S.p,t:S.t}))', 1)
 
@@ -1112,6 +1217,11 @@ MATRIX_TOTAL = ('h+=`<tr><td class="sc" style="padding:6px 8px;border-top:2px so
 assert MATRIX_TOTAL in html, 'matrix total row not found'
 html = html.replace(MATRIX_TOTAL, 'if(isAdmin()){' + MATRIX_TOTAL + '`;}\nh+=`', 1)
 
+# Editing a percentage anywhere (My week, Team panel, project panel, matrix) files the week.
+MARK_TOUCHED = 'else delete p.asgn[mid];sv();R()}'
+assert MARK_TOUCHED in html, 'setE tail not found'
+html = html.replace(MARK_TOUCHED, 'else delete p.asgn[mid];try{markTouched(mid);}catch(e){}sv();R()}', 1)
+
 # Team tab: drop the per-person load columns (with the cap in place they are always
 # 100% and invite comparison). Keep the roster: name, role, capacity, projects.
 TEAM_TH_EFFORT = ('<th${ts.col===\'ef\'?\' class="sorted"\':\'\'}><div class="thw" ${thH(\'t\',\'ef\')}>Total effort ${arrI(\'t\',\'ef\')}</div>'
@@ -1145,7 +1255,7 @@ LOAD_ANCHOR = 'if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}}'
 assert html.count(LOAD_ANCHOR) == 2, 'unexpected load sites: %d' % html.count(LOAD_ANCHOR)
 # Restore targets and the weekly archive, then close any week that has ended.
 LOAD_EXTRA = ('if(d&&d.t)S.t=Object.assign({},DEFT,d.t);'
-              'if(d){S.wk=d.wk||S.wk;S.hist=d.hist||S.hist||{};}'
+              'if(d){S.wk=d.wk||S.wk;S.hist=d.hist||S.hist||{};S.touched=d.touched||S.touched||{};}'
               'try{if(rollWeek())sv();}catch(e){}')
 html = html.replace(LOAD_ANCHOR, LOAD_ANCHOR + LOAD_EXTRA)
 LIVE_ANCHOR = 'if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}R()}'
@@ -1153,7 +1263,7 @@ assert LIVE_ANCHOR in html, 'realtime load site not found'
 html = html.replace(LIVE_ANCHOR,
                     'if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}}'
                     'if(d&&d.t)S.t=Object.assign({},DEFT,d.t);'
-                    'if(d){S.wk=d.wk||S.wk;S.hist=d.hist||S.hist||{};}R()', 1)
+                    'if(d){S.wk=d.wk||S.wk;S.hist=d.hist||S.hist||{};S.touched=d.touched||S.touched||{};}R()', 1)
 
 with io.open(OUT, 'w', encoding='utf-8') as f:
     f.write(html)
