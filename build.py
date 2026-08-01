@@ -377,6 +377,7 @@ theme_css = (
     ".histnav{display:flex;align-items:center;gap:8px;margin-left:auto}"
     ".histrange{font-size:12px;color:var(--t2);white-space:nowrap}"
     ".band{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:700;white-space:nowrap}"
+    ".tl{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle;box-shadow:0 0 0 2px #fff,0 0 0 3px rgba(0,0,0,.08)}"
     ".kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:14px}"
     ".kpi{background:#f8f9fb;border:1px solid var(--bd);border-radius:12px;padding:14px 16px}"
     ".kpi-l{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t3)}"
@@ -555,12 +556,11 @@ function periodPicker(){
         return '<button class="perbtn'+(per===o[0]?' on':'')+'" onclick="S.aPer='+o[0]+';R()">'+o[1]+'</button>';}).join('')
     +'<span class="perinfo">'+ws+' week'+(ws===1?'':'s')+' recorded · '+c.done+'/'+c.total+' people filled in '+weekLabel(S.wk)+'</span></div>';
 }
-// ── Delivery: what was sold against what people say they are spending ───────
-// Billability asks whether someone works on clients enough; utilization asks
-// whether those days are backed by days that were actually sold.
+// -- Delivery: what was sold against what people plan to spend ---------------
+// Billability asks whether someone spends enough time on client work.
+// Utilization asks whether that time turns into delivery that was actually sold.
 var _DLV=null;
 function dlvReset(){_DLV=null;}
-// Average share a person puts on one project across the selected period.
 function avgProjShare(mid,pid,n){
   var ws=weeksAvailable();if(n>0)ws=ws.slice(-n);
   var sum=0,filled=0;
@@ -575,78 +575,128 @@ function projShare(mid,pid){
   if(per===1)return (allocOfWeek(mid,S.wk)[pid]||0);
   return avgProjShare(mid,pid,per===0?0:per);
 }
-// Days a person expects to spend on a project over the year, from their share.
 function declaredDays(mid,pid){
   var m=S.m.find(function(x){return x.id===mid;});
   return m?projShare(mid,pid)/100*(m.cap||220):0;
 }
-// Weeks of data behind the figures: below four the projection is still shaky.
 function dataWeeks(){
   var per=S.aPer===undefined?1:S.aPer,ws=weeksAvailable();
   return per===1?1:(per===0?ws.length:Math.min(per,ws.length));
+}
+// Seniority carried by a set of days, 1 (junior) to 4 (senior).
+function seniorityIndex(byLevel){
+  var t=0,d=0;
+  PLkeys.forEach(function(k){var v=byLevel[k]||0;t+=v*(+k.replace('PL',''));d+=v;});
+  return d>0?t/d:null;
 }
 function deliveryData(){
   if(_DLV)return _DLV;
   var rows=[];
   S.p.forEach(function(p){
     if(p.nb)return;
-    var sh=yearShare(p),byPL={},sold=0,decl=0,unquoted=0;
-    PLkeys.forEach(function(k){byPL[k]={sold:(p.daysByRole&&p.daysByRole[k]||0)*sh,decl:0,people:[]};});
+    var sh=yearShare(p),soldBy={},declBy={},byPL={},sold=0,decl=0;
+    PLkeys.forEach(function(k){
+      var v=(p.daysByRole&&p.daysByRole[k]||0)*sh;
+      soldBy[k]=v;declBy[k]=0;byPL[k]={sold:v,decl:0,people:[]};sold+=v;
+    });
     S.m.forEach(function(m){
       var d=declaredDays(m.id,p.id);
       if(d<=0)return;
       var k='PL'+rPL(m.role);
-      if(!byPL[k])byPL[k]={sold:0,decl:0,people:[]};
-      byPL[k].decl+=d;byPL[k].people.push({m:m,days:d});
-    });
-    PLkeys.forEach(function(k){
-      sold+=byPL[k].sold;decl+=byPL[k].decl;
-      if(byPL[k].sold<=0&&byPL[k].decl>0)unquoted+=byPL[k].decl;
+      if(!byPL[k]){byPL[k]={sold:0,decl:0,people:[]};soldBy[k]=0;declBy[k]=0;}
+      byPL[k].decl+=d;byPL[k].people.push({m:m,days:d});declBy[k]+=d;decl+=d;
     });
     if(sold<=0&&decl<=0)return;
-    rows.push({p:p,sold:sold,decl:decl,byPL:byPL,unquoted:unquoted,
-               util:decl>0?sold/decl*100:null,ratio:sold>0?decl/sold:null});
+    // Sold days are one pool for the project: the mix of levels doing the work
+    // rarely matches the mix that was quoted, and the work gets done regardless.
+    var sSold=seniorityIndex(soldBy),sDecl=seniorityIndex(declBy);
+    rows.push({p:p,sold:sold,decl:decl,byPL:byPL,soldBy:soldBy,declBy:declBy,
+               coverage:sold>0?decl/sold*100:null,
+               seniority:{sold:sSold,decl:sDecl,drift:(sSold!==null&&sDecl!==null)?sDecl-sSold:null}});
   });
   _DLV=rows;return rows;
 }
-// Per person: the sold days that fall to them, against what they report.
-// A project's sold days are split across the people of that Price Level in
-// proportion to what each of them declares, the only non-arbitrary criterion.
+// Per person: days that match sold work, over the billable time they should sell.
 function personDelivery(mid){
   var m=S.m.find(function(x){return x.id===mid;});
-  if(!m)return {decl:0,quota:0,notQuoted:0,util:null,projects:[]};
-  var k='PL'+rPL(m.role),quota=0,decl=0,notQ=0,projects=[];
+  if(!m)return {decl:0,covered:0,unsold:0,notQuoted:0,util:null,projects:[]};
+  var covered=0,decl=0,notQ=0,projects=[];
   deliveryData().forEach(function(r){
-    var b=r.byPL[k];if(!b||b.decl<=0)return;
-    var mine=0;b.people.forEach(function(x){if(x.m.id===mid)mine=x.days;});
+    var mine=declaredDays(mid,r.p.id);
     if(mine<=0)return;
     decl+=mine;
-    var q=b.sold>0?b.sold*(mine/b.decl):0;
-    if(b.sold<=0)notQ+=mine;else quota+=q;
-    projects.push({p:r.p,mine:mine,quota:q,sold:b.sold,util:q>0?q/mine*100:null});
+    // share of the project's sold days that falls to them, never more than they put in
+    var quota=r.decl>0?r.sold*(mine/r.decl):0;
+    var cov=Math.min(mine,quota);
+    covered+=cov;
+    if(r.sold<=0)notQ+=mine;
+    projects.push({p:r.p,mine:mine,quota:quota,covered:cov,unsold:mine-cov,sold:r.sold});
   });
-  return {decl:decl,quota:quota,notQuoted:notQ,util:decl>0?quota/decl*100:null,
-          projects:projects.sort(function(a,b){return (b.mine-b.quota)-(a.mine-a.quota);})};
+  var c=m.cap||220,sellable=c*tgtOf('PL'+rPL(m.role))/100;
+  return {decl:decl,covered:covered,unsold:decl-covered,notQuoted:notQ,sellable:sellable,
+          util:sellable>0?covered/sellable*100:null,
+          projects:projects.sort(function(a,b){return b.unsold-a.unsold;})};
 }
-// Reading of a person: billability against their target, utilization against 100%.
 function personProfile(mid){
   var m=S.m.find(function(x){return x.id===mid;});if(!m)return null;
   var c=m.cap||220,sh=periodShares(mid),tgt=tgtOf('PL'+rPL(m.role));
   var billPct=sh.bill,billVsTgt=tgt?billPct/tgt*100:0;
   var d=personDelivery(mid),util=d.util;
-  var band='ok',label='On track';
-  if(d.notQuoted>2){band='notq';label='Work not quoted';}
-  else if(util!==null&&util<75){band='over';label='Over-delivering';}
-  else if(billVsTgt>115){band='risk';label='At risk of overload';}
-  else if(billVsTgt<90){band='under';label='Under-used';}
-  else if(util!==null&&util>=100&&billVsTgt>=100){band='eff';label='Efficient';}
+  var band='ok';
+  if(util!==null&&util>=100&&billVsTgt>=100)band='eff';
+  if(util!==null&&util>115)band='risk';
+  if(util!==null&&util<70)band='over';
+  if(billVsTgt<90)band='under';
+  if(d.notQuoted>5)band='notq';
   return {m:m,cap:c,billPct:billPct,tgt:tgt,billVsTgt:billVsTgt,util:util,
-          decl:d.decl,quota:d.quota,notQuoted:d.notQuoted,projects:d.projects,band:band,label:label};
+          decl:d.decl,covered:d.covered,unsold:d.unsold,notQuoted:d.notQuoted,sellable:d.sellable,
+          projects:d.projects,band:band,label:BANDS[band].t,note:personNote(m,billVsTgt,util,d)};
 }
-var BANDS={eff:{t:'Efficient',c:'#2f6e12',i:'★'},risk:{t:'At risk of overload',c:'#c2410c',i:'▲'},
-           over:{t:'Over-delivering',c:'#b32a1c',i:'●'},under:{t:'Under-used',c:'#185fa5',i:'○'},
-           notq:{t:'Work not quoted',c:'#b32a1c',i:'!'},ok:{t:'On track',c:'#6b6e76',i:'·'}};
+// One line saying what to do about this person.
+function personNote(m,billVsTgt,util,d){
+  if(d.notQuoted>5)return _d0(d.notQuoted)+' days go to projects with nothing sold on them.';
+  if(billVsTgt<90)return 'Books '+(100-billVsTgt).toFixed(0)+'% less client time than the '+_p0(tgtOf('PL'+rPL(m.role)))+' target asks for.';
+  if(util===null)return 'No sold work to compare against yet.';
+  if(util<70)return _d0(d.unsold)+' of their '+_d0(d.decl)+' client days do not match anything sold.';
+  if(util>115)return 'Delivers '+(util-100).toFixed(0)+'% beyond the sold time they have: check the load.';
+  if(util>=100&&billVsTgt>=100)return 'Fully deployed on sold work, target met.';
+  return _d0(d.unsold)+' days short of filling their sold time.';
+}
+// One line saying what to do about this project.
+function projectNote(r){
+  var cov=r.coverage,gap=r.decl-r.sold,dr=r.seniority.drift;
+  if(r.sold<=0)return 'Work is planned here but nothing was sold.';
+  if(cov<50)return 'Only '+_p0(cov)+' of the sold days are planned: '+_d0(-gap)+' days still unassigned.';
+  if(cov>125)return _d0(gap)+' days more than sold: margin at risk.';
+  if(dr!==null&&dr>=0.4)return 'Delivered more senior than sold: costs more than quoted.';
+  if(dr!==null&&dr<=-0.4)return 'Delivered more junior than sold: cheaper, watch the seniority the client expects.';
+  if(cov<80)return _d0(-gap)+' sold days not planned yet.';
+  return 'Planned in line with what was sold.';
+}
+function projectBand(r){
+  if(r.sold<=0)return 'notq';
+  if(r.coverage<50)return 'under';
+  if(r.coverage>125)return 'over';
+  if(r.seniority.drift!==null&&Math.abs(r.seniority.drift)>=0.4)return 'risk';
+  if(r.coverage>=80&&r.coverage<=120)return 'eff';
+  return 'ok';
+}
+var BANDS={eff:{t:'On track',c:'#2f6e12',i:'\u25cf'},risk:{t:'Watch',c:'#c2410c',i:'\u25b2'},
+           over:{t:'Over-delivering',c:'#b32a1c',i:'\u25cf'},under:{t:'Under-used',c:'#185fa5',i:'\u25cb'},
+           notq:{t:'Not quoted',c:'#b32a1c',i:'!'},ok:{t:'Neutral',c:'#6b6e76',i:'\u00b7'}};
 function bandTag(b){var x=BANDS[b]||BANDS.ok;return '<span class="band" style="background:'+x.c+'18;color:'+x.c+'">'+x.i+' '+x.t+'</span>';}
+// Traffic light for a value against a target: green on target, amber near, red off.
+function light(v,good,warn,invert){
+  if(v===null||v===undefined)return '<span class="tl" style="background:#6b6e76"></span>';
+  var ok=invert?v<=good:v>=good, mid=invert?v<=warn:v>=warn;
+  var c=ok?'#2f6e12':mid?'#c2410c':'#b32a1c';
+  return '<span class="tl" style="background:'+c+'"></span>';
+}
+function lightCol(v,good,warn,invert){
+  if(v===null||v===undefined)return '#6b6e76';
+  var ok=invert?v<=good:v>=good, mid=invert?v<=warn:v>=warn;
+  return ok?'#2f6e12':mid?'#c2410c':'#b32a1c';
+}
 function tgtOf(k){var v=(S.t&&S.t[k]);v=parseFloat(v);return (isFinite(v)&&v>0)?v:DEFT[k];}
 function setTgt(k,v){v=parseFloat(v);if(!isFinite(v)||v<=0||v>100)return;S.t=Object.assign({},S.t);S.t[k]=v;sv();R();}
 function resetTgt(){S.t=Object.assign({},DEFT);sv();R();}
@@ -659,9 +709,10 @@ var ADMDEF={
   quoted:'Quoted days = days sold on the price quotes, counted pro rata for '+YEAR+': a project running beyond the year contributes only the share of its contract that falls inside it.',
   perceived:'Perceived = days people report they spend, billable and non-billable together, derived from the percentage weight each of them set on every project, compared with their capacity. It shows how loaded the team believes it is.',
   billability:'Billability = how the reported days split between billable client work and non-billable work (internal, management, presale, training, leave).',
-  utilization:'Utilization rate = billable days the team reports divided by sellable capacity. It shows whether people report as much client work as their billability target expects. Above 100% they report more client work than planned, below 100% less.',
+  utilization:'Utilization rate = days that match work actually sold, divided by the billable time the person should be selling (capacity x billability target). Billability says whether someone books enough client time; utilization says whether that time turns into delivery that was sold. Below 100% part of their client time has nothing sold behind it.',
   sellable:'Sellable capacity = capacity x the billability target of the Price Level: the days that can realistically be billed to clients, once the time planned for internal work, management, presale, training and leave is set aside.',
   period:'Reported figures come from weekly forecasts: each person states how the coming week will be split. Over a period the weeks a person filled in are averaged, and that average is projected onto their yearly capacity. Weeks left empty are not counted as zero, they are simply missing, so coverage is shown next to the picker.',
+  coverage:'Coverage = days the team plans to spend on a project / days sold on it. Below 100% part of the sold work is not planned yet; above 100% more days are going in than were sold.',
   target:'Billability target = the share of the year a Price Level is expected to sell to clients. Editable in the Saturation view; it drives sellable capacity, utilization and saturation.',
   saturation:'Saturation = days quoted on projects for '+YEAR+' divided by sellable capacity, so it compares what has been sold with the time the team can realistically bill. Above 100% the level is oversold.'
 };
@@ -700,8 +751,9 @@ function admOverview(){
   var tC=0,tB=0,tNb=0,tN=0,tS=0,tQ=0;
   PLkeys.forEach(function(k){tC+=D.plCap[k];tB+=D.plBill[k];tNb+=D.plNb[k];tN+=D.plN[k];tS+=D.plSell[k];tQ+=D.quoted[k];});
   var sold=0,decl=0;D2.forEach(function(r){sold+=r.sold;decl+=r.decl;});
+  var cov=0,sell=0;S.m.forEach(function(m){var d=personDelivery(m.id);cov+=d.covered;sell+=d.sellable;});
   var bill=tC?tB/tC*100:0, billTgt=tC?tS/tC*100:0, billVs=billTgt?bill/billTgt*100:0;
-  var util=decl>0?sold/decl*100:null;
+  var util=sell>0?cov/sell*100:null;
   var sat=tS?tQ/tS*100:0;
   var comp=complianceOf(S.wk), compPct=comp.total?comp.done/comp.total*100:0;
   var bands={eff:0,risk:0,over:0,under:0,notq:0,ok:0};
@@ -739,8 +791,8 @@ function admOverview(){
    +'<th class="r">Utilization'+iHelp('utilization')+'</th><th class="r">Saturation'+iHelp('saturation')+'</th></tr></thead><tbody>';
   PLkeys.forEach(function(k){
     var cap=D.plCap[k],b=D.plBill[k],bp=cap?b/cap*100:0,tg=D.tgt[k];
-    var so=0,de=0;D2.forEach(function(r){var x=r.byPL[k];if(x){so+=x.sold;de+=x.decl;}});
-    var u=de>0?so/de*100:null, sa=D.plSell[k]?D.quoted[k]/D.plSell[k]*100:null;
+    var co=0,se=0;S.m.forEach(function(m){if('PL'+rPL(m.role)!==k)return;var d=personDelivery(m.id);co+=d.covered;se+=d.sellable;});
+    var u=se>0?co/se*100:null, sa=D.plSell[k]?D.quoted[k]/D.plSell[k]*100:null;
     h+='<tr><td><b>'+plLabel(k)+'</b><div style="font-size:10px;color:var(--t3);font-weight:400">'+esc(plRanksTxt(D,k))+'</div></td>'
       +'<td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(cap)+'</td>'
       +'<td class="r">'+_p0(bp)+'<div style="font-size:10px;color:var(--t3)">target '+_p0(tg)+'</div></td>'
@@ -749,8 +801,9 @@ function admOverview(){
       +'<td class="r"><b style="color:'+(sa===null?'#6b6e76':sa<=100?'#2f6e12':sa<=110?'#8a5a0c':'#b32a1c')+'">'+(sa===null?'-':_p0(sa))+'</b></td></tr>';
   });
   h+='<tr class="tot"><td>Total</td><td class="r">'+tN+'</td><td class="r">'+_d0(tC)+'</td><td class="r">'+_p0(bill)+'</td><td class="r">'+vsTarget(billVs,100)+'</td><td class="r">'+(util===null?'-':_p0(util))+'</td><td class="r">'+_p0(sat)+'</td></tr>';
-  return h+'</tbody></table>'
-   +admLegend([['Billability','billable days / capacity, against the target of each level'],['Utilization','sold days / declared days: at 100% the work fits what was sold'],['Saturation','sold days / sellable capacity: above 100% more is sold than can be delivered']])+'</div>';
+  h+='</tbody></table>'
+   +admLegend([['Billability','client days / capacity, against the target of each level'],['Utilization','days matching sold work / the billable time they should sell'],['Saturation','sold days / sellable capacity: above 100% more is sold than can be delivered']])+'</div>';
+  return h+peopleWatch('all','People to watch')+projectsWatch('Projects to watch');
 }
 // ── Perceived: reported days (billable + non-billable) against capacity ──
 function admPerceived(){
@@ -785,20 +838,20 @@ function admBillability(){
 }
 // -- Utilization: sold days against the days people say they are spending --
 function admUtilization(){
-  var D=deliveryData(),tS=0,tD=0,tU=0,tUnq=0;
-  var byPL={};PLkeys.forEach(function(k){byPL[k]={sold:0,decl:0,unq:0};});
-  D.forEach(function(r){PLkeys.forEach(function(k){
-    var b=r.byPL[k];if(!b)return;
-    byPL[k].sold+=b.sold;byPL[k].decl+=b.decl;
-    if(b.sold<=0&&b.decl>0)byPL[k].unq+=b.decl;
-  });});
+  var tS=0,tD=0,tU=0,tUnq=0;
+  var byPL={};PLkeys.forEach(function(k){byPL[k]={sold:0,decl:0,unq:0,cov:0,sell:0};});
+  S.m.forEach(function(m){
+    var k='PL'+rPL(m.role),b=byPL[k];if(!b)return;
+    var d=personDelivery(m.id);
+    b.cov+=d.covered;b.sell+=d.sellable;b.decl+=d.decl;b.unq+=d.notQuoted;b.sold+=d.covered;
+  });
   var h='<div class="ucard"><div class="uct">Utilization rate</div><div class="ucs">'+ADMDEF.utilization+'</div>'
    +weakDataNote()
-   +'<table class="utbl"><thead><tr><th>Price Level</th><th class="r">Sold (days)'+iHelp('quoted')+'</th><th class="r">Declared (days)</th><th class="r">Not quoted (days)</th><th class="r">Utilization'+iHelp('utilization')+'</th><th class="r">vs target</th></tr></thead><tbody>';
+   +'<table class="utbl"><thead><tr><th>Price Level</th><th class="r">Delivered on sold work'+iHelp('utilization')+'</th><th class="r">Billable time to sell</th><th class="r">Not quoted (days)</th><th class="r">Utilization'+iHelp('utilization')+'</th><th class="r">vs target</th></tr></thead><tbody>';
   PLkeys.forEach(function(k){
-    var b=byPL[k],u=b.decl>0?b.sold/b.decl*100:null;
-    tS+=b.sold;tD+=b.decl;tUnq+=b.unq;
-    h+='<tr><td><b>'+plLabel(k)+'</b></td><td class="r">'+_d0(b.sold)+'</td><td class="r">'+_d0(b.decl)+'</td>'
+    var b=byPL[k],u=b.sell>0?b.cov/b.sell*100:null;
+    tS+=b.cov;tD+=b.sell;tUnq+=b.unq;
+    h+='<tr><td>'+light(u,100,70)+' <b>'+plLabel(k)+'</b></td><td class="r">'+_d0(b.cov)+'</td><td class="r">'+_d0(b.sell)+'</td>'
       +'<td class="r" style="color:'+(b.unq>0?'#b32a1c':'var(--t3)')+'">'+(b.unq>0?_d0(b.unq):'-')+'</td>'
       +'<td class="r"><b style="color:'+utilCol(u)+'">'+(u===null?'-':_p0(u))+'</b>'+(u===null?'':_bar(u,utilCol(u)))+'</td>'
       +'<td class="r">'+vsTarget(u,100)+'</td></tr>';
@@ -806,8 +859,8 @@ function admUtilization(){
   tU=tD>0?tS/tD*100:null;
   h+='<tr class="tot"><td>Total</td><td class="r">'+_d0(tS)+'</td><td class="r">'+_d0(tD)+'</td><td class="r">'+_d0(tUnq)+'</td><td class="r">'+(tU===null?'-':_p0(tU))+'</td><td class="r">'+vsTarget(tU,100)+'</td></tr>';
   h+='</tbody></table>'
-   +admLegend([['Sold','days quoted for that level on the projects people work on'],['Declared','days people report they will spend, projected over the year'],['Not quoted','declared days on projects with no budget for that level'],['Utilization','sold / declared: at or above 100% the work fits what was sold']])
-   +admNote('Below 100% more days are going into projects than were sold for them. Above 100% the work is delivered with fewer days than budgeted, which frees capacity for other projects.')+'</div>';
+   +admLegend([['Delivered on sold work','days people plan to spend that match days actually sold'],['Billable time to sell','capacity x the billability target: the client time they should fill'],['Not quoted','days on projects with nothing sold at all'],['Utilization','delivered on sold work / billable time to sell']])
+   +admNote('At 100% every billable day the person owes is backed by sold work. Below it, part of that time goes into work nobody sold: either the sale has not happened yet, or the effort is going where it was not planned.')+'</div>';
   h+=peopleToLookAt('util');
   return h;
 }
@@ -821,38 +874,54 @@ function weakDataNote(){
   var w=dataWeeks();
   return w>=4?'':'<div class="admnote" style="border-left-color:#c2410c;background:#fff7ed">Only '+w+' week'+(w===1?'':'s')+' of forecasts so far, so yearly projections are still rough. They settle once four weeks have been filed.</div>';
 }
-// Every KPI view ends with the people that view says to look at.
-function peopleToLookAt(kind){
+// Watch lists: who and what needs attention, each with a verdict in words.
+function peopleWatch(kind,title){
   var list=S.m.map(function(m){return personProfile(m.id);}).filter(Boolean),pick;
-  if(kind==='util')pick=list.filter(function(x){return (x.util!==null&&x.util<100)||x.notQuoted>2;})
+  if(kind==='util')pick=list.filter(function(x){return x.band!=='eff'&&x.band!=='ok';})
                             .sort(function(a,b){return (a.util===null?999:a.util)-(b.util===null?999:b.util);});
   else if(kind==='bill')pick=list.filter(function(x){return Math.abs(x.billVsTgt-100)>=10;})
                             .sort(function(a,b){return Math.abs(b.billVsTgt-100)-Math.abs(a.billVsTgt-100);});
-  else pick=list.filter(function(x){return x.band!=='ok';})
-                .sort(function(a,b){return Math.abs(b.billVsTgt-100)-Math.abs(a.billVsTgt-100);});
-  pick=pick.slice(0,5);
-  if(!pick.length)return '<div class="ucard"><div class="uct" style="font-size:15px">People to look at</div><div class="ucs" style="margin:0">Nobody stands out on this measure.</div></div>';
-  var h='<div class="ucard"><div class="uct" style="font-size:15px">People to look at</div><div class="ucs">The people this view points to. Click a row to open them in People.</div>'
-   +'<table class="utbl"><thead><tr><th>Name</th><th>HR rank</th><th class="r">Billability</th><th class="r">vs target</th><th class="r">Utilization</th><th>Reading</th></tr></thead><tbody>';
+  else pick=list.filter(function(x){return x.band!=='ok'&&x.band!=='eff';})
+                .sort(function(a,b){return (a.util===null?999:a.util)-(b.util===null?999:b.util);});
+  pick=pick.slice(0,6);
+  var h='<div class="ucard"><div class="uct" style="font-size:15px">'+(title||'People to look at')+'</div>';
+  if(!pick.length)return h+'<div class="ucs" style="margin:0">Nobody stands out on this measure.</div></div>';
+  h+='<div class="ucs">Click a row to open the person in People.</div><table class="utbl"><thead><tr><th style="width:26px"></th><th>Name</th><th class="r">Billability</th><th class="r">Utilization</th><th>What it says</th></tr></thead><tbody>';
   pick.forEach(function(x){
-    h+='<tr style="cursor:pointer" onclick="S.aTab=\'people\';S.pSel=\''+x.m.id+'\';R()"><td style="font-weight:600">'+esc(x.m.name)+'</td>'
-      +'<td style="color:'+(RC[x.m.role]||'#999')+';font-size:11px">'+esc(x.m.role)+'</td>'
-      +'<td class="r">'+_p0(x.billPct)+'</td><td class="r">'+vsTarget(x.billVsTgt,100)+'</td>'
-      +'<td class="r"><b style="color:'+utilCol(x.util)+'">'+(x.util===null?'-':_p0(x.util))+'</b></td>'
-      +'<td>'+bandTag(x.band)+'</td></tr>';
+    h+='<tr style="cursor:pointer" onclick="S.aTab=\'people\';S.pBand=\'all\';S.pSel=\''+x.m.id+'\';R()">'
+      +'<td>'+light(x.util,100,70)+'</td>'
+      +'<td><div style="font-weight:600">'+esc(x.m.name)+'</div><div style="font-size:10px;color:var(--t3)">'+esc(x.m.role)+'</div></td>'
+      +'<td class="r">'+_p0(x.billPct)+'<div style="font-size:10px;color:var(--t3)">'+vsTarget(x.billVsTgt,100)+'</div></td>'
+      +'<td class="r"><b style="color:'+lightCol(x.util,100,70)+'">'+(x.util===null?'-':_p0(x.util))+'</b></td>'
+      +'<td style="font-size:12px;color:var(--t2)">'+x.note+'</td></tr>';
   });
   return h+'</tbody></table></div>';
 }
-// -- Delivery: the same gap, project by project --
-function dlvCat(r){
-  if(r.unquoted>2||r.ratio===null)return 'notq';
-  if(r.ratio>1.25)return 'over';
-  if(r.ratio<0.75)return 'under';
-  return 'ok';
+function projectsWatch(title){
+  var D=deliveryData();
+  var pick=D.map(function(r){return {r:r,b:projectBand(r)};})
+            .filter(function(x){return x.b!=='eff'&&x.b!=='ok';})
+            .sort(function(a,b){return Math.abs(b.r.decl-b.r.sold)-Math.abs(a.r.decl-a.r.sold);}).slice(0,6);
+  var h='<div class="ucard"><div class="uct" style="font-size:15px">'+(title||'Projects to look at')+'</div>';
+  if(!pick.length)return h+'<div class="ucs" style="margin:0">Every project is planned in line with what was sold.</div></div>';
+  h+='<div class="ucs">Click a row to open it in Delivery.</div><table class="utbl"><thead><tr><th style="width:26px"></th><th>Project</th><th class="r">Sold</th><th class="r">Planned</th><th class="r">Coverage</th><th>What it says</th></tr></thead><tbody>';
+  pick.forEach(function(x){
+    var r=x.r;
+    h+='<tr style="cursor:pointer" onclick="S.aTab=\'delivery\';S.dFlt=\'all\';S.dSel=\''+r.p.id+'\';R()">'
+      +'<td>'+light(r.coverage===null?null:Math.min(r.coverage,100),80,50)+'</td>'
+      +'<td><div style="font-weight:600">'+esc(r.p.name)+'</div><div style="font-size:10px;color:var(--t3)">'+esc(r.p.client)+'</div></td>'
+      +'<td class="r">'+_d0(r.sold)+'d</td><td class="r">'+_d0(r.decl)+'d</td>'
+      +'<td class="r"><b style="color:'+lightCol(r.coverage===null?null:Math.min(r.coverage,100),80,50)+'">'+(r.coverage===null?'-':_p0(r.coverage))+'</b></td>'
+      +'<td style="font-size:12px;color:var(--t2)">'+projectNote(r)+'</td></tr>';
+  });
+  return h+'</tbody></table></div>';
 }
+function peopleToLookAt(kind){return peopleWatch(kind);}
+// -- Delivery: the same gap, project by project --
+function dlvCat(r){return projectBand(r);}
 function admDelivery(){
   var D=deliveryData(),f=S.dFlt||'all';
-  var counts={notq:0,over:0,under:0,ok:0};
+  var counts={notq:0,over:0,under:0,ok:0,eff:0,risk:0};
   D.forEach(function(r){counts[dlvCat(r)]++;});
   var rows=D.filter(function(r){return f==='all'||dlvCat(r)===f;})
             .sort(function(a,b){return Math.abs(b.decl-b.sold)-Math.abs(a.decl-a.sold);}).slice(0,60);
@@ -862,35 +931,42 @@ function admDelivery(){
    +'<div class="perbar" style="margin-top:12px"><span>Show</span>'
    +chip('all','All ('+D.length+')')+chip('over','Over-delivering ('+counts.over+')')
    +chip('under','Under-delivering ('+counts.under+')')+chip('notq','Not quoted ('+counts.notq+')')
-   +chip('ok','On track ('+counts.ok+')')+'</div>'
-   +'<table class="utbl"><thead><tr><th style="min-width:230px">Project</th><th>Client</th><th class="r">Sold (days)</th><th class="r">Declared (days)</th><th class="r">Gap</th><th class="r">Utilization'+iHelp('utilization')+'</th><th class="r">People</th></tr></thead><tbody>';
+   +chip('risk','Seniority drift ('+counts.risk+')')+chip('eff','On track ('+counts.eff+')')+'</div>'
+   +'<table class="utbl"><thead><tr><th style="min-width:230px">Project</th><th>Client</th><th class="r">Sold (days)</th><th class="r">Declared (days)</th><th class="r">Gap</th><th class="r">Coverage'+iHelp('coverage')+'</th><th>What it says</th><th class="r">People</th></tr></thead><tbody>';
   rows.forEach(function(r){
     var c=dlvCat(r),gap=r.decl-r.sold,n=0;
     PLkeys.forEach(function(k){if(r.byPL[k])n+=r.byPL[k].people.length;});
     var gc=gap>0?'#b32a1c':gap<0?'#185fa5':'var(--t3)';
     h+='<tr style="cursor:pointer" onclick="S.dSel=(S.dSel===\''+r.p.id+'\'?null:\''+r.p.id+'\');R()">'
-      +'<td><div style="font-weight:600">'+(c==='notq'?'<span style="color:#b32a1c">! </span>':'')+esc(r.p.name)+'</div>'
-      +'<div style="font-size:10px;color:var(--t3)">'+BANDS[c].t+'</div></td>'
+      +'<td>'+light(r.coverage===null?null:Math.min(r.coverage,100),80,50)+' <span style="font-weight:600">'+esc(r.p.name)+'</span>'
+      +'<div style="font-size:10px;color:var(--t3);margin-left:18px">'+BANDS[c].t+'</div></td>'
       +'<td style="font-size:11px;color:var(--t2)">'+esc(r.p.client)+'</td>'
       +'<td class="r">'+_d0(r.sold)+'</td><td class="r">'+_d0(r.decl)+'</td>'
       +'<td class="r" style="color:'+gc+';font-weight:600">'+(gap>0?'+':'')+_d0(gap)+'</td>'
-      +'<td class="r"><b style="color:'+utilCol(r.util)+'">'+(r.util===null?'not quoted':_p0(r.util))+'</b></td>'
+      +'<td class="r"><b style="color:'+lightCol(r.coverage===null?null:Math.min(r.coverage,100),80,50)+'">'+(r.coverage===null?'not sold':_p0(r.coverage))+'</b></td>'
+      +'<td style="font-size:11.5px;color:var(--t2);max-width:280px">'+projectNote(r)+'</td>'
       +'<td class="r">'+n+'</td></tr>';
     if(S.dSel===r.p.id){
-      h+='<tr><td colspan="7" style="background:#f7f8fa;padding:0">';
+      h+='<tr><td colspan="8" style="background:#f7f8fa;padding:0">';
+      var dr=r.seniority.drift;
+      h+='<div style="padding:10px 14px 4px"><b style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--t3)">Seniority mix</b>'
+        +(dr===null?'':' <span style="font-size:11.5px;color:'+(Math.abs(dr)<0.4?'#2f6e12':dr>0?'#b32a1c':'#185fa5')+'">'
+          +(Math.abs(dr)<0.4?'in line with the sold mix':dr>0?'delivered more senior than sold, margin at risk':'delivered more junior than sold, cheaper than quoted')+'</span>')+'</div>';
       PLkeys.forEach(function(k){
         var b=r.byPL[k];if(!b||(b.sold<=0&&b.decl<=0))return;
-        var u=b.decl>0?b.sold/b.decl*100:null;
-        h+='<div style="padding:9px 14px;border-bottom:1px solid #ececea"><b>'+plLabel(k)+'</b> &middot; sold '+_d0(b.sold)+'d &middot; declared '+_d0(b.decl)+'d &middot; <b style="color:'+utilCol(u)+'">'+(u===null?'not quoted':_p0(u))+'</b>'
+        var d=b.decl-b.sold,col=Math.abs(d)<Math.max(b.sold*0.2,2)?'var(--t3)':d>0?'#b32a1c':'#185fa5';
+        h+='<div style="padding:7px 14px;border-bottom:1px solid #ececea"><b>'+plLabel(k)+'</b> &middot; sold '+_d0(b.sold)+'d &rarr; planned '+_d0(b.decl)+'d '
+          +'<span style="color:'+col+';font-weight:600">'+(d>0?'+':'')+_d0(d)+'d</span>'
           +'<div style="font-size:11px;color:var(--t2);margin-top:3px">'+(b.people.length?b.people.sort(function(x,y){return y.days-x.days;}).map(function(x){return esc(x.m.name)+' '+_d0(x.days)+'d';}).join(' &middot; '):'nobody assigned')+'</div></div>';
       });
       h+='</td></tr>';
     }
   });
-  if(!rows.length)h+='<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:18px">No project in this category.</td></tr>';
+  if(!rows.length)h+='<tr><td colspan="8" style="text-align:center;color:var(--t3);padding:18px">No project in this category.</td></tr>';
   return h+'</tbody></table>'
    +admLegend([['Sold','days quoted for the year, pro rata'],['Declared','days the team reports it will spend'],['Gap','declared minus sold: positive burns margin, negative leaves sold work uncovered'],['Not quoted','somebody works on a level the project has no budget for']])
-   +admNote('A negative gap is not automatically good news: check the people involved. If they are fully utilized elsewhere the project is being delivered efficiently; if they are not, the sold work is at risk.')+'</div>';
+   +admNote('A negative gap is not automatically good news: check the people involved. If they are fully utilized elsewhere the project is being delivered efficiently; if they are not, the sold work is at risk.')+'</div>'
+   +projectsWatch('Projects needing a decision');
 }
 // ── Saturation: quoted days against the sellable capacity implied by the targets ──
 function admSaturation(){
