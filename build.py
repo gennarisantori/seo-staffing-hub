@@ -522,11 +522,12 @@ function yearShare(p){
 function admData(){
   var rows={},order=[];
   RH.forEach(function(r){rows[r]={rank:r,pl:rPL(r),n:0,cap:0,bill:0,nb:0};order.push(r);});
-  S.m.forEach(function(m){var r=rows[m.role];if(!r)return;var c=m.cap||220;var sh=periodShares(m.id);r.n++;r.cap+=c;r.bill+=sh.bill/100*c;r.nb+=sh.nb/100*c;});
+  var hs=horizonShare();
+  S.m.forEach(function(m){var r=rows[m.role];if(!r)return;var c=(m.cap||220)*hs;var sh=periodShares(m.id);r.n++;r.cap+=c;r.bill+=sh.bill/100*c;r.nb+=sh.nb/100*c;});
   var quoted={PL4:0,PL3:0,PL2:0,PL1:0},quotedAll={PL4:0,PL3:0,PL2:0,PL1:0},np=0;
   S.p.forEach(function(p){
     if(p.nb)return;
-    var sh=yearShare(p);
+    var sh=soldInHorizon(p);
     if(sh>0)np++;
     PLkeys.forEach(function(k){var v=(p.daysByRole&&p.daysByRole[k])||0;quoted[k]+=v*sh;quotedAll[k]+=v;});
   });
@@ -549,12 +550,19 @@ function periodLabel(){
   var per=S.aPer===undefined?1:S.aPer;
   return per===1?('current week ('+weekLabel(S.wk)+')'):per===0?'all recorded weeks':('last '+per+' weeks');
 }
+function setHorizon(v){S.hor=v;R();}
+function horizonPicker(){
+  return '<div class="perbar" style="margin-bottom:8px"><span>Measuring'+iHelp('horizon')+'</span>'
+    +[['rest','Rest of '+YEAR],['year','Full year']].map(function(o){
+       return '<button class="perbtn'+((S.hor||'rest')===o[0]?' on':'')+'" onclick="setHorizon(&quot;'+o[0]+'&quot;)">'+o[1]+'</button>';}).join('')
+    +'<span class="perinfo">'+horizonLabel()+'</span></div>';
+}
 function periodPicker(){
   var per=S.aPer===undefined?1:S.aPer,ws=weeksAvailable().length,c=complianceOf(S.wk);
-  return '<div class="perbar"><span>Period'+iHelp('period')+'</span>'
+  return horizonPicker()+'<div class="perbar"><span>Period'+iHelp('period')+'</span>'
     +[[1,'Current week'],[4,'Last 4 weeks'],[12,'Last 12 weeks'],[0,'All weeks']].map(function(o){
         return '<button class="perbtn'+(per===o[0]?' on':'')+'" onclick="S.aPer='+o[0]+';R()">'+o[1]+'</button>';}).join('')
-    +'<span class="perinfo">'+ws+' week'+(ws===1?'':'s')+' recorded · '+c.done+'/'+c.total+' people filled in '+weekLabel(S.wk)+'</span></div>';
+    +'<span class="perinfo">'+ws+' week'+(ws===1?'':'s')+' recorded since tracking started · '+(c.closed?'company closed in '+weekLabel(S.wk):c.done+'/'+c.total+' people filled in '+weekLabel(S.wk))+'</span></div>';
 }
 // -- Delivery: what was sold against what people plan to spend ---------------
 // Billability asks whether someone spends enough time on client work.
@@ -577,7 +585,7 @@ function projShare(mid,pid){
 }
 function declaredDays(mid,pid){
   var m=S.m.find(function(x){return x.id===mid;});
-  return m?projShare(mid,pid)/100*(m.cap||220):0;
+  return m?projShare(mid,pid)/100*(m.cap||220)*horizonShare():0;
 }
 function dataWeeks(){
   var per=S.aPer===undefined?1:S.aPer,ws=weeksAvailable();
@@ -594,7 +602,7 @@ function deliveryData(){
   var rows=[];
   S.p.forEach(function(p){
     if(p.nb)return;
-    var sh=yearShare(p),soldBy={},declBy={},byPL={},sold=0,decl=0;
+    var sh=soldInHorizon(p),soldBy={},declBy={},byPL={},sold=0,decl=0;
     PLkeys.forEach(function(k){
       var v=(p.daysByRole&&p.daysByRole[k]||0)*sh;
       soldBy[k]=v;declBy[k]=0;byPL[k]={sold:v,decl:0,people:[]};sold+=v;
@@ -632,7 +640,7 @@ function personDelivery(mid){
     if(r.sold<=0)notQ+=mine;
     projects.push({p:r.p,mine:mine,quota:quota,covered:cov,unsold:mine-cov,sold:r.sold});
   });
-  var c=m.cap||220,sellable=c*tgtOf('PL'+rPL(m.role))/100;
+  var c=(m.cap||220)*horizonShare(),sellable=c*tgtOf('PL'+rPL(m.role))/100;
   return {decl:decl,covered:covered,unsold:decl-covered,notQuoted:notQ,sellable:sellable,
           util:sellable>0?covered/sellable*100:null,
           projects:projects.sort(function(a,b){return b.unsold-a.unsold;})};
@@ -712,6 +720,7 @@ var ADMDEF={
   utilization:'Utilization rate = days that match work actually sold, divided by the billable time the person should be selling (capacity x billability target). Billability says whether someone books enough client time; utilization says whether that time turns into delivery that was sold. Below 100% part of their client time has nothing sold behind it.',
   sellable:'Sellable capacity = capacity x the billability target of the Price Level: the days that can realistically be billed to clients, once the time planned for internal work, management, presale, training and leave is set aside.',
   period:'Reported figures come from weekly forecasts: each person states how the coming week will be split. Over a period the weeks a person filled in are averaged, and that average is projected onto their yearly capacity. Weeks left empty are not counted as zero, they are simply missing, so coverage is shown next to the picker.',
+  horizon:'Measuring window. Rest of the year counts only the working days still ahead, closures and holidays removed, and scales both sold days and capacity to that window: it is the honest comparison, because forecasts only start now. Full year projects the same rates over the whole year, useful to sense-check the annual picture.',
   coverage:'Coverage = days the team plans to spend on a project / days sold on it. Below 100% part of the sold work is not planned yet; above 100% more days are going in than were sold.',
   target:'Billability target = the share of the year a Price Level is expected to sell to clients. Editable in the Saturation view; it drives sellable capacity, utilization and saturation.',
   saturation:'Saturation = days quoted on projects for '+YEAR+' divided by sellable capacity, so it compares what has been sold with the time the team can realistically bill. Above 100% the level is oversold.'
@@ -771,9 +780,11 @@ function admOverview(){
    +kpiCard({label:'Saturation',info:'saturation',value:sat,scale:150,mark:100,
              fmt:_p0,target:'target up to 100%',
              verdict:function(v){return v<=100?{t:'within capacity',c:'#2f6e12'}:v<=110?{t:'slightly oversold',c:'#8a5a0c'}:{t:'oversold',c:'#b32a1c'};}})
-   +kpiCard({label:'Filed this week',value:compPct,scale:100,mark:100,
+   +(comp.closed
+      ?kpiCard({label:'Filed this week',value:null,scale:100,fmt:_p0,target:'company closed',verdict:function(){return {t:'nothing to file',c:'#185fa5'};}})
+      :kpiCard({label:'Filed this week',value:compPct,scale:100,mark:100,
              fmt:function(v){return comp.done+'/'+comp.total;},target:'target everyone',
-             verdict:function(v){return v>=100?{t:'everyone filed',c:'#2f6e12'}:v>=75?{t:comp.total-comp.done+' missing',c:'#8a5a0c'}:{t:comp.total-comp.done+' missing',c:'#b32a1c'};}})
+             verdict:function(v){return v>=100?{t:'everyone filed',c:'#2f6e12'}:v>=75?{t:comp.total-comp.done+' missing',c:'#8a5a0c'}:{t:comp.total-comp.done+' missing',c:'#b32a1c'};}}))
    +'</div>';
   // how the team reads out
   h+='<div class="bandrow">'
@@ -1310,6 +1321,72 @@ function weekPicker(){
       }).join('')
     +'</select></span>';
 }
+
+// -- Company calendar 2026: closures and holidays ---------------------------
+// Working days drive every projection: the weeks left in the year are not all
+// full ones, and two August weeks have no working day at all.
+var CAL_FULL={};   // days off: national holidays and company closures
+var CAL_HALF={};   // afternoon closures, counted as half a day
+(function(){
+  function add(list){list.forEach(function(d){CAL_FULL[d]=1;});}
+  function span(a,b){var x=new Date(a+'T00:00:00Z'),y=new Date(b+'T00:00:00Z');
+    while(x<=y){CAL_FULL[x.toISOString().slice(0,10)]=1;x.setUTCDate(x.getUTCDate()+1);}}
+  add(['2025-12-08','2025-12-22','2025-12-23','2025-12-24','2025-12-25','2025-12-26','2025-12-29','2025-12-30','2025-12-31']);
+  add(['2026-01-01','2026-01-02','2026-01-05','2026-01-06']);
+  add(['2026-04-03','2026-04-05','2026-04-06','2026-04-24','2026-04-25']);
+  add(['2026-05-01','2026-06-01','2026-06-02']);
+  span('2026-08-07','2026-08-21');
+  add(['2026-11-01','2026-12-07','2026-12-08','2026-12-24','2026-12-25','2026-12-26']);
+  span('2026-12-28','2026-12-31');
+  ['2026-07-03','2026-07-10','2026-07-17','2026-07-24','2026-07-31','2026-08-28'].forEach(function(d){CAL_HALF[d]=1;});
+})();
+function isoDate(d){return d.toISOString().slice(0,10);}
+// Working days between two dates, weekends and closures removed.
+function workingDays(a,b){
+  if(!a||!b||b<a)return 0;
+  var x=new Date(Date.UTC(a.getUTCFullYear(),a.getUTCMonth(),a.getUTCDate())),t=0;
+  while(x<=b){
+    var k=isoDate(x),dw=x.getUTCDay();
+    if(dw>0&&dw<6&&!CAL_FULL[k])t+=CAL_HALF[k]?0.5:1;
+    x.setUTCDate(x.getUTCDate()+1);
+  }
+  return t;
+}
+function _yStart(){return new Date(Date.UTC(YEAR,0,1));}
+function _yEnd(){return new Date(Date.UTC(YEAR,11,31));}
+var _WD_YEAR=null;
+function yearWorkingDays(){if(_WD_YEAR===null)_WD_YEAR=workingDays(_yStart(),_yEnd());return _WD_YEAR;}
+// Start of the horizon: today, or the Monday of the week being measured.
+function horizonStart(){
+  var mon=weekMonday(S.wk)||new Date();
+  var today=new Date();today=new Date(Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()));
+  return mon>today?mon:today;
+}
+function horizonDays(){
+  return S.hor==='year'?yearWorkingDays():workingDays(horizonStart(),_yEnd());
+}
+function horizonShare(){var y=yearWorkingDays();return y>0?horizonDays()/y:1;}
+function horizonLabel(){
+  return S.hor==='year'?'the full year':('the rest of '+YEAR+', from '+weekRange(S.wk)+' ('+_d0(horizonDays())+' working days of '+_d0(yearWorkingDays())+')');
+}
+// Sold days of a project that fall inside the horizon, spread over its working days.
+function soldInHorizon(p){
+  var s=new Date(p.startDate+'T00:00:00Z'),e=new Date(p.endDate+'T00:00:00Z');
+  if(isNaN(s)||isNaN(e)||e<s)return horizonShare();
+  var total=workingDays(s,e);
+  if(total<=0)return 0;
+  var from=S.hor==='year'?_yStart():horizonStart();
+  var yE=_yEnd(),a=s>from?s:from,b=e<yE?e:yE;
+  return b<a?0:workingDays(a,b)/total;
+}
+// Weeks the company is shut: nothing to forecast, so they never count as missing.
+function weekWorkingDays(w){
+  var mon=weekMonday(w);if(!mon)return 5;
+  var sun=new Date(mon);sun.setUTCDate(mon.getUTCDate()+6);
+  return workingDays(mon,sun);
+}
+function isClosedWeek(w){return weekWorkingDays(w)<=0;}
+
 // A week counts as filled in only once the person has touched or confirmed it.
 function weekTouched(mid,w){w=w||S.wk;return !!(S.touched&&S.touched[w]&&S.touched[w][mid]);}
 function markTouched(mid,w){
@@ -1382,9 +1459,10 @@ function avgShares(mid,n){
 }
 // How many people filled in the current week.
 function complianceOf(w){
+  if(isClosedWeek(w))return {done:0,total:0,closed:true};
   var done=0;
   S.m.forEach(function(m){if(weekTouched(m.id,w))done++;});
-  return {done:done,total:S.m.length};
+  return {done:done,total:S.m.length,closed:false};
 }
 // Edit a past week: a forecast can be corrected once reality disagreed with it.
 function setWeekE(mid,w,pid,val){
@@ -1416,10 +1494,11 @@ function renderMyWeek(){
   var left=Math.max(100-used,0);
   var done=weekTouched(mid,w),ts=lastTouched(mid,w);
   var col=used>100?'#b32a1c':used===100?'#2f6e12':'#8a5a0c';
-  var when=live?'Your forecast for':past?'What you filed for':'Your plan for';
+  var closed=isClosedWeek(w);
+  var when=closed?'Company closed for':live?'Your forecast for':past?'What you filed for':'Your plan for';
   var h='<div class="ucard"><div class="weekhead">'
    +'<div><div class="wh-t">'+when+' <b>'+weekRange(w,true)+'</b></div>'
-   +'<div class="wh-s">Week '+weekNo(w)+(live?' · the week ahead':past?' · already closed, you can still correct it':' · a future week')+'. The total has to reach 100%.</div></div>'
+   +'<div class="wh-s">Week '+weekNo(w)+(closed?' · no working days, nothing to file':live?' · the week ahead':past?' · already gone, you can still correct it':' · a future week')+(closed?'':'. The total has to reach 100%.')+'</div></div>'
    +'<div class="wh-b"><div class="wh-pct" style="color:'+col+'">'+used.toFixed(0)+'%</div>'
    +'<div class="wh-bar"><div style="width:'+Math.min(used,100)+'%;background:'+col+'"></div></div>'
    +'<div class="wh-left">'+(used>100?'over by '+(used-100).toFixed(0)+'%':left>0?left.toFixed(0)+'% still free':'fully assigned')+'</div></div></div>';
@@ -1448,6 +1527,7 @@ function renderMyWeek(){
 // Reminder shown on every page until the current week is filed.
 function weekBanner(){
   var mid=myResourceIds()[0];
+  if(isClosedWeek(S.wk))return '<div class="wkbanner" style="background:#eef4fb;border-color:#c7dcf0;color:#185fa5">Company closed for <b>'+weekRange(S.wk,true)+'</b>: nothing to file this week.</div>';
   if(!mid||weekTouched(mid))return '';
   return '<div class="wkbanner">Your forecast for <b>'+weekRange(S.wk,true)+'</b> has not been filed yet.'
     +'<button class="b bg" onclick="sw(\'myweek\')">Fill it in</button></div>';
@@ -1481,9 +1561,9 @@ function renderHistory(){
   if(!pids.length)return h+'<div class="admnote">Nothing recorded in this period.</div></div>';
   h+='<div style="overflow-x:auto"><table class="utbl"><thead><tr><th style="min-width:210px">Project</th>'
    +ws.map(function(w){
-      var f=weekTouched(mid,w);
-      return '<th class="r" title="'+(f?'filed':'not filed')+'">W'+weekNo(w)+'<div style="font-size:9px;font-weight:400;color:var(--t3)">'+weekRange(w)+'</div>'
-        +(w===S.wk?'<div style="font-size:9px;color:#185fa5">current</div>':(f?'':'<div style="font-size:9px;color:#b32a1c">not filed</div>'))+'</th>';
+      var f=weekTouched(mid,w),cl=isClosedWeek(w);
+      return '<th class="r" title="'+(cl?'company closed':f?'filed':'not filed')+'">W'+weekNo(w)+'<div style="font-size:9px;font-weight:400;color:var(--t3)">'+weekRange(w)+'</div>'
+        +(cl?'<div style="font-size:9px;color:#185fa5">closed</div>':w===S.wk?'<div style="font-size:9px;color:#185fa5">current</div>':(f?'':'<div style="font-size:9px;color:#b32a1c">not filed</div>'))+'</th>';
      }).join('')+'</tr></thead><tbody>';
   pids.forEach(function(pid){
     var p=S.p.find(function(x){return x.id===pid;});if(!p)return;
@@ -1510,7 +1590,7 @@ html = html.replace('function mEf(mid){', WEEK_JS + '\nfunction mEf(mid){', 1)
 # targetWeek() is a hoisted function declaration, so the current week is known even
 # before anything is loaded from Firebase.
 html = html.replace('let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),',
-                    'let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),wk:targetWeek(),hist:{},touched:{},', 1)
+                    "let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),wk:targetWeek(),hist:{},touched:{},hor:'rest',", 1)
 
 # ── P. Billability targets per Price Level (editable, shared through Firebase) ──
 # P1. Defaults + state
