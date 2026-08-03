@@ -548,6 +548,7 @@ function uEnable(uid){uSetUserActive(uid,true).then(uLoad).catch(function(err){a
 
 // ===== Admin analytics: Overview / Billability / Allocation / Perception / People =====
 function _d0(x){return Math.round(x||0).toLocaleString('en-US');}
+function _d1(x){return (Math.round((x||0)*10)/10).toLocaleString('en-US');}
 function _p0(x){return (x||0).toFixed(0)+'%';}
 function _bar(pct,col){var w=Math.max(0,Math.min(pct||0,100));return '<div class="acbar" style="margin:4px 0 0"><div style="width:'+w+'%;background:'+col+'"></div></div>';}
 // Share of a project's quoted days that falls inside the current year (2026).
@@ -691,6 +692,16 @@ function seniorityIndex(byLevel){
   PLkeys.forEach(function(k){var v=byLevel[k]||0;t+=v*(+k.replace('PL',''));d+=v;});
   return d>0?t/d:null;
 }
+// Working weeks left on a project: today to whichever comes first between its
+// end date and the end of the year.
+function weeksLeftOn(p){
+  var st=horizonStart(),ye=_yEnd();
+  var e=new Date(p.endDate+'T00:00:00Z');
+  if(isNaN(e.getTime())||e>ye)e=ye;
+  var d=workingDays(st,e);
+  return d>0?d/5:0;
+}
+function weeksInYear(){return yearWorkingDays()/5;}
 function deliveryData(){
   if(_DLV)return _DLV;
   var rows=[];
@@ -712,7 +723,14 @@ function deliveryData(){
     // Sold days are one pool for the project: the mix of levels doing the work
     // rarely matches the mix that was quoted, and the work gets done regardless.
     var sSold=seniorityIndex(soldBy),sDecl=seniorityIndex(declBy);
+    // Rates, not totals: the quote spans the whole contract and we cannot know how
+    // much was delivered before tracking began, but the pace the team is planning
+    // can be compared with the pace the quote implies.
+    var wl=weeksLeftOn(p),wy=weeksInYear(),qPace=wl>0?sold/wl:null,pPace=0;
+    roster().forEach(function(m){var sh=projShare(m.id,p.id);if(sh>0)pPace+=sh/100*(m.cap||220)/wy;});
     rows.push({p:p,sold:sold,decl:decl,byPL:byPL,soldBy:soldBy,declBy:declBy,
+               weeksLeft:wl,quotedPace:qPace,plannedPace:pPace,
+               pace:(qPace&&qPace>0)?pPace/qPace*100:null,
                coverage:sold>0?decl/sold*100:null,
                seniority:{sold:sSold,decl:sDecl,drift:(sSold!==null&&sDecl!==null)?sDecl-sSold:null}});
   });
@@ -771,19 +789,20 @@ function personNote(m,billVsTgt,util,d){
 function projectNote(r){
   var cov=r.coverage,gap=r.decl-r.sold,dr=r.seniority.drift;
   if(r.sold<=0)return 'Work is planned here but nothing was quoted.';
-  if(cov<50)return 'Only '+_p0(cov)+' of the quoted days are planned: '+_d0(-gap)+' days still unassigned.';
-  if(cov>125)return _d0(gap)+' days more than quoted: margin at risk.';
+  if(r.plannedPace<=0)return 'Nobody plans time on it: the quote implies '+_d1(r.quotedPace||0)+' days a week to finish on time.';
+  if(r.pace!==null&&r.pace<60)return 'Planned at '+_d1(r.plannedPace)+' days a week against the '+_d1(r.quotedPace)+' the quote implies.';
+  if(r.pace!==null&&r.pace>160)return 'Planned at '+_d1(r.plannedPace)+' days a week against '+_d1(r.quotedPace)+' quoted: spending faster than budgeted.';
   if(dr!==null&&dr>=0.4)return 'Staffed more senior than quoted: costs more than budgeted.';
   if(dr!==null&&dr<=-0.4)return 'Staffed more junior than quoted: cheaper, watch the seniority the client expects.';
-  if(cov<80)return _d0(-gap)+' quoted days not planned yet.';
-  return 'Planned in line with what was quoted.';
+  if(r.pace!==null&&r.pace<85)return 'Slightly behind the quoted pace ('+_d1(r.plannedPace)+' vs '+_d1(r.quotedPace)+' days a week).';
+  return 'Planned in line with the quoted pace.';
 }
 function projectBand(r){
   if(r.sold<=0)return 'notq';
-  if(r.coverage<50)return 'under';
-  if(r.coverage>125)return 'over';
+  if(r.pace!==null&&r.pace<60)return 'under';
+  if(r.pace!==null&&r.pace>160)return 'over';
   if(r.seniority.drift!==null&&Math.abs(r.seniority.drift)>=0.4)return 'risk';
-  if(r.coverage>=80&&r.coverage<=120)return 'eff';
+  if(r.pace!==null&&r.pace>=85&&r.pace<=140)return 'eff';
   return 'ok';
 }
 var BANDS={eff:{t:'On track',c:'#2f6e12',i:'\u25cf'},risk:{t:'Watch',c:'#c2410c',i:'\u25b2'},
@@ -818,6 +837,7 @@ var ADMDEF={
   sellable:'Sellable capacity = capacity x the billability target of the Price Level: the days that can realistically be billed to clients, once the time planned for internal work, management, presale, training and leave is set aside.',
   period:'Reported figures come from weekly forecasts: each person states how the coming week will be split. Over a period the weeks a person filled in are averaged, and that average is projected onto their yearly capacity. Weeks left empty are not counted as zero, they are simply missing, so coverage is shown next to the picker.',
   horizon:'Measuring window. Rest of the year counts only the working days still ahead, closures and holidays removed, and scales both quoted days and capacity to that window: it is the honest comparison, because forecasts only start now. Full year projects the same rates over the whole year, useful to sense-check the annual picture.',
+  pace:'Pace compares how many days a week the team plans on a project with how many the quote implies to finish by its end date. It says nothing about days delivered before tracking started, so a project already well advanced can legitimately sit below the quoted pace.',
   coverage:'Planned vs quoted = days the team plans to spend on a project / days quoted on it. Below 100% part of the quoted work is not planned yet; above 100% more days are going in than were quoted.',
   target:'Billability target = the share of the year a Price Level is expected to sell to clients. Editable in the Saturation view; it drives sellable capacity, utilization and saturation.',
   saturation:'Saturation = days quoted for '+YEAR+' divided by the days the team can realistically bill, so it compares what has been quoted with what can be delivered. Above 100% more is quoted than the team can deliver.'
@@ -1033,14 +1053,13 @@ function projectsWatch(title,kind){
   pick=pick.slice(0,6);
   var h='<div class="ucard"><div class="uct" style="font-size:15px">'+(title||'Projects to look at')+'</div>';
   if(!pick.length)return h+'<div class="ucs" style="margin:0">Nothing in this group right now.</div></div>';
-  h+='<div class="ucs">'+intro+'</div><table class="utbl"><thead><tr><th style="width:26px"></th><th>Project</th><th class="r">Quoted</th><th class="r">Planned</th><th class="r">Gap</th><th>What it says</th></tr></thead><tbody>';
+  h+='<div class="ucs">'+intro+'</div><table class="utbl"><thead><tr><th style="width:26px"></th><th>Project</th><th class="r">Quote needs</th><th class="r">Team plans</th><th>What it says</th></tr></thead><tbody>';
   pick.forEach(function(r){
     var gap=r.decl-r.sold;
     h+='<tr style="cursor:pointer" onclick="S.aTab=\'projects\';S.dFlt=\'all\';S.dSel=\''+r.p.id+'\';R()">'
       +'<td>'+light(r.coverage===null?null:Math.min(r.coverage,100),80,50)+'</td>'
       +'<td><div style="font-weight:600">'+esc(r.p.name)+'</div><div style="font-size:10px;color:var(--t3)">'+esc(r.p.client)+'</div></td>'
-      +'<td class="r">'+_d0(r.sold)+'d</td><td class="r">'+_d0(r.decl)+'d</td>'
-      +'<td class="r" style="color:'+(gap>0?'#b32a1c':'#185fa5')+';font-weight:600">'+(gap>0?'+':'')+_d0(gap)+'d</td>'
+      +'<td class="r">'+_d1(r.quotedPace||0)+' d/wk</td><td class="r"><b style="color:'+lightCol(r.pace===null?null:Math.min(r.pace,100),85,60)+'">'+_d1(r.plannedPace)+' d/wk</b></td>'
       +'<td style="font-size:12px;color:var(--t2)">'+projectNote(r)+'</td></tr>';
   });
   return h+'</tbody></table></div>';
@@ -1061,7 +1080,7 @@ function admDelivery(){
    +chip('all','All ('+D.length+')')+chip('over','Over-delivering ('+counts.over+')')
    +chip('under','Under-delivering ('+counts.under+')')+chip('notq','Not quoted ('+counts.notq+')')
    +chip('risk','Seniority drift ('+counts.risk+')')+chip('eff','On track ('+counts.eff+')')+'</div>'
-   +'<table class="utbl"><thead><tr><th style="min-width:230px">Project</th><th>Client</th><th class="r">Quoted (days)</th><th class="r">Planned (days)</th><th class="r">Gap</th><th class="r">Coverage'+iHelp('coverage')+'</th><th>What it says</th><th class="r">People</th></tr></thead><tbody>';
+   +'<table class="utbl"><thead><tr><th style="min-width:230px">Project</th><th>Client</th><th class="r">Quoted (days)</th><th class="r">Planned (days)</th><th class="r">Pace: planned vs quoted'+iHelp('pace')+'</th><th>What it says</th><th class="r">People</th></tr></thead><tbody>';
   rows.forEach(function(r){
     var c=dlvCat(r),gap=r.decl-r.sold,n=0;
     PLkeys.forEach(function(k){if(r.byPL[k])n+=r.byPL[k].people.length;});
@@ -1071,8 +1090,8 @@ function admDelivery(){
       +'<div style="font-size:10px;color:var(--t3);margin-left:18px">'+BANDS[c].t+'</div></td>'
       +'<td style="font-size:11px;color:var(--t2)">'+esc(r.p.client)+'</td>'
       +'<td class="r">'+_d0(r.sold)+'</td><td class="r">'+_d0(r.decl)+'</td>'
-      +'<td class="r" style="color:'+gc+';font-weight:600">'+(gap>0?'+':'')+_d0(gap)+'</td>'
-      +'<td class="r"><b style="color:'+lightCol(r.coverage===null?null:Math.min(r.coverage,100),80,50)+'">'+(r.coverage===null?'not sold':_p0(r.coverage))+'</b></td>'
+      +'<td class="r"><b style="color:'+lightCol(r.pace===null?null:Math.min(r.pace,100),85,60)+'">'+_d1(r.plannedPace)+' / '+_d1(r.quotedPace||0)+'</b>'
+      +'<div style="font-size:10px;color:var(--t3)">days a week</div></td>'
       +'<td style="font-size:11.5px;color:var(--t2);max-width:280px">'+projectNote(r)+'</td>'
       +'<td class="r">'+n+'</td></tr>';
     if(S.dSel===r.p.id){
