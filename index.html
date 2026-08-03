@@ -463,15 +463,18 @@ var CAL_HALF={};   // afternoon closures, counted as half a day
 })();
 function isoDate(d){return d.toISOString().slice(0,10);}
 // Working days between two dates, weekends and closures removed.
+var _WD={};
 function workingDays(a,b){
   if(!a||!b||b<a)return 0;
+  var ck=a.getTime()+'|'+b.getTime();
+  if(_WD[ck]!==undefined)return _WD[ck];
   var x=new Date(Date.UTC(a.getUTCFullYear(),a.getUTCMonth(),a.getUTCDate())),t=0;
   while(x<=b){
     var k=isoDate(x),dw=x.getUTCDay();
     if(dw>0&&dw<6&&!CAL_FULL[k])t+=CAL_HALF[k]?0.5:1;
     x.setUTCDate(x.getUTCDate()+1);
   }
-  return t;
+  _WD[ck]=t;return t;
 }
 function _yStart(){return new Date(Date.UTC(YEAR,0,1));}
 function _yEnd(){return new Date(Date.UTC(YEAR,11,31));}
@@ -486,12 +489,21 @@ function horizonStart(){
 function horizonDays(){
   return S.hor==='year'?yearWorkingDays():workingDays(horizonStart(),_yEnd());
 }
-function horizonShare(){var y=yearWorkingDays();return y>0?horizonDays()/y:1;}
+var _HSHARE=null;
+function horizonShare(){
+  if(_HSHARE!==null)return _HSHARE;
+  var y=yearWorkingDays();_HSHARE=y>0?horizonDays()/y:1;return _HSHARE;
+}
 function horizonLabel(){
   return S.hor==='year'?'the full year':('the rest of '+YEAR+', from '+weekRange(S.wk)+' ('+_d0(horizonDays())+' working days of '+_d0(yearWorkingDays())+')');
 }
 // Sold days of a project that fall inside the horizon, spread over its working days.
+var _SIH={};
 function soldInHorizon(p){
+  if(_SIH[p.id]!==undefined)return _SIH[p.id];
+  var r=_soldInHorizon(p);_SIH[p.id]=r;return r;
+}
+function _soldInHorizon(p){
   var s=new Date(p.startDate+'T00:00:00Z'),e=new Date(p.endDate+'T00:00:00Z');
   if(isNaN(s)||isNaN(e)||e<s)return horizonShare();
   var total=workingDays(s,e);
@@ -548,9 +560,15 @@ function rollWeek(){
   return true;
 }
 // Percentages a person had on a given week (falls back to the live forecast).
+var _ALLOC={};
+function allocReset(){_ALLOC={};}
 function allocOfWeek(mid,w){
-  if(!w||w===S.wk){var cur={};S.p.forEach(function(p){if(p.asgn&&p.asgn[mid]>0)cur[p.id]=p.asgn[mid];});return cur;}
-  return (S.hist&&S.hist[w]&&S.hist[w][mid])||{};
+  var key=mid+'|'+(w||S.wk);
+  if(_ALLOC[key])return _ALLOC[key];
+  var out;
+  if(!w||w===S.wk){out={};S.p.forEach(function(p){if(p.asgn&&p.asgn[mid]>0)out[p.id]=p.asgn[mid];});}
+  else out=(S.hist&&S.hist[w]&&S.hist[w][mid])||{};
+  _ALLOC[key]=out;return out;
 }
 function weeksAvailable(){
   var ws=Object.keys(S.hist||{});
@@ -1385,10 +1403,12 @@ function admData(){
           plCap:plCap,plBill:plBill,plNb:plNb,plN:plN,plRanks:plRanks,tgt:tgt,plSell:plSell};
 }
 // Admin figures read either the week being forecast or the average of the last N weeks.
+var _PSH={};
 function periodShares(mid){
+  if(_PSH[mid])return _PSH[mid];
   var per=S.aPer===undefined?1:S.aPer;
-  if(per===1)return {bill:mEfBill(mid),nb:mEfNB(mid)};
-  return avgShares(mid,per===0?0:per);
+  var r=per===1?{bill:mEfBill(mid),nb:mEfNB(mid)}:avgShares(mid,per===0?0:per);
+  _PSH[mid]=r;return r;
 }
 function periodLabel(){
   var per=S.aPer===undefined?1:S.aPer;
@@ -1412,7 +1432,7 @@ function periodPicker(){
 // Billability asks whether someone spends enough time on client work.
 // Utilization asks whether that time turns into delivery that was actually sold.
 var _DLV=null;
-function dlvReset(){_DLV=null;}
+function dlvReset(){_DLV=null;_PDLV={};_PSH={};_SIH={};_HSHARE=null;allocReset();}
 // -- Leavers -----------------------------------------------------------------
 // People who leave are archived, never deleted, so their past weeks stay
 // readable. They drop out of capacity, targets and the weekly filing.
@@ -1513,9 +1533,11 @@ function deliveryData(){
   _DLV=rows;return rows;
 }
 // Per person: days that match sold work, over the billable time they should sell.
+var _PDLV={};
 function personDelivery(mid){
+  if(_PDLV[mid])return _PDLV[mid];
   var m=S.m.find(function(x){return x.id===mid;});
-  if(!m)return {decl:0,covered:0,unsold:0,notQuoted:0,util:null,projects:[]};
+  if(!m)return {decl:0,covered:0,unsold:0,notQuoted:0,util:null,projects:[],sellable:0};
   var covered=0,decl=0,notQ=0,projects=[];
   deliveryData().forEach(function(r){
     var mine=declaredDays(mid,r.p.id);
@@ -1529,9 +1551,10 @@ function personDelivery(mid){
     projects.push({p:r.p,mine:mine,quota:quota,covered:cov,unsold:mine-cov,sold:r.sold});
   });
   var c=(m.cap||220)*horizonShare(),sellable=c*tgtOf('PL'+rPL(m.role))/100;
-  return {decl:decl,covered:covered,unsold:decl-covered,notQuoted:notQ,sellable:sellable,
+  var res={decl:decl,covered:covered,unsold:decl-covered,notQuoted:notQ,sellable:sellable,
           util:sellable>0?covered/sellable*100:null,
           projects:projects.sort(function(a,b){return b.unsold-a.unsold;})};
+  _PDLV[mid]=res;return res;
 }
 function personProfile(mid){
   var m=S.m.find(function(x){return x.id===mid;});if(!m)return null;
