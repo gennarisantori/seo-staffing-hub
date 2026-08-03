@@ -368,6 +368,8 @@ theme_css = (
     ".perbtn{padding:5px 12px;border-radius:7px;border:1px solid var(--bd);background:#fff;color:var(--t2);font-family:inherit;font-size:12px;cursor:pointer}"
     ".perbtn:hover{border-color:#185fa5;color:#185fa5}"
     ".perbtn.on{background:#185fa5;border-color:#185fa5;color:#fff;font-weight:600}"
+    ".perbtn.dim{opacity:.5}"
+    ".perbtn.dim.on{opacity:1}"
     ".perinfo{margin-left:auto;font-size:11px;color:var(--t3)}"
     ".weekbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 24px 0}"
     ".wkpick{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 11px;border-radius:20px;background:#e6f1fb}"
@@ -600,10 +602,17 @@ function horizonPicker(){
 }
 function periodPicker(){
   var per=S.aPer===undefined?1:S.aPer,ws=weeksAvailable().length,c=complianceOf(S.wk);
-  return horizonPicker()+'<div class="perbar"><span>Period'+iHelp('period')+'</span>'
-    +[[1,'Current week'],[4,'Last 4 weeks'],[12,'Last 12 weeks'],[0,'All weeks']].map(function(o){
-        return '<button class="perbtn'+(per===o[0]?' on':'')+'" onclick="S.aPer='+o[0]+';R()">'+o[1]+'</button>';}).join('')
-    +'<span class="perinfo">'+ws+' week'+(ws===1?'':'s')+' recorded since tracking started · '+(c.closed?'company closed in '+weekLabel(S.wk):c.done+'/'+c.total+' people filled in '+weekLabel(S.wk))+'</span></div>';
+  var opts=[[1,'Current week'],[4,'Last 4 weeks'],[12,'Last 12 weeks'],[0,'All weeks']];
+  var h='<div class="perbar"><span>Period'+iHelp('period')+'</span>'
+    +opts.map(function(o){
+        var same=o[0]!==1&&ws<=1;                       // nothing else to average yet
+        var short=o[0]>1&&ws<o[0]&&ws>1;                // fewer weeks than the window
+        return '<button class="perbtn'+(per===o[0]?' on':'')+(same?' dim':'')+'" onclick="S.aPer='+o[0]+';R()"'
+          +(same?' title="Only one week has been filed, so this shows the same figures as the current week"':short?' title="Only '+ws+' weeks filed so far"':'')
+          +'>'+o[1]+(short?' <span style="opacity:.6">('+ws+')</span>':'')+'</button>';}).join('')
+    +'<span class="perinfo">'+ws+' week'+(ws===1?'':'s')+' recorded'+(c.closed?' \u00b7 '+weekLabel(S.wk)+' is a company shutdown':' \u00b7 '+c.done+'/'+c.total+' filed in '+weekLabel(S.wk))+'</span></div>';
+  if(ws<=1)h+='<div class="admnote" style="margin-top:-4px;margin-bottom:14px">Only one week has been filed so far, so every period shows the same figures. They start to differ once a second week is in.</div>';
+  return h;
 }
 // -- Delivery: what was sold against what people plan to spend ---------------
 // Billability asks whether someone spends enough time on client work.
