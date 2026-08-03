@@ -1343,21 +1343,60 @@ function renderUsers(){
   var adm=isAdmin();
   if(_uLoading||_uUsers===null||_uInvites===null)return '<div style="flex:1;text-align:center;padding:50px;color:var(--t2);font-size:14px">Loading users...</div>';
   var me=_user?_user.uid:null;
-  var invRows=_uInvites.length?_uInvites.map(function(i){
-    var roleCell=adm?'<select onchange="uChgInviteRole(\''+esc(i.email)+'\',this.value)"><option value="member"'+(i.role!=='admin'?' selected':'')+'>Member</option><option value="admin"'+(i.role==='admin'?' selected':'')+'>Admin</option></select>':uRoleBadge(i.role);
-    var act=adm?'<button class="b br" onclick="uRmInvite(\''+esc(i.email)+'\')">Remove</button>':'';
-    return '<tr><td>'+esc(i.email)+'</td><td>'+roleCell+'</td><td class="ctr">'+act+'</td></tr>';
-  }).join(''):'<tr><td colspan="3" style="text-align:center;color:var(--t3);padding:14px">No invited emails.</td></tr>';
-  var inviteForm=adm?'<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap"><input id="u-email" type="email" placeholder="name.surname@jakala.com" class="si" style="flex:1;min-width:240px;width:auto"><select id="u-role" class="si" style="width:120px"><option value="member">Member</option><option value="admin">Admin</option></select><button class="b ba" onclick="uDoInvite()">Invite</button></div>':'';
-  var usrRows=_uUsers.length?_uUsers.map(function(u){
-    var active=u.active!==false,isMe=u.uid===me;
-    var roleCell=(adm&&!isMe)?'<select onchange="uChgUserRole(\''+u.uid+'\',this.value)"><option value="member"'+(u.role==='member'?' selected':'')+'>Member</option><option value="admin"'+(u.role==='admin'?' selected':'')+'>Admin</option></select>':uRoleBadge(u.role);
-    var statusCell=active?'<span class="sb" style="background:rgba(47,110,18,.12);color:#2f6e12">Active</span>':'<span class="sb" style="background:rgba(0,0,0,.06);color:#42454c">Disabled</span>';
-    var act=(adm&&!isMe)?(active?'<button class="b br" onclick="uDisable(\''+u.uid+'\')">Disable</button>':'<button class="b bg" onclick="uEnable(\''+u.uid+'\')">Re-enable</button>'):(isMe?'<span style="font-size:10px;color:var(--t3)">(you)</span>':'');
-    return '<tr style="'+(active?'':'opacity:.55')+'"><td>'+esc(u.displayName||'')+'</td><td>'+esc(u.email||'')+'</td><td>'+roleCell+'</td><td>'+statusCell+'</td><td class="ctr">'+act+'</td></tr>';
-  }).join(''):'<tr><td colspan="5" style="text-align:center;color:var(--t3);padding:18px">No users yet.</td></tr>';
-  return '<div class="ucard"><div class="uct">Invited emails (access list)</div><div class="ucs">Only invited emails can register and sign in. Choose the role at invite time: the person receives it on first login. Then share the app link and the invited person registers, setting their own password.</div>'+inviteForm+'<table class="utbl"><thead><tr><th>Email</th><th>Role on first login</th><th class="ctr">Action</th></tr></thead><tbody>'+invRows+'</tbody></table></div>'
-    +'<div class="ucard"><div class="uct">Users</div><div class="ucs">Users appear here automatically after their first login. From here you can change their role or disable their access.</div><table class="utbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th class="ctr">Actions</th></tr></thead><tbody>'+usrRows+'</tbody></table></div>';
+  // An invited person who has since signed up used to appear in both tables.
+  // Merge on the email: one row per person, the invite is just the earlier stage.
+  var byEmail={};
+  _uInvites.forEach(function(i){
+    var e=String(i.email||'').toLowerCase();if(!e)return;
+    byEmail[e]={email:e,role:i.role,invited:true,registered:false,active:true};
+  });
+  _uUsers.forEach(function(u){
+    var e=String(u.email||'').toLowerCase();if(!e)return;
+    var r=byEmail[e]||{email:e,invited:false};
+    r.uid=u.uid;r.name=u.displayName||'';r.role=u.role||'member';
+    r.active=u.active!==false;r.registered=true;
+    byEmail[e]=r;
+  });
+  var rows=Object.keys(byEmail).map(function(k){return byEmail[k];})
+    .sort(function(a,b){
+      if(a.registered!==b.registered)return a.registered?1:-1;   // pending first
+      return (a.name||a.email).localeCompare(b.name||b.email);
+    });
+  var nPending=rows.filter(function(r){return !r.registered;}).length;
+  var nActive=rows.filter(function(r){return r.registered&&r.active;}).length;
+  var nOff=rows.filter(function(r){return r.registered&&!r.active;}).length;
+  var inviteForm=adm?'<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap"><input id="u-email" type="email" placeholder="name.surname@jakala.com" class="si" style="flex:1;min-width:240px;width:auto"><select id="u-role" class="si" style="width:120px"><option value="member">Member</option><option value="admin">Admin</option></select><button class="b ba" onclick="uDoInvite()">Invite</button></div>':'';
+  var h='<div class="ucard"><div class="uct">Access</div>'
+   +'<div class="ucs">Only invited emails can register. Choose the role when inviting: the person gets it on first login. Share the app link and they set their own password. Everyone appears here once, whether they have signed up yet or not.</div>'
+   +inviteForm
+   +'<div class="ametrics" style="margin-bottom:14px">'+amCard('Active',nActive,'#2f6e12')+amCard('Waiting for first login',nPending,nPending?'#c2410c':'')+amCard('Disabled',nOff,nOff?'#b32a1c':'')+'</div>'
+   +'<table class="utbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th class="ctr">Action</th></tr></thead><tbody>';
+  if(!rows.length)h+='<tr><td colspan="5" style="text-align:center;color:var(--t3);padding:18px">Nobody invited yet.</td></tr>';
+  rows.forEach(function(r){
+    var isMe=r.uid&&r.uid===me;
+    var roleCell=(adm&&!isMe)
+      ? '<select onchange="'+(r.registered?'uChgUserRole(\''+r.uid+'\'':'uChgInviteRole(\''+esc(r.email)+'\'')+',this.value)">'
+        +'<option value="member"'+(r.role!=='admin'?' selected':'')+'>Member</option>'
+        +'<option value="admin"'+(r.role==='admin'?' selected':'')+'>Admin</option></select>'
+      : uRoleBadge(r.role);
+    var status=!r.registered
+      ? '<span class="sb" style="background:rgba(194,65,12,.12);color:#c2410c">Invited</span><div style="font-size:10px;color:var(--t3);margin-top:2px">has not signed up yet</div>'
+      : (r.active?'<span class="sb" style="background:rgba(47,110,18,.12);color:#2f6e12">Active</span>'
+                 :'<span class="sb" style="background:rgba(0,0,0,.06);color:#42454c">Disabled</span>');
+    var act='';
+    if(adm&&!isMe){
+      act=r.registered
+        ? (r.active?'<button class="b br" onclick="uDisable(\''+r.uid+'\')">Disable</button>'
+                   :'<button class="b bg" onclick="uEnable(\''+r.uid+'\')">Re-enable</button>')
+        : '<button class="b br" onclick="uRmInvite(\''+esc(r.email)+'\')">Cancel invite</button>';
+    } else if(isMe) act='<span style="font-size:10px;color:var(--t3)">(you)</span>';
+    h+='<tr style="'+(r.registered&&!r.active?'opacity:.55':'')+'">'
+      +'<td style="font-weight:600">'+(r.name?esc(r.name):'<span style="color:var(--t3);font-weight:400">-</span>')+'</td>'
+      +'<td style="font-size:12px;color:var(--t2)">'+esc(r.email)+'</td>'
+      +'<td>'+roleCell+'</td><td>'+status+'</td><td class="ctr">'+act+'</td></tr>';
+  });
+  return h+'</tbody></table>'
+   +admNote('People move from Invited to Active the first time they sign in. Disabling somebody blocks access but keeps their record and history.')+'</div>';
 }
 function amCard(label,val,color,info){return '<div class="ametric"><div class="aml">'+label+(info?iHelp(info):'')+'</div><div class="amv"'+(color?(' style="color:'+color+'"'):'')+'>'+val+'</div></div>';}
 function uDoInvite(){var e=(document.getElementById('u-email')||{}).value||'';var r=(document.getElementById('u-role')||{}).value||'member';if(!e.trim())return;uAddInvite(e,r).then(uLoad).catch(function(err){alert('Invite failed: '+(err.message||err));});}
