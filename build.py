@@ -523,7 +523,7 @@ function admData(){
   var rows={},order=[];
   RH.forEach(function(r){rows[r]={rank:r,pl:rPL(r),n:0,cap:0,bill:0,nb:0};order.push(r);});
   var hs=horizonShare();
-  S.m.forEach(function(m){var r=rows[m.role];if(!r)return;var c=(m.cap||220)*hs;var sh=periodShares(m.id);r.n++;r.cap+=c;r.bill+=sh.bill/100*c;r.nb+=sh.nb/100*c;});
+  roster().forEach(function(m){var r=rows[m.role];if(!r)return;var c=(m.cap||220)*hs;var sh=periodShares(m.id);r.n++;r.cap+=c;r.bill+=sh.bill/100*c;r.nb+=sh.nb/100*c;});
   var quoted={PL4:0,PL3:0,PL2:0,PL1:0},quotedAll={PL4:0,PL3:0,PL2:0,PL1:0},np=0;
   S.p.forEach(function(p){
     if(p.nb)return;
@@ -569,6 +569,50 @@ function periodPicker(){
 // Utilization asks whether that time turns into delivery that was actually sold.
 var _DLV=null;
 function dlvReset(){_DLV=null;}
+// -- Leavers -----------------------------------------------------------------
+// People who leave are archived, never deleted, so their past weeks stay
+// readable. They drop out of capacity, targets and the weekly filing.
+function isActive(m){return m&&m.active!==false;}
+function roster(){return S.m.filter(isActive);}
+function leavers(){return S.m.filter(function(m){return !isActive(m);});}
+function archiveMember(id){
+  if(!isAdmin())return;
+  var m=S.m.find(function(x){return x.id===id;});if(!m)return;
+  var left=S.p.filter(function(p){return p.asgn&&p.asgn[id]>0&&!p.nb;});
+  var days=left.reduce(function(t,p){return t+declaredDays(id,p.id);},0);
+  if(!confirm('Archive '+m.name+'?\n\nTheir history stays available. '+left.length+' project'+(left.length===1?'':'s')+' lose about '+Math.round(days)+' days and will need reassigning.'))return;
+  m.active=false;m.leftOn=new Date().toISOString().slice(0,10);
+  S.p.forEach(function(p){if(p.asgn&&p.asgn[id]!==undefined)delete p.asgn[id];});
+  sv();R();
+}
+function restoreMember(id){
+  if(!isAdmin())return;
+  var m=S.m.find(function(x){return x.id===id;});if(!m)return;
+  m.active=true;delete m.leftOn;sv();R();
+}
+// Allocations pointing at people no longer on the roster at all, left behind by
+// an older version that deleted them outright: reported, never dropped silently.
+function orphanAllocations(){
+  var known={};S.m.forEach(function(m){known[m.id]=1;});
+  var out={};
+  S.p.forEach(function(p){
+    if(!p.asgn)return;
+    Object.keys(p.asgn).forEach(function(mid){
+      if(known[mid]||!(p.asgn[mid]>0))return;
+      out[mid]=out[mid]||{projects:[],pct:0};
+      out[mid].projects.push(p);out[mid].pct+=p.asgn[mid];
+    });
+  });
+  return out;
+}
+function clearOrphans(){
+  if(!isAdmin())return;
+  var o=orphanAllocations(),ids=Object.keys(o);
+  if(!ids.length)return;
+  if(!confirm('Clear allocations left by '+ids.length+' person(s) no longer on the team?\n\nThe projects involved will need reassigning.'))return;
+  S.p.forEach(function(p){if(p.asgn)ids.forEach(function(mid){delete p.asgn[mid];});});
+  sv();R();
+}
 function avgProjShare(mid,pid,n){
   var ws=weeksAvailable();if(n>0)ws=ws.slice(-n);
   var sum=0,filled=0;
@@ -607,7 +651,7 @@ function deliveryData(){
       var v=(p.daysByRole&&p.daysByRole[k]||0)*sh;
       soldBy[k]=v;declBy[k]=0;byPL[k]={sold:v,decl:0,people:[]};sold+=v;
     });
-    S.m.forEach(function(m){
+    roster().forEach(function(m){
       var d=declaredDays(m.id,p.id);
       if(d<=0)return;
       var k='PL'+rPL(m.role);
@@ -760,13 +804,13 @@ function admOverview(){
   var tC=0,tB=0,tNb=0,tN=0,tS=0,tQ=0;
   PLkeys.forEach(function(k){tC+=D.plCap[k];tB+=D.plBill[k];tNb+=D.plNb[k];tN+=D.plN[k];tS+=D.plSell[k];tQ+=D.quoted[k];});
   var sold=0,decl=0;D2.forEach(function(r){sold+=r.sold;decl+=r.decl;});
-  var cov=0,sell=0;S.m.forEach(function(m){var d=personDelivery(m.id);cov+=d.covered;sell+=d.sellable;});
+  var cov=0,sell=0;roster().forEach(function(m){var d=personDelivery(m.id);cov+=d.covered;sell+=d.sellable;});
   var bill=tC?tB/tC*100:0, billTgt=tC?tS/tC*100:0, billVs=billTgt?bill/billTgt*100:0;
   var util=sell>0?cov/sell*100:null;
   var sat=tS?tQ/tS*100:0;
   var comp=complianceOf(S.wk), compPct=comp.total?comp.done/comp.total*100:0;
   var bands={eff:0,risk:0,over:0,under:0,notq:0,ok:0};
-  S.m.forEach(function(m){var x=personProfile(m.id);if(x)bands[x.band]++;});
+  roster().forEach(function(m){var x=personProfile(m.id);if(x)bands[x.band]++;});
   var h='<div class="ucard"><div class="uct">Team at a glance</div>'
    +'<div class="ucs">'+tN+' people · '+D.nProjects+' projects · figures for '+periodLabel()+'. Each measure is shown against its target.</div>'
    +weakDataNote()
@@ -802,7 +846,7 @@ function admOverview(){
    +'<th class="r">Utilization'+iHelp('utilization')+'</th><th class="r">Saturation'+iHelp('saturation')+'</th></tr></thead><tbody>';
   PLkeys.forEach(function(k){
     var cap=D.plCap[k],b=D.plBill[k],bp=cap?b/cap*100:0,tg=D.tgt[k];
-    var co=0,se=0;S.m.forEach(function(m){if('PL'+rPL(m.role)!==k)return;var d=personDelivery(m.id);co+=d.covered;se+=d.sellable;});
+    var co=0,se=0;roster().forEach(function(m){if('PL'+rPL(m.role)!==k)return;var d=personDelivery(m.id);co+=d.covered;se+=d.sellable;});
     var u=se>0?co/se*100:null, sa=D.plSell[k]?D.quoted[k]/D.plSell[k]*100:null;
     h+='<tr><td><b>'+plLabel(k)+'</b><div style="font-size:10px;color:var(--t3);font-weight:400">'+esc(plRanksTxt(D,k))+'</div></td>'
       +'<td class="r">'+D.plN[k]+'</td><td class="r">'+_d0(cap)+'</td>'
@@ -851,7 +895,7 @@ function admBillability(){
 function admUtilization(){
   var tS=0,tD=0,tU=0,tUnq=0;
   var byPL={};PLkeys.forEach(function(k){byPL[k]={sold:0,decl:0,unq:0,cov:0,sell:0};});
-  S.m.forEach(function(m){
+  roster().forEach(function(m){
     var k='PL'+rPL(m.role),b=byPL[k];if(!b)return;
     var d=personDelivery(m.id);
     b.cov+=d.covered;b.sell+=d.sellable;b.decl+=d.decl;b.unq+=d.notQuoted;b.sold+=d.covered;
@@ -887,7 +931,7 @@ function weakDataNote(){
 }
 // Watch lists: who and what needs attention, each with a verdict in words.
 function peopleWatch(kind,title){
-  var list=S.m.map(function(m){return personProfile(m.id);}).filter(Boolean),pick;
+  var list=roster().map(function(m){return personProfile(m.id);}).filter(Boolean),pick;
   if(kind==='util')pick=list.filter(function(x){return x.band!=='eff'&&x.band!=='ok';})
                             .sort(function(a,b){return (a.util===null?999:a.util)-(b.util===null?999:b.util);});
   else if(kind==='bill')pick=list.filter(function(x){return Math.abs(x.billVsTgt-100)>=10;})
@@ -1010,16 +1054,44 @@ function admSaturation(){
   return h+'</tbody></table></div>';
 }
 // ── People: billability / allocation / perception per team member ──
+// Allocations belonging to nobody: raised, not lost.
+function orphanCard(){
+  var o=orphanAllocations(),ids=Object.keys(o);
+  if(!ids.length)return '';
+  var n=0;ids.forEach(function(k){n+=o[k].projects.length;});
+  var h='<div class="ucard" style="border-left:4px solid #b32a1c"><div class="uct" style="font-size:15px">Allocations with nobody behind them</div>'
+   +'<div class="ucs">'+ids.length+' person(s) were removed from the team while still assigned. Their share still sits on '+n+' project(s) and counts for nothing, so those projects read as covered when they are not.</div>'
+   +'<table class="utbl"><thead><tr><th>Projects affected</th><th class="r">Share left behind</th></tr></thead><tbody>';
+  ids.forEach(function(mid){
+    h+='<tr><td>'+o[mid].projects.slice(0,4).map(function(p){return esc(p.client||p.name);}).join(', ')+(o[mid].projects.length>4?' +'+(o[mid].projects.length-4)+' more':'')+'</td>'
+      +'<td class="r">'+_p0(o[mid].pct)+'</td></tr>';
+  });
+  return h+'</tbody></table>'+(isAdmin()?'<button class="b br" style="margin-top:12px" onclick="clearOrphans()">Clear these allocations</button>':'')
+   +admNote('Clearing them frees the projects so the work can be reassigned. History is untouched.')+'</div>';
+}
+function leaverCard(){
+  var L=leavers();
+  if(!L.length)return '';
+  var h='<div class="ucard"><div class="uct" style="font-size:15px">Former members</div>'
+   +'<div class="ucs">Archived people: out of capacity, targets and weekly filing, with their past weeks still readable in History.</div>'
+   +'<table class="utbl"><thead><tr><th>Name</th><th>HR rank</th><th>Left on</th><th class="r">Action</th></tr></thead><tbody>';
+  L.forEach(function(m){
+    h+='<tr style="opacity:.75"><td style="font-weight:600">'+esc(m.name)+'</td><td style="font-size:11px;color:var(--t2)">'+esc(m.role)+'</td>'
+      +'<td style="font-size:12px;color:var(--t2)">'+(m.leftOn||'-')+'</td>'
+      +'<td class="r">'+(isAdmin()?'<button class="b bg" onclick="restoreMember(\''+m.id+'\')">Bring back</button>':'')+'</td></tr>';
+  });
+  return h+'</tbody></table></div>';
+}
 function admPeople(){
-  var rows=S.m.map(function(m){return personProfile(m.id);}).filter(Boolean);
+  var rows=roster().map(function(m){return personProfile(m.id);}).filter(Boolean);
   var band=S.pBand||'all';
   if(band!=='all')rows=rows.filter(function(x){return x.band===band;});
   rows.sort(function(a,b){return (a.util===null?999:a.util)-(b.util===null?999:b.util);});
-  var counts={};S.m.forEach(function(m){var x=personProfile(m.id);if(x)counts[x.band]=(counts[x.band]||0)+1;});
+  var counts={};roster().forEach(function(m){var x=personProfile(m.id);if(x)counts[x.band]=(counts[x.band]||0)+1;});
   var chip=function(k,label){return '<button class="perbtn'+(band===k?' on':'')+'" onclick="S.pBand=\''+k+'\';R()">'+label+'</button>';};
-  var h='<div class="ucard"><div class="uct">People</div><div class="ucs">Utilization first: whether the days each person reports are backed by days that were sold. Billability follows: whether they work on clients as much as their target expects.</div>'
+  var h=orphanCard()+leaverCard()+'<div class="ucard"><div class="uct">People</div><div class="ucs">Utilization first: whether the days each person reports are backed by days that were sold. Billability follows: whether they work on clients as much as their target expects.</div>'
    +weakDataNote()
-   +'<div class="perbar" style="margin-top:12px"><span>Show</span>'+chip('all','Everyone ('+S.m.length+')')
+   +'<div class="perbar" style="margin-top:12px"><span>Show</span>'+chip('all','Everyone ('+roster().length+')')
    +[['eff','Efficient'],['risk','At risk'],['over','Over-delivering'],['under','Under-used'],['notq','Not quoted'],['ok','On track']]
      .filter(function(b){return counts[b[0]];}).map(function(b){return chip(b[0],BANDS[b[0]].t+' ('+counts[b[0]]+')');}).join('')
    +'</div>'
@@ -1191,7 +1263,7 @@ html = html.replace(
     '${isAdmin()?`<div style="display:flex;justify-content:flex-start;margin-bottom:8px;flex-shrink:0"><button class="b bg" onclick="amM()">+ Person</button></div>`:``}', 1)
 html = html.replace(
     '<button class="b ba" onclick="emM(\'${m.id}\')">✎</button><button class="b br" onclick="dM(\'${m.id}\')">✕</button>',
-    '${isAdmin()?`<button class="b ba" onclick="emM(\'${m.id}\')">✎</button><button class="b br" onclick="dM(\'${m.id}\')">✕</button>`:``}', 1)
+    '${isAdmin()?`<button class="b ba" onclick="emM(\'${m.id}\')">✎</button><button class="b br" title="Archive: keeps their history, frees their projects" onclick="archiveMember(\'${m.id}\')">⇥</button>`:``}', 1)
 for fn in ['function amM(', 'function doAM(', 'function doEM(', 'function dM(']:
     html = html.replace(fn + '){', fn + "){if(!isAdmin())return;", 1)
 html = html.replace(
@@ -1460,9 +1532,9 @@ function avgShares(mid,n){
 // How many people filled in the current week.
 function complianceOf(w){
   if(isClosedWeek(w))return {done:0,total:0,closed:true};
-  var done=0;
-  S.m.forEach(function(m){if(weekTouched(m.id,w))done++;});
-  return {done:done,total:S.m.length,closed:false};
+  var done=0,team=roster();
+  team.forEach(function(m){if(weekTouched(m.id,w))done++;});
+  return {done:done,total:team.length,closed:false};
 }
 // Edit a past week: a forecast can be corrected once reality disagreed with it.
 function setWeekE(mid,w,pid,val){
@@ -1684,6 +1756,17 @@ html = html.replace(MARK_TOUCHED, 'else delete p.asgn[mid];try{markTouched(mid);
 RENDER_HEAD = 'function R(){\nconst ms=S.m,ps=S.p;'
 assert RENDER_HEAD in html, 'render entry not found'
 html = html.replace(RENDER_HEAD, 'function R(){\ndlvReset();\nconst ms=S.m,ps=S.p;', 1)
+
+# Archived people leave the roster views: team list, matrix, and the pickers that
+# offer somebody for a project. Their history stays readable.
+for anchor, repl, label in [
+    ('let fm=ms.map(m=>{', 'let fm=ms.filter(isActive).map(m=>{', 'team list'),
+    ('let mm=[...ms];', 'let mm=ms.filter(isActive);', 'matrix columns'),
+    ('ms.filter(m=>!asg.find', 'ms.filter(isActive).filter(m=>!asg.find', 'project add-chips'),
+    ('ms.filter(m=>plRoles.includes(m.role))', 'ms.filter(m=>isActive(m)&&plRoles.includes(m.role))', 'assign candidates'),
+]:
+    assert anchor in html, 'roster anchor missing: %s' % label
+    html = html.replace(anchor, repl, 1)
 
 # Team tab: drop the per-person load columns (with the cap in place they are always
 # 100% and invite comparison). Keep the roster: name, role, capacity, projects.
