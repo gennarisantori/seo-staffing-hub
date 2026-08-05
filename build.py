@@ -507,7 +507,7 @@ function renderUsers(){
   var nOff=rows.filter(function(r){return r.registered&&!r.active;}).length;
   var inviteForm=adm?'<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap"><input id="u-email" type="email" placeholder="name.surname@jakala.com" class="si" style="flex:1;min-width:240px;width:auto"><select id="u-role" class="si" style="width:120px"><option value="member">Member</option><option value="admin">Admin</option></select><button class="b ba" onclick="uDoInvite()">Invite</button></div>':'';
   var h='<div class="ucard"><div class="uct">Access</div>'
-   +'<div class="ucs">Only invited emails can register. Choose the role when inviting: the person gets it on first login. Share the app link and they set their own password. Everyone appears here once, whether they have signed up yet or not.</div>'
+   +'<div class="ucs">Only invited emails can register. Choose the role when inviting: the person gets it on first login. <b>No email is sent automatically</b>: use Send invite to open a pre-filled message, or share the app link yourself. They then choose Create account and set their own password.</div>'
    +inviteForm
    +'<div class="ametrics" style="margin-bottom:14px">'+amCard('Active',nActive,'#2f6e12')+amCard('Waiting for first login',nPending,nPending?'#c2410c':'')+amCard('Disabled',nOff,nOff?'#b32a1c':'')+'</div>'
    +'<table class="utbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th class="ctr">Action</th></tr></thead><tbody>';
@@ -528,7 +528,7 @@ function renderUsers(){
       act=r.registered
         ? (r.active?'<button class="b br" onclick="uDisable(\''+r.uid+'\')">Disable</button>'
                    :'<button class="b bg" onclick="uEnable(\''+r.uid+'\')">Re-enable</button>')
-        : '<button class="b br" onclick="uRmInvite(\''+esc(r.email)+'\')">Cancel invite</button>';
+        : '<a class="b ba" style="text-decoration:none" href="'+inviteMailto(r.email)+'">Send invite</a> <button class="b br" onclick="uRmInvite(\''+esc(r.email)+'\')">Cancel</button>';
     } else if(isMe) act='<span style="font-size:10px;color:var(--t3)">(you)</span>';
     h+='<tr style="'+(r.registered&&!r.active?'opacity:.55':'')+'">'
       +'<td style="font-weight:600">'+(r.name?esc(r.name):'<span style="color:var(--t3);font-weight:400">-</span>')+'</td>'
@@ -539,7 +539,24 @@ function renderUsers(){
    +admNote('People move from Invited to Active the first time they sign in. Disabling somebody blocks access but keeps their record and history.')+'</div>';
 }
 function amCard(label,val,color,info){return '<div class="ametric"><div class="aml">'+label+(info?iHelp(info):'')+'</div><div class="amv"'+(color?(' style="color:'+color+'"'):'')+'>'+val+'</div></div>';}
-function uDoInvite(){var e=(document.getElementById('u-email')||{}).value||'';var r=(document.getElementById('u-role')||{}).value||'member';if(!e.trim())return;uAddInvite(e,r).then(uLoad).catch(function(err){alert('Invito fallito: '+(err.message||err));});}
+function inviteMailto(email){
+  var url=location.origin+location.pathname;
+  var subject='Access to the SEO/GEO Staffing Hub';
+  var body='Hi,\n\nyou now have access to the SEO/GEO Staffing Hub, where the team records how each week is split across projects.\n\n'
+    +'Open '+url+' and choose "Create account" to set your own password. Use your @jakala.com address ('+email+'), no other address will work.\n\n'
+    +'Once in, fill in "My week": it takes a couple of minutes, and afterwards it only needs updating when something changes.\n\nThanks';
+  return 'mailto:'+encodeURIComponent(email)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+function uDoInvite(){
+  var e=((document.getElementById('u-email')||{}).value||'').trim();
+  var r=(document.getElementById('u-role')||{}).value||'member';
+  if(!e)return;
+  uAddInvite(e,r).then(function(){
+    uLoad();
+    if(confirm('Added '+e+' to the access list.\n\nNobody is emailed automatically. Open a pre-filled invitation now?'))
+      window.location.href=inviteMailto(e);
+  }).catch(function(err){alert('Invite failed: '+(err.message||err));});
+}
 function uRmInvite(e){if(!confirm('Remove the invite for '+e+'?'))return;uRemoveInvite(e).then(uLoad).catch(function(err){alert(err.message||err);});}
 function uChgInviteRole(e,r){uSetInviteRole(e,r).then(uLoad).catch(function(err){alert(err.message||err);});}
 function uChgUserRole(uid,r){uSetUserRole(uid,r).then(uLoad).catch(function(err){alert(err.message||err);});}
@@ -1391,7 +1408,7 @@ html = html.replace('function epM(id){const p=S.p.find(x=>x.id===id);if(!p)retur
 html = html.replace('function dP(id){if(!confirm("Delete?"))return;',
                     'function dP(id){if(!canEditProjectId(id))return;if(!confirm("Delete?"))return;', 1)
 html = html.replace('function setE(pid,mid,pct){const p=S.p.find(x=>x.id===pid);if(!p)return;',
-                    'function setE(pid,mid,pct){if(!canEditProjectId(pid))return;const p=S.p.find(x=>x.id===pid);if(!p)return;', 1)
+                    'function setE(pid,mid,pct){if(!(isAdmin()||myResourceIds().indexOf(mid)>=0||canEditProjectId(pid)))return;const p=S.p.find(x=>x.id===pid);if(!p)return;', 1)
 html = html.replace('function rmE(pid,mid){const p=S.p.find(x=>x.id===pid);',
                     'function rmE(pid,mid){if(!canEditProjectId(pid))return;const p=S.p.find(x=>x.id===pid);', 1)
 html = html.replace('function togLink(pid,mid){\n  const p=S.p.find(x=>x.id===pid);if(!p)return;',
