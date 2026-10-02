@@ -14,19 +14,27 @@ service cloud.firestore {
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
+    // Mirrors BOOTSTRAP_ADMINS in the app
+    function isBootstrap() {
+      return request.auth.token.email == 'federico.gennari@jakala.com';
+    }
+
     // config/** (invite allowlist at config/access) — all jakala users read; only admins write
     match /config/{doc} {
       allow read:  if isJakala();
       allow write: if isAdmin();
     }
 
-    // users — self read/create; self update only on non-role fields; admins read/write all
+    // users — self read; self create only as member (admins are promoted afterwards);
+    // self update never touches role or active; admins read/write all
     match /users/{uid} {
       allow read:   if isJakala() && (request.auth.uid == uid || isAdmin());
-      allow create: if isJakala() && request.auth.uid == uid;
+      allow create: if isJakala() && request.auth.uid == uid
+                    && (request.resource.data.role == 'member' || isBootstrap());
       allow update: if isJakala() && (
-                      (request.auth.uid == uid && !('role' in request.resource.data.diff(resource.data).affectedKeys()))
-                      || isAdmin()
+                      isAdmin()
+                      || (request.auth.uid == uid
+                          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'active']))
                     );
     }
   }
