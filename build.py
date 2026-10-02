@@ -6,8 +6,9 @@
 #  - JAKALA branding + signed-in user display in header
 import io, os, re
 
-SRC = 'C:/Users/fgennari/Downloads/seo-staffing-hub/_original.html'
-OUT = 'C:/Users/fgennari/Downloads/seo-staffing-hub/index.html'
+HERE = os.path.dirname(os.path.abspath(__file__))
+SRC = os.path.join(HERE, '_original.html')
+OUT = os.path.join(HERE, 'index.html')
 
 with io.open(SRC, encoding='utf-8') as f:
     html = f.read()
