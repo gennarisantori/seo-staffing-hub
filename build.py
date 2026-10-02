@@ -1714,10 +1714,18 @@ function renderMyWeek(){
   });
   h+='<tr class="tot"><td>Total</td><td class="r" style="color:'+col+'">'+used.toFixed(0)+'%</td><td></td></tr>';
   h+='</tbody></table>';
-  var avail=S.p.filter(function(p){return !alloc[p.id];})
-               .sort(function(a,b){return (b.nb?1:0)-(a.nb?1:0)||b.totalDays-a.totalDays;}).slice(0,40);
-  h+='<div class="psc" style="margin-top:16px">Add a project</div><div class="ac">'
-   +avail.map(function(p){return '<span class="ach" onclick="setWeekE(\''+mid+'\',\''+w+'\',\''+p.id+'\','+Math.min(left||5,10)+')">+ '+esc(p.client||p.name)+'</span>';}).join('')
+  // Every project is offered, not a top slice: search narrows it, the list scrolls.
+  var wq=(S.wkQ||'').trim().toLowerCase();
+  var pool=S.p.filter(function(p){return !alloc[p.id];});
+  var avail=pool.filter(function(p){return !wq||[p.name,p.client,p.jobId].some(function(x){return String(x||'').toLowerCase().indexOf(wq)>=0;});})
+               .sort(function(a,b){return (b.nb?1:0)-(a.nb?1:0)||String(a.client||a.name).localeCompare(String(b.client||b.name))||b.totalDays-a.totalDays;});
+  h+='<div class="psc" style="margin-top:16px">Add a project</div>'
+   +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><input class="si" style="width:280px" placeholder="Search project, client or job ID..." value="'+esc(S.wkQ||'')+'" oninput="S.wkQ=this.value;R()">'
+   +'<span style="font-size:11px;color:var(--t3)">'+(wq?avail.length+' of '+pool.length+' projects':pool.length+' projects')+'</span></div>'
+   +'<div class="ac wkadd">'
+   +(avail.length?avail.map(function(p){return '<span class="ach" onclick="setWeekE(\''+mid+'\',\''+w+'\',\''+p.id+'\','+Math.min(left||5,10)+')">+ '+esc(p.client||p.name)
+       +(p.client&&p.name&&p.name!==p.client?' <span class="wkadd-n">'+esc(p.name)+'</span>':'')+'</span>';}).join('')
+     :'<span style="font-size:11px;color:var(--t3);padding:6px 2px">No project matches this search.</span>')
    +'</div>';
   h+='<div class="wk-foot">'
    +(done?'<span class="wk-ok">Filed'+(ts?' on '+ts:'')+'</span>'
@@ -1939,6 +1947,65 @@ html = html.replace(LIVE_ANCHOR,
                     'if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}}'
                     'if(d&&d.t)S.t=Object.assign({},DEFT,d.t);'
                     'if(d){S.wk=d.wk||S.wk;S.hist=d.hist||S.hist||{};S.touched=d.touched||S.touched||{};}R()', 1)
+
+# ── Q. Redrawing replaces the whole page, so every keystroke in a search field used
+#     to drop the cursor and every assignment sent the scrolling lists back to the
+#     top. Remember both before the redraw and put them back after it.
+UI_KEEP = r"""// What the user was doing survives a redraw: the field being typed in, how far
+// each list was scrolled, which "Other" group was open.
+var UI_SCROLL=['.asgn-list','.asgn-main','.wkadd'],_uiCtx={};
+function uiCtx(){
+  var a=S.vw+'|'+(S.aMode||'project');
+  return {'.asgn-list':a,'.asgn-main':a+'|'+S.aP+'|'+S.aM+'|'+S.aStep,'.wkadd':S.vw+'|'+activeWeek()};
+}
+function uiKeep(){
+  var ap=document.getElementById('AP'),st={sc:{},op:[]};
+  if(!ap)return st;
+  var a=document.activeElement;
+  if(a&&a.tagName==='INPUT'&&a.type==='text'&&a.getAttribute('oninput')&&ap.contains(a)){
+    st.k=a.getAttribute('oninput');st.s=a.selectionStart;st.e=a.selectionEnd;
+  }
+  UI_SCROLL.forEach(function(q){var el=ap.querySelector(q);if(el)st.sc[q]=el.scrollTop;});
+  ap.querySelectorAll('.asgn-main details').forEach(function(d,i){if(d.open)st.op.push(i);});
+  return st;
+}
+function uiRestore(st){
+  var ap=document.getElementById('AP'),ctx=uiCtx(),was=_uiCtx;_uiCtx=ctx;
+  if(!ap||!st)return;
+  UI_SCROLL.forEach(function(q){
+    if(st.sc[q]&&was[q]===ctx[q]){var el=ap.querySelector(q);if(el)el.scrollTop=st.sc[q];}
+  });
+  if(st.op.length&&was['.asgn-main']===ctx['.asgn-main']){
+    var ds=ap.querySelectorAll('.asgn-main details');
+    st.op.forEach(function(i){if(ds[i])ds[i].open=true;});
+    var m=ap.querySelector('.asgn-main');if(m&&st.sc['.asgn-main'])m.scrollTop=st.sc['.asgn-main'];
+  }
+  if(st.k){
+    var ins=ap.querySelectorAll('input[oninput]');
+    for(var i=0;i<ins.length;i++){
+      if(ins[i].getAttribute('oninput')===st.k){
+        ins[i].focus({preventScroll:true});
+        try{ins[i].setSelectionRange(st.s,st.e);}catch(e){}
+        break;
+      }
+    }
+  }
+}
+"""
+RENDER_FN = 'function R(){\ndlvReset();'
+assert html.count(RENDER_FN) == 1, 'render entry: %d' % html.count(RENDER_FN)
+html = html.replace(RENDER_FN, UI_KEEP + RENDER_FN, 1)
+RENDER_WRITE = 'document.getElementById("AP").innerHTML=h;'
+assert html.count(RENDER_WRITE) == 1, 'render write sites: %d' % html.count(RENDER_WRITE)
+html = html.replace(RENDER_WRITE, 'var _ui=uiKeep();document.getElementById("AP").innerHTML=h;uiRestore(_ui);', 1)
+
+# My week lists every project: a taller scrolling box, project name next to the client.
+WK_CSS = ('.wkadd{max-height:300px;gap:4px;padding:2px}'
+          '.wkadd .ach{font-size:11px;padding:3px 8px}'
+          '.wkadd-n{font-weight:400;opacity:.65}')
+assert html.count('</style>') == 1, 'style blocks: %d' % html.count('</style>')
+html = html.replace('</style>', WK_CSS + '</style>', 1)
+assert ".slice(0,40)" not in html, 'My week still truncates the project list'
 
 with io.open(OUT, 'w', encoding='utf-8') as f:
     f.write(html)
