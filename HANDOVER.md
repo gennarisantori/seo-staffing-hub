@@ -71,7 +71,7 @@ answers under the title. They were agreed one by one; the order is deliberate.
 | Billability | How many days must go to projects? | average of the members' billability targets, weighted by working days |
 | Capacity | How many billable days can we sell? | working days x billability target, over the measuring window |
 | Saturation | How much have we sold against capacity? | days sold / capacity |
-| Occupation | How much of the capacity is now sold? | sold days people are working on / capacity |
+| Allocation | How much capacity is both declared and sold? | days both declared by people and sold / capacity |
 | Effectiveness | How much of the billable time is used? | days planned on client projects / capacity |
 | Efficiency | How many sold days do we save? | 100% - days planned / days sold |
 
@@ -84,14 +84,16 @@ Things that are easy to get wrong:
   the people planning on it **in proportion to their planned days** (the "sold
   share"). Mario 15 days and Laura 10 on a 20-day project: the project is 25%
   over, shares are 60/40, so Mario's sold share is 12 and Laura's 8.
-- **Occupation caps each project at the sold share**: days beyond what was sold
-  are not paid, and sold days nobody works are not occupation either.
+- **Allocation is the overlap of declared and sold**, capped per project at the
+  sold share: days declared beyond what was sold are left out, and so are sold
+  days nobody declares. It is never above Saturation or Effectiveness. (Not to
+  be confused with the weekly percentages people file, also called allocations.)
 - **Effectiveness counts every client project**, quoted or not: it asks whether
   the billable time is in use, not whether it is paid.
 - **Efficiency is computed on projects somebody plans on.** Sold work with
   nobody on it is "Unstaffed", not a saving. A saving above 50% is greyed as
   "Check forecasts": far more likely missing data than real efficiency.
-- **Occupation, Effectiveness and Efficiency are in days a week** (see Pace
+- **Allocation, Effectiveness and Efficiency are in days a week** (see Pace
   below); Capacity and Saturation are days in the measuring window.
 - Sold days are matched against the project's **whole pool, not the quoted Price
   Level**, because the mix of people delivering rarely matches the mix that was

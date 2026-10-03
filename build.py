@@ -759,15 +759,15 @@ function deliveryData(){
 //   quota    their share of the quoted pace: each project's quoted pace is split
 //            among the people planning on it, in proportion to their planned days
 //   covered  per project the smaller of plan and quota (days beyond the quote are
-//            not paid, quoted days nobody works are not occupation either)
+//            not paid, quoted days nobody works are not allocation either)
 //   target   the client time their billability target asks for
-// Occupation = covered / target, Effectiveness = plan / target,
+// Allocation = covered / target, Effectiveness = plan / target,
 // Efficiency = 100 - plan on quoted projects / quota.
 var _PDLV={};
 function personDelivery(mid){
   if(_PDLV[mid])return _PDLV[mid];
   var m=S.m.find(function(x){return x.id===mid;});
-  if(!m)return {plan:0,planQ:0,quota:0,covered:0,notQuoted:0,target:0,F:0,occupation:null,effectiveness:null,efficiency:null,projects:[]};
+  if(!m)return {plan:0,planQ:0,quota:0,covered:0,notQuoted:0,target:0,F:0,allocation:null,effectiveness:null,efficiency:null,projects:[]};
   var cap=m.cap||220,wy=weeksInYear();
   var plan=0,planQ=0,quota=0,covered=0,notQ=0,projects=[];
   deliveryData().forEach(function(r){
@@ -782,7 +782,7 @@ function personDelivery(mid){
   var target=cap*tgtOf('PL'+rPL(m.role))/100/wy;
   var res={plan:plan,planQ:planQ,quota:quota,covered:covered,notQuoted:notQ,target:target,
            F:wy*horizonShare(),                       // days a week -> days in the measuring window
-           occupation:target>0?covered/target*100:null,
+           allocation:target>0?covered/target*100:null,
            effectiveness:target>0?plan/target*100:null,
            efficiency:quota>0?100-planQ/quota*100:null,
            projects:projects.sort(function(a,b){return b.beyond-a.beyond;})};
@@ -795,13 +795,13 @@ function levelDelivery(k){
     if(k&&'PL'+rPL(m.role)!==k)return;
     var d=personDelivery(m.id);t+=d.target;c+=d.covered;p+=d.plan;pq+=d.planQ;q+=d.quota;
   });
-  return {occupation:t>0?c/t*100:null,effectiveness:t>0?p/t*100:null,efficiency:q>0?100-pq/q*100:null};
+  return {allocation:t>0?c/t*100:null,effectiveness:t>0?p/t*100:null,efficiency:q>0?100-pq/q*100:null};
 }
 function personProfile(mid){
   var m=S.m.find(function(x){return x.id===mid;});if(!m)return null;
   var c=m.cap||220,sh=periodShares(mid),tgt=tgtOf('PL'+rPL(m.role));
   var billPct=sh.bill,billVsTgt=tgt?billPct/tgt*100:0;
-  var d=personDelivery(mid),occ=d.occupation;
+  var d=personDelivery(mid),occ=d.allocation;
   // One group per person: the first condition that applies, most pressing first.
   var eft=d.effectiveness,eff=d.efficiency;
   var band=d.notQuoted*d.F>5?'notq'
@@ -811,7 +811,7 @@ function personProfile(mid){
     :(eff!==null&&eff>50)?'check'
     :'ok';
   return {m:m,cap:c,billPct:billPct,tgt:tgt,billVsTgt:billVsTgt,
-          occupation:occ,effectiveness:d.effectiveness,efficiency:d.efficiency,
+          allocation:occ,effectiveness:d.effectiveness,efficiency:d.efficiency,
           plan:d.plan,quota:d.quota,covered:d.covered,notQuoted:d.notQuoted,
           projects:d.projects,band:band,label:BANDS[band].t,note:personNote(band,d)};
 }
@@ -877,7 +877,7 @@ var ADMDEF={
   quoted:'Quoted days = days sold on the price quotes, counted pro rata for '+YEAR+': a project running beyond the year contributes only the share of its contract that falls inside it.',
   perceived:'Perceived = days people report they spend, billable and non-billable together, derived from the percentage weight each of them set on every project, compared with their capacity. It shows how loaded the team believes it is.',
   billability:'Billability = the share of working time to dedicate to projects. For a person it is the billability target of their Price Level; for the team it is the average of the members\' targets, weighted by their working days. It is a target, not a result: it moves only when ranks or team members change.',
-  occupation:'Occupation = sold days people are actually working on / capacity. On each project only the days up to the person\'s share of the quote count: days beyond what was sold are not paid, and sold days nobody works are not occupation either.',
+  allocation:'Allocation = days that are both declared by people and sold / capacity. It is the overlap between what people say they work on and what was sold: on each project only the days up to the person\'s share of the quote count. Days declared beyond what was sold are left out, and so are sold days nobody declares. It can never be higher than Saturation (everything sold) or Effectiveness (everything declared).',
   effectiveness:'Effectiveness = days planned on client projects / capacity: how much of the billable time available is actually being used. Every client project counts, quoted or not. 100% means the billable time is fully used; above 100% people plan more client time than their target asks for.',
   efficiency:'Efficiency = the share of the days sold that is saved: 100% minus days planned / days sold, compared as days a week against the pace the quote implies to finish by its end date. Positive means delivering with fewer days than sold (provided quality holds); negative means using more than was sold. Across the team only projects somebody plans on are counted. For a person, each project\'s quote is split among the people planning on it, in proportion to their planned days.',
   sellable:'Sellable capacity = capacity x the billability target of the Price Level: the days that can realistically be billed to clients, once the time planned for internal work, management, presale, training and leave is set aside.',
@@ -885,7 +885,7 @@ var ADMDEF={
   horizon:'Measuring window. Rest of the year counts only the working days still ahead, closures and holidays removed, and scales both quoted days and capacity to that window: it is the honest comparison, because forecasts only start now. Full year projects the same rates over the whole year, useful to sense-check the annual picture.',
   pace:'Pace compares how many days a week the team plans on a project with how many the quote implies to finish by its end date. It says nothing about days delivered before tracking started, so a project already well advanced can legitimately sit below the quoted pace.',
   coverage:'Planned vs quoted = days the team plans to spend on a project / days quoted on it. Below 100% part of the quoted work is not planned yet; above 100% more days are going in than were quoted.',
-  target:'Billability target = the share of the year a Price Level is expected to sell to clients. It sets billability and capacity, and through them saturation, occupation and effectiveness. Editable in By level.',
+  target:'Billability target = the share of the year a Price Level is expected to sell to clients. It sets billability and capacity, and through them saturation, allocation and effectiveness. Editable in By level.',
   saturation:'Saturation = days quoted for '+YEAR+' divided by the days the team can realistically bill, so it compares what has been quoted with what can be delivered. Above 100% more is quoted than the team can deliver.'
 };
 function admNote(txt){return '<div class="admnote">'+txt+'</div>';}
@@ -919,7 +919,7 @@ function kpiCard(o){
 }
 // Colours of the measures, one place so every view agrees.
 var GRN='#2f6e12',AMB='#8a5a0c',RED='#b32a1c',GRY='#6b6e76';
-function occCol(v){return v===null||v===undefined?GRY:v>=90?GRN:v>=75?AMB:RED;}
+function alcCol(v){return v===null||v===undefined?GRY:v>=90?GRN:v>=75?AMB:RED;}
 function satCol(v){return v===null||v===undefined?GRY:v<=100?GRN:v<=110?AMB:RED;}
 // Effectiveness: the billable time should be in use; planning well beyond it is a warning too.
 function eftCol(v){return v===null||v===undefined?GRY:v>115?AMB:v>=90?GRN:v>=75?AMB:RED;}
@@ -946,7 +946,7 @@ function admOverview(){
   var D=admData(),D2=deliveryData();
   var tC=0,tN=0,tS=0,tQ=0;
   PLkeys.forEach(function(k){tC+=D.plCap[k];tN+=D.plN[k];tS+=D.plSell[k];tQ+=D.quoted[k];});
-  var T=levelDelivery(null),occ=T.occupation,eft=T.effectiveness;
+  var T=levelDelivery(null),occ=T.allocation,eft=T.effectiveness;
   var bill=tC?tS/tC*100:null;                 // weighted average of the members' targets
   var sat=tS?tQ/tS*100:null;
   var under=0;roster().forEach(function(m){var u=personDelivery(m.id).effectiveness;if(u!==null&&u<75)under++;});
@@ -983,10 +983,10 @@ function admOverview(){
              fmt:_p0,target:'target up to 100%',
              verdict:function(v){return v<=100?{t:'within capacity',c:GRN}:v<=110?{t:'slightly over what we can deliver',c:AMB}:{t:'more sold than deliverable',c:RED};},
              note:_d0(tQ)+' days sold / '+_d0(tS)+' days of capacity'})
-   +kpiCard({label:'Occupation',info:'occupation',q:'How much of our capacity is now sold to projects?',value:occ,scale:150,mark:100,
+   +kpiCard({label:'Allocation',info:'allocation',q:'How much of our capacity is taken by days that are both declared and sold?',value:occ,scale:150,mark:100,
              fmt:_p0,target:'target 100%',
-             verdict:function(v){return v>=90?{t:'capacity taken by sold work',c:GRN}:v>=75?{t:'part of the capacity is not sold',c:AMB}:{t:'much of the capacity is not sold',c:RED};},
-             note:'sold days people are working on / capacity'})
+             verdict:function(v){return v>=90?{t:'capacity covered by declared and sold days',c:GRN}:v>=75?{t:'part of the capacity is not covered',c:AMB}:{t:'much of the capacity is not covered',c:RED};},
+             note:'days both declared and sold / capacity'})
    +kpiCard({label:'Effectiveness',info:'effectiveness',q:'How much of our billable time are we actually using?',value:eft,scale:150,mark:100,
              fmt:_p0,target:'target 100%',verdict:eftVerdict,
              note:'days planned on projects / capacity · '+under+' '+(under===1?'person':'people')+' under 75%'})
@@ -1042,7 +1042,7 @@ function admBillability(){
 // Billability targets, one per Price Level: they set billability and capacity.
 function targetsCard(){
   var D=admData();
-  var h='<div class="ucard"><div class="uct">Billability targets</div><div class="ucs">Share of the year each Price Level is expected to dedicate to projects. The rest is planned for internal work, management, presale, training and leave. Changing a target moves billability and capacity, and through them saturation, occupation and effectiveness.</div><div class="tgtrow">';
+  var h='<div class="ucard"><div class="uct">Billability targets</div><div class="ucs">Share of the year each Price Level is expected to dedicate to projects. The rest is planned for internal work, management, presale, training and leave. Changing a target moves billability and capacity, and through them saturation, allocation and effectiveness.</div><div class="tgtrow">';
   PLkeys.forEach(function(k){
     h+='<label class="tgtbox"><span>'+plLabel(k)+'</span><span style="font-size:10px;color:var(--t3)">'+esc(plRanksTxt(D,k))+'</span><span class="tgtin"><input type="number" min="1" max="100" step="5" value="'+tgtOf(k)+'" onchange="setTgt(\''+k+'\',this.value)">%</span></label>';
   });
@@ -1058,7 +1058,7 @@ function levelTable(D,reading){
   var tC=0,tN=0,tQ=0,tSell=0;
   var h='<table class="utbl"><thead><tr><th>Price Level</th><th class="r">People</th>'
    +'<th class="r">Billability'+iHelp('billability')+'</th><th class="r">Capacity (days)'+iHelp('capacity')+'</th>'
-   +'<th class="r">Saturation'+iHelp('saturation')+'</th><th class="r">Occupation'+iHelp('occupation')+'</th>'
+   +'<th class="r">Saturation'+iHelp('saturation')+'</th><th class="r">Allocation'+iHelp('allocation')+'</th>'
    +'<th class="r">Effectiveness'+iHelp('effectiveness')+'</th><th class="r">Efficiency'+iHelp('efficiency')+'</th>'
    +(reading?'<th>Reading</th>':'')+'</tr></thead><tbody>';
   PLkeys.forEach(function(k){
@@ -1066,17 +1066,17 @@ function levelTable(D,reading){
     var L=levelDelivery(k),sa=sell>0?D.quoted[k]/sell*100:null;
     tC+=cap;tN+=D.plN[k];tQ+=D.quoted[k];tSell+=sell;
     var msg=(sa!==null&&sa>110)?'More sold than the level can deliver'
-      :(L.occupation!==null&&L.occupation<75)?'Much of their capacity is not taken by sold work'
+      :(L.allocation!==null&&L.allocation<75)?'Much of their capacity is not taken by sold work'
       :(L.efficiency!==null&&L.efficiency<-15)?'Using well beyond what was sold'
       :(L.effectiveness!==null&&L.effectiveness<75)?'Much of their billable time is unused'
       :(sa!==null&&sa<60)?'Room to take on more work'
       :'In line';
-    h+='<tr><td><span class="tl" style="background:'+occCol(L.occupation)+'"></span> <b>'+plLabel(k)+'</b><div style="font-size:10px;color:var(--t3);margin-left:18px">'+esc(plRanksTxt(D,k))+'</div></td>'
+    h+='<tr><td><span class="tl" style="background:'+alcCol(L.allocation)+'"></span> <b>'+plLabel(k)+'</b><div style="font-size:10px;color:var(--t3);margin-left:18px">'+esc(plRanksTxt(D,k))+'</div></td>'
       +'<td class="r">'+D.plN[k]+'</td>'
       +'<td class="r">'+tgtCell(tg)+'</td>'
       +'<td class="r"><b>'+_d0(sell)+'</b><div style="font-size:10px;color:var(--t3);white-space:nowrap">of '+_d0(cap)+' working days</div></td>'
       +'<td class="r">'+pctCell(sa,satCol)+'</td>'
-      +'<td class="r">'+pctCell(L.occupation,occCol)+'</td>'
+      +'<td class="r">'+pctCell(L.allocation,alcCol)+'</td>'
       +'<td class="r">'+pctCell(L.effectiveness,eftCol)+'</td>'
       +'<td class="r">'+pctCell(L.efficiency,effCol)+'</td>'
       +(reading?'<td style="font-size:11.5px;color:var(--t2)">'+msg+'</td>':'')+'</tr>';
@@ -1084,10 +1084,10 @@ function levelTable(D,reading){
   var T=levelDelivery(null),sT=tSell>0?tQ/tSell*100:null;
   h+='<tr class="tot"><td>Total</td><td class="r">'+tN+'</td>'
    +'<td class="r">'+(tC?tgtCell(tSell/tC*100):'-')+'</td><td class="r">'+_d0(tSell)+'</td>'
-   +'<td class="r">'+pctCell(sT,satCol)+'</td><td class="r">'+pctCell(T.occupation,occCol)+'</td>'
+   +'<td class="r">'+pctCell(sT,satCol)+'</td><td class="r">'+pctCell(T.allocation,alcCol)+'</td>'
    +'<td class="r">'+pctCell(T.effectiveness,eftCol)+'</td><td class="r">'+pctCell(T.efficiency,effCol)+'</td>'+(reading?'<td></td>':'')+'</tr>';
   return h+'</tbody></table>'
-   +admLegend([['Billability','the target: share of working time to dedicate to projects'],['Capacity','working days x billability target'],['Saturation','days sold / capacity'],['Occupation','sold days people are working on / capacity'],['Effectiveness','days planned on projects / capacity'],['Efficiency','days saved / days sold']]);
+   +admLegend([['Billability','the target: share of working time to dedicate to projects'],['Capacity','working days x billability target'],['Saturation','days sold / capacity'],['Allocation','days both declared and sold / capacity'],['Effectiveness','days planned on projects / capacity'],['Efficiency','days saved / days sold']]);
 }
 function vsTarget(v,t){
   if(v===null||v===undefined)return '<span style="color:var(--t3)">-</span>';
@@ -1120,13 +1120,13 @@ function peopleWatch(kind,title){
   pick=pick.slice(0,6);
   var h='<div class="ucard"><div class="uct" style="font-size:15px">'+(title||'People to look at')+'</div>';
   if(!pick.length)return h+'<div class="ucs" style="margin:0">Nobody in this group right now.</div></div>';
-  h+='<div class="ucs">'+intro+'</div><table class="utbl"><thead><tr><th style="width:26px"></th><th>Name</th><th class="r">Billability</th><th class="r">Occupation</th><th class="r">Effectiveness</th><th class="r">Efficiency</th><th>What it says</th></tr></thead><tbody>';
+  h+='<div class="ucs">'+intro+'</div><table class="utbl"><thead><tr><th style="width:26px"></th><th>Name</th><th class="r">Billability</th><th class="r">Allocation</th><th class="r">Effectiveness</th><th class="r">Efficiency</th><th>What it says</th></tr></thead><tbody>';
   pick.forEach(function(x){
     h+='<tr style="cursor:pointer" onclick="S.aTab=\'people\';S.pBand=\'all\';S.pSel=\''+x.m.id+'\';R()">'
       +'<td><span class="tl" style="background:'+dot(dot===effCol?x.efficiency:x.effectiveness)+'"></span></td>'
       +'<td><div style="font-weight:600">'+esc(x.m.name)+'</div><div style="font-size:10px;color:var(--t3)">'+esc(x.m.role)+'</div></td>'
       +'<td class="r">'+tgtCell(x.tgt)+'</td>'
-      +'<td class="r">'+pctCell(x.occupation,occCol)+'</td>'
+      +'<td class="r">'+pctCell(x.allocation,alcCol)+'</td>'
       +'<td class="r">'+pctCell(x.effectiveness,eftCol)+'</td>'
       +'<td class="r">'+pctCell(x.efficiency,effCol)+'</td>'
       +'<td style="font-size:12px;color:var(--t2)">'+x.note+'</td></tr>';
@@ -1282,13 +1282,13 @@ function admPeople(){
   rows.sort(function(a,b){return PEOPLE_BANDS.indexOf(a.band)-PEOPLE_BANDS.indexOf(b.band)||(a.effectiveness===null?999:a.effectiveness)-(b.effectiveness===null?999:b.effectiveness);});
   var counts={};roster().forEach(function(m){var x=personProfile(m.id);if(x)counts[x.band]=(counts[x.band]||0)+1;});
   var chip=function(k,label){return '<button class="perbtn'+(band===k?' on':'')+'" onclick="S.pBand=\''+k+'\';R()">'+label+'</button>';};
-  var h=orphanCard()+leaverCard()+'<div class="ucard"><div class="uct">People</div><div class="ucs">Billability: the share of their time to dedicate to projects. Occupation: how much of that is taken by sold work they are on. Effectiveness: how much of their billable time they actually use. Efficiency: the days they save on what was sold for them. Days are per week.</div>'
+  var h=orphanCard()+leaverCard()+'<div class="ucard"><div class="uct">People</div><div class="ucs">Billability: the share of their time to dedicate to projects. Allocation: how much of that is taken by days they declare that are also sold. Effectiveness: how much of their billable time they actually use. Efficiency: the days they save on what was sold for them. Days are per week.</div>'
    +weakDataNote()
    +'<div class="perbar" style="margin-top:12px"><span>Show</span>'+chip('all','Everyone ('+roster().length+')')
    +PEOPLE_BANDS.filter(function(b){return counts[b];}).map(function(b){return chip(b,BANDS[b].t+' ('+counts[b]+')');}).join('')
    +'</div>'
    +'<table class="utbl"><thead><tr><th>Name</th><th>HR rank</th><th class="r">Billability'+iHelp('billability')+'</th>'
-   +'<th class="r">Occupation'+iHelp('occupation')+'</th><th class="r">Effectiveness'+iHelp('effectiveness')+'</th>'
+   +'<th class="r">Allocation'+iHelp('allocation')+'</th><th class="r">Effectiveness'+iHelp('effectiveness')+'</th>'
    +'<th class="r">Efficiency'+iHelp('efficiency')+'</th>'
    +'<th class="r">Planned (d/wk)</th><th class="r">Sold share (d/wk)</th><th class="r">Projects</th><th>Reading</th></tr></thead><tbody>';
   rows.forEach(function(x){
@@ -1297,7 +1297,7 @@ function admPeople(){
       +'<td style="font-weight:600">'+esc(x.m.name)+'</td>'
       +'<td style="color:'+(RC[x.m.role]||'#999')+';font-size:11px">'+esc(x.m.role)+'</td>'
       +'<td class="r">'+tgtCell(x.tgt)+'<div style="font-size:10px;color:var(--t3);white-space:nowrap">plans '+_p0(x.billPct)+' on clients</div></td>'
-      +'<td class="r">'+pctCell(x.occupation,occCol)+'</td>'
+      +'<td class="r">'+pctCell(x.allocation,alcCol)+'</td>'
       +'<td class="r">'+pctCell(x.effectiveness,eftCol)+'</td>'
       +'<td class="r">'+pctCell(x.efficiency,effCol)+'</td>'
       +'<td class="r">'+_d1(x.plan)+'</td><td class="r">'+_d1(x.quota)+'</td>'
@@ -1318,7 +1318,7 @@ function admPeople(){
   });
   if(!rows.length)h+='<tr><td colspan="10" style="text-align:center;color:var(--t3);padding:18px">Nobody in this group.</td></tr>';
   return h+'</tbody></table>'
-   +admLegend([['Billability','their target: share of working time to dedicate to projects'],['Occupation','sold days they are working on / their capacity'],['Effectiveness','days planned on projects / their capacity'],['Efficiency','days saved / their share of the days sold'],['Sold share','the part of each quote that falls to them, split by planned days'],['Reading','the group they fall in']])
+   +admLegend([['Billability','their target: share of working time to dedicate to projects'],['Allocation','their days both declared and sold / their capacity'],['Effectiveness','days planned on projects / their capacity'],['Efficiency','days saved / their share of the days sold'],['Sold share','the part of each quote that falls to them, split by planned days'],['Reading','the group they fall in']])
    +admNote('Click a row to see project by project where the gap comes from.')+'</div>';
 }
 """
