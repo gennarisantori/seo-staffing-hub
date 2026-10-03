@@ -60,35 +60,52 @@ Tell users to hard-refresh (Ctrl+F5) after a deploy.
 The Firebase web config is inline in `index.html` and public by design; access is
 enforced by Auth plus the database rules, not by hiding the key.
 
-## The three measures
+## The measures
 
-These definitions took several iterations to get right. They are deliberately
-different questions, not variations on one number.
+Admin > Overview opens with seven blocks, each titled, with the question it
+answers under the title. They were agreed one by one; the order is deliberate.
 
-**Billability** — *is this person booking enough client time?*
-```
-client days declared / capacity        vs the target of their Price Level
-```
-Targets are editable in Admin: PL4 50%, PL3 75%, PL2 80%, PL1 90%.
+| Block | Question | Formula |
+|---|---|---|
+| Progress | How up to date is the data? | people who filed the week / active team |
+| Billability | How many days must go to projects? | average of the members' billability targets, weighted by working days |
+| Capacity | How many billable days can we sell? | working days x billability target, over the measuring window |
+| Saturation | How much have we sold against capacity? | days sold / capacity |
+| Occupation | How much of the capacity is now sold? | sold days people are working on / capacity |
+| Effectiveness | How much of the billable time is used? | days planned on client projects / capacity |
+| Efficiency | How many sold days do we save? | 100% - days planned / days sold |
 
-**Utilization** — *is that client time backed by work that was actually quoted?*
-```
-days backed by quoted work / (capacity x billability target)      target 100%
-```
-A person's share of a project's quoted days is **capped at what they actually
-put in**. Without that cap, a barely-staffed project handed out enormous quotas
-and utilization read up to 382%; with it the scale behaves (0-113%).
+Things that are easy to get wrong:
 
-Days are matched against the project's **whole quoted pool, not the quoted Price
-Level**, because the mix of people delivering rarely matches the mix that was
-quoted. Matching per level produced dozens of false "not quoted" flags.
+- **Billability is a target, not a result.** It only moves when ranks or team
+  members change. Targets are editable in Admin > By level: PL4 50%, PL3 75%,
+  PL2 80%, PL1 90%.
+- **The driver is what people declare.** A project's sold days are split among
+  the people planning on it **in proportion to their planned days** (the "sold
+  share"). Mario 15 days and Laura 10 on a 20-day project: the project is 25%
+  over, shares are 60/40, so Mario's sold share is 12 and Laura's 8.
+- **Occupation caps each project at the sold share**: days beyond what was sold
+  are not paid, and sold days nobody works are not occupation either.
+- **Effectiveness counts every client project**, quoted or not: it asks whether
+  the billable time is in use, not whether it is paid.
+- **Efficiency is computed on projects somebody plans on.** Sold work with
+  nobody on it is "Unstaffed", not a saving. A saving above 50% is greyed as
+  "Check forecasts": far more likely missing data than real efficiency.
+- **Occupation, Effectiveness and Efficiency are in days a week** (see Pace
+  below); Capacity and Saturation are days in the measuring window.
+- Sold days are matched against the project's **whole pool, not the quoted Price
+  Level**, because the mix of people delivering rarely matches the mix that was
+  quoted. Matching per level produced dozens of false "not quoted" flags.
 
-**Saturation** — *has more been quoted than the team can deliver?*
-```
-quoted days / days the team can bill        target <= 100%
-```
+People and projects each fall in one group, first match wins:
 
-The seniority mismatch is not discarded: it surfaces per project as the
+- People: Not quoted (>5 days on unsold projects), Over budget (efficiency
+  < -15%), Under-used (effectiveness < 75%), Overloaded (effectiveness > 115%),
+  Check forecasts (efficiency > 50%), On track.
+- Projects: Not quoted, Unstaffed, Over budget (< -15%), Check forecasts
+  (> 50%), Saving (15% to 50%), On track.
+
+The seniority mismatch is not a group: it surfaces per project as the
 **seniority mix**, saying whether work is staffed more senior than quoted (costs
 more than budgeted) or more junior (cheaper, but check what the client expects).
 
@@ -161,9 +178,12 @@ view 5-41ms.
 
 ## Known loose ends
 
-- `admPerceived`, `admBillability`, `admUtilization` and `admSaturation` still
-  exist in the source but are unreachable since Admin went to five tabs. Harmless
-  dead code, worth removing in a dedicated clean-up.
+- `admPerceived`, `admBillability` and `admSaturation` still exist in the source
+  but are unreachable since Admin went to five tabs. Harmless dead code, worth
+  removing in a dedicated clean-up.
+- About 40 replacements in `build.py` no longer find their target (old
+  translations of strings that are gone). They do nothing, but they hide real
+  breakage: a helper that fails on a missing target would make the build honest.
 - The seed data assigns people to projects without checking the quoted levels, so
   the starting figures understate utilization. Real figures arrive as the team
   files. Regenerating the seed from the quoted days is an option.
