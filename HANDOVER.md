@@ -86,8 +86,9 @@ Things that are easy to get wrong:
   over, shares are 60/40, so Mario's sold share is 12 and Laura's 8.
 - **Allocation is the overlap of declared and sold**, capped per project at the
   sold share: days declared beyond what was sold are left out, and so are sold
-  days nobody declares. It is never above Saturation or Effectiveness. (Not to
-  be confused with the weekly percentages people file, also called allocations.)
+  days nobody declares. It is never above Saturation or Effectiveness. In the UI
+  "allocation" means only this measure: the weekly percentages people file are
+  shown as **assignments** (the code and this file still call them allocations).
 - **Effectiveness counts every client project**, quoted or not: it asks whether
   the billable time is in use, not whether it is paid.
 - **Efficiency is computed on projects somebody plans on.** Sold work with

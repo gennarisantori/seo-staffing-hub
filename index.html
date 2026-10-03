@@ -1002,7 +1002,7 @@ h+=`<div style="flex:1;min-width:0;display:flex;flex-direction:column"><div styl
 <th${pps.col==='client'?' class="sorted"':''}><div class="thw" ${thH('p','client')}>Client ${arrI('p','client')}</div><div class="flt"><select onchange="S.pFlt.client=this.value;R()" onclick="event.stopPropagation()"><option value="">All</option>${clients.map(c=>`<option value="${esc(c)}"${pf.client===c?' selected':''}>${esc(c)}</option>`).join('')}</select></div></th>
 <th${pps.col==='nTeam'?' class="sorted"':''}><div class="thw" ${thH('p','nTeam')}>Team ${arrI('p','nTeam')}</div></th>
 <th${pps.col==='totalDays'?' class="sorted"':''}><div class="thw" ${thH('p','totalDays')}>Quoted days ${arrI('p','totalDays')}</div></th>
-<th${pps.col==='ad'?' class="sorted"':''}><div class="thw" ${thH('p','ad')}>Alloc. days ${arrI('p','ad')}</div></th>
+<th${pps.col==='ad'?' class="sorted"':''}><div class="thw" ${thH('p','ad')}>Assigned days ${arrI('p','ad')}</div></th>
 <th${pps.col==='cov'?' class="sorted"':''}><div class="thw" ${thH('p','cov')}>Coverage ${arrI('p','cov')}</div></th>
 <th${pps.col==='start'?' class="sorted"':''}><div class="thw" ${thH('p','start')}>Start ${arrI('p','start')}</div></th>
 <th${pps.col==='end'?' class="sorted"':''}><div class="thw" ${thH('p','end')}>End ${arrI('p','end')}</div></th>
@@ -1028,7 +1028,7 @@ h+=`<div class="pn"><div class="ph"><div style="flex:1;min-width:0"><div class="
 <div style="display:flex;gap:4px">${_ce?`<button class="b ba" onclick="epM('${p.id}')">✎</button><button class="b br" onclick="dP('${p.id}')">✕</button>`:``}<button class="b bo" onclick="S.sp=null;R()">←</button></div></div>
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
 <div style="background:rgba(0,0,0,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:var(--a2)">${p.totalDays}</div><div style="font-size:9px;color:var(--t3)">Sold days</div></div>
-<div style="background:rgba(0,0,0,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:${cov>=90?'var(--gn)':'var(--yl)'}">${ad.toFixed(0)}</div><div style="font-size:9px;color:var(--t3)">Allocated days</div></div>
+<div style="background:rgba(0,0,0,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:${cov>=90?'var(--gn)':'var(--yl)'}">${ad.toFixed(0)}</div><div style="font-size:9px;color:var(--t3)">Assigned days</div></div>
 <div style="background:rgba(0,0,0,.03);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mn);font-size:18px;font-weight:700;color:${cov>=90?'var(--gn)':cov>0?'var(--yl)':'var(--t3)'}">${cov.toFixed(0)}%</div><div style="font-size:9px;color:var(--t3)">coverage</div></div></div>
 <div class="psc">Quoted days per Price Level</div>`;
 PLkeys.forEach(k=>{const v=p.daysByRole[k]||0;if(v>0)h+=`<div class="rr"><span class="rl">${k.replace('PL','PL ')}</span><div class="rt"><div class="rfl" style="width:${(v/mx)*100}%;background:${PLC[k.replace('PL','')]||'#999'}"></div></div><span class="rv">${v}</span></div>`});
@@ -1087,7 +1087,7 @@ rn.forEach(k=>{
 const plNum=+k.replace('PL','');const plRoles=PL[plNum]||[];
 const dr=ap.daysByRole[k]||0;const cands=ms.filter(m=>isActive(m)&&plRoles.includes(m.role)).sort((a,b)=>(100-mEf(a.id))-(100-mEf(b.id))).reverse();
 const adr=ca.filter(a=>plRoles.includes(a.m.role)).reduce((t,a)=>t+(a.pct/100)*(a.m.cap||220),0);
-h+=`<div class="role-sec"><div class="role-hdr"><span style="color:${PLC[plNum]||'#999'}">Price Level ${plNum} <span style="font-weight:400;color:var(--t3)">· ${dr} d · ${adr.toFixed(0)} alloc.</span></span>
+h+=`<div class="role-sec"><div class="role-hdr"><span style="color:${PLC[plNum]||'#999'}">Price Level ${plNum} <span style="font-weight:400;color:var(--t3)">· ${dr} d · ${adr.toFixed(0)} assigned</span></span>
 <span style="font-size:10px;color:${adr>=dr?'var(--gn)':'var(--yl)'}">${dr>0?(adr/dr*100).toFixed(0):0}%</span></div>`;
 cands.forEach(m=>{const ef=mEf(m.id);const av=100-ef;const isOn=ap.asgn?.[m.id]>0;
 h+=`<div class="cand" onclick="togLink('${ap.id}','${m.id}')"><div class="ck${isOn?' on':''}">${isOn?'✓':''}</div>
@@ -1107,7 +1107,7 @@ const ca=pAsg(ap.id);const plg={};ca.forEach(a=>{const pk='PL'+rPL(a.m.role);if(
 PLkeys.forEach(k=>{const g=plg[k];if(!g)return;const dr=ap.daysByRole[k]||0;const ad=g.reduce((t,a)=>t+(a.pct/100)*(a.m.cap||220),0);
 const plNum=k.replace('PL','');
 h+=`<div style="margin-bottom:12px"><div style="font-size:10px;font-weight:700;color:${PLC[plNum]||'#999'};margin-bottom:4px;display:flex;justify-content:space-between">
-<span>Price Level ${plNum} · ${dr} GG</span><span style="color:${ad>=dr?'var(--gn)':'var(--yl)'}">Alloc: ${ad.toFixed(0)} d (${dr>0?(ad/dr*100).toFixed(0):0}%)</span></div>`;
+<span>Price Level ${plNum} · ${dr} GG</span><span style="color:${ad>=dr?'var(--gn)':'var(--yl)'}">Assigned: ${ad.toFixed(0)} d (${dr>0?(ad/dr*100).toFixed(0):0}%)</span></div>`;
 g.forEach(a=>{const mef=mEf(a.mid);const av=100-mef+a.pct;const de=(a.pct/100)*(a.m.cap||220);
 h+=`<div class="rev-row"><span style="font-weight:600;min-width:110px;font-size:11px">${esc(a.m.name)} <span style="font-size:8px;color:${RC[a.m.role]||'#999'}">${a.m.role}</span></span>
 <input class="rng" type="range" min="0" max="${Math.min(av,100)}" step="5" value="${a.pct}" oninput="setE('${ap.id}','${a.mid}',+this.value);this.nextElementSibling.value=this.value;this.nextElementSibling.nextElementSibling.textContent=(this.value/100*${a.m.cap||220}).toFixed(0)+'d'">
@@ -1165,7 +1165,7 @@ const isOn=p.asgn?.[am.id]>0;const dr=p.daysByRole[mPL]||0;
 const plRoles=PL[rPL(am.role)]||[];
 const asg=pAsg(p.id).filter(a=>plRoles.includes(a.m.role));const adr=asg.reduce((t,a)=>t+(a.pct/100)*(a.m.cap||220),0);
 h+=`<div class="cand" onclick="togLink('${p.id}','${am.id}')"><div class="ck${isOn?' on':''}">${isOn?'✓':''}</div>
-<div class="cn2"><b>${esc(p.name)}</b><br><span>${esc(p.client)} · ${dr} d ${am.role} · ${adr.toFixed(0)} alloc.</span></div>
+<div class="cn2"><b>${esc(p.name)}</b><br><span>${esc(p.client)} · ${dr} d ${am.role} · ${adr.toFixed(0)} assigned</span></div>
 <div class="cavail" style="font-size:9px;color:${adr>=dr?'var(--gn)':'var(--yl)'}"><div>${dr>0?(adr/dr*100).toFixed(0):0}%</div><div style="color:var(--t3)">${p.totalDays}d</div></div></div>`});
 
 if(otherPs.length){h+=`<details style="margin-top:8px"><summary style="font-size:10px;color:var(--t3);cursor:pointer;font-weight:600">Other projects (${otherPs.length})</summary>`;
@@ -1585,7 +1585,7 @@ function clearOrphans(){
   if(!isAdmin())return;
   var o=orphanAllocations(),ids=Object.keys(o);
   if(!ids.length)return;
-  if(!confirm('Clear allocations left by '+ids.length+' person(s) no longer on the team?\n\nThe projects involved will need reassigning.'))return;
+  if(!confirm('Clear assignments left by '+ids.length+' person(s) no longer on the team?\n\nThe projects involved will need reassigning.'))return;
   S.p.forEach(function(p){if(p.asgn)ids.forEach(function(mid){delete p.asgn[mid];});});
   sv();R();
 }
@@ -2159,14 +2159,14 @@ function orphanCard(){
   var o=orphanAllocations(),ids=Object.keys(o);
   if(!ids.length)return '';
   var n=0;ids.forEach(function(k){n+=o[k].projects.length;});
-  var h='<div class="ucard" style="border-left:4px solid #b32a1c"><div class="uct" style="font-size:15px">Allocations with nobody behind them</div>'
+  var h='<div class="ucard" style="border-left:4px solid #b32a1c"><div class="uct" style="font-size:15px">Assignments with nobody behind them</div>'
    +'<div class="ucs">'+ids.length+' person(s) were removed from the team while still assigned. Their share still sits on '+n+' project(s) and counts for nothing, so those projects read as covered when they are not.</div>'
    +'<table class="utbl"><thead><tr><th>Projects affected</th><th class="r">Share left behind</th></tr></thead><tbody>';
   ids.forEach(function(mid){
     h+='<tr><td>'+o[mid].projects.slice(0,4).map(function(p){return esc(p.client||p.name);}).join(', ')+(o[mid].projects.length>4?' +'+(o[mid].projects.length-4)+' more':'')+'</td>'
       +'<td class="r">'+_p0(o[mid].pct)+'</td></tr>';
   });
-  return h+'</tbody></table>'+(isAdmin()?'<button class="b br" style="margin-top:12px" onclick="clearOrphans()">Clear these allocations</button>':'')
+  return h+'</tbody></table>'+(isAdmin()?'<button class="b br" style="margin-top:12px" onclick="clearOrphans()">Clear these assignments</button>':'')
    +admNote('Clearing them frees the projects so the work can be reassigned. History is untouched.')+'</div>';
 }
 function leaverCard(){

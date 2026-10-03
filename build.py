@@ -2098,6 +2098,21 @@ assert html.count('</style>') == 1, 'style blocks: %d' % html.count('</style>')
 html = html.replace('</style>', WK_CSS + '</style>', 1)
 assert ".slice(0,40)" not in html, 'My week still truncates the project list'
 
+# ── R. "Allocation" now names an Admin measure, so what people are assigned to
+#     projects is called an assignment everywhere it is shown. Done last, on the
+#     final text, because earlier steps anchor on the old wording.
+for old, new, n in [
+    ('>Alloc. days ', '>Assigned days ', 1),
+    ('>Allocated days<', '>Assigned days<', 1),
+    (' alloc.</span>', ' assigned</span>', 2),
+    ('">Alloc: ${', '">Assigned: ${', 1),
+    ('>Allocations with nobody behind them<', '>Assignments with nobody behind them<', 1),
+    ('>Clear these allocations<', '>Clear these assignments<', 1),
+    ("confirm('Clear allocations left by '", "confirm('Clear assignments left by '", 1),
+]:
+    assert html.count(old) == n, 'assignment wording %r: %d' % (old, html.count(old))
+    html = html.replace(old, new)
+
 with io.open(OUT, 'w', encoding='utf-8') as f:
     f.write(html)
 print('OK', len(html), 'chars written')
