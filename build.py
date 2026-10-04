@@ -2113,6 +2113,405 @@ for old, new, n in [
     assert html.count(old) == n, 'assignment wording %r: %d' % (old, html.count(old))
     html = html.replace(old, new)
 
+# ── S. Admin > Data: update the team and the project list from Excel ──
+#     The workbook is read in the browser; nothing is uploaded. Projects are keyed
+#     by JOB ID + sheet (the same job can have an SEO and a Content part), people
+#     by email. Assignments are never written by an import.
+IMPORT_JS = r"""// ===== Admin > Data: update the team and the project list from Excel =====
+// Closed projects leave S.p for S.px, so no list or measure has to filter them;
+// past weeks still name them through projById.
+function projById(id){
+  return S.p.find(function(x){return x.id===id;})||(S.px||[]).find(function(x){return x.id===id;})||null;
+}
+// An .xlsx is a zip of XML files: read it here rather than pull in a library.
+async function xlsxOpen(file){
+  if(typeof DecompressionStream==='undefined')throw new Error('This browser cannot read Excel files here. Use a recent Chrome, Edge, Firefox or Safari.');
+  var buf=await file.arrayBuffer(),dv=new DataView(buf),u8=new Uint8Array(buf),td=new TextDecoder();
+  var e=buf.byteLength-22;
+  while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--;
+  if(e<0)throw new Error('This is not an .xlsx file.');
+  var n=dv.getUint16(e+10,true),off=dv.getUint32(e+16,true),files={},i;
+  for(i=0;i<n&&dv.getUint32(off,true)===0x02014b50;i++){
+    var nl=dv.getUint16(off+28,true),el=dv.getUint16(off+30,true),cl=dv.getUint16(off+32,true);
+    files[td.decode(u8.subarray(off+46,off+46+nl))]={method:dv.getUint16(off+10,true),size:dv.getUint32(off+20,true),at:dv.getUint32(off+42,true)};
+    off+=46+nl+el+cl;
+  }
+  async function text(name){
+    var f=files[name];if(!f)return null;
+    var s=f.at+30+dv.getUint16(f.at+26,true)+dv.getUint16(f.at+28,true),raw=u8.subarray(s,s+f.size);
+    if(f.method===0)return td.decode(raw);
+    if(f.method!==8)throw new Error('The file uses a compression this page cannot read.');
+    return await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
+  }
+  var xml=function(t){return new DOMParser().parseFromString(t,'application/xml');};
+  var joinT=function(node){var ts=node.getElementsByTagName('t'),v='';for(var k=0;k<ts.length;k++)v+=ts[k].textContent;return v;};
+  var wbx=await text('xl/workbook.xml'),rlx=await text('xl/_rels/workbook.xml.rels');
+  if(!wbx||!rlx)throw new Error('This is not an Excel workbook.');
+  var shared=[],ss=await text('xl/sharedStrings.xml');
+  if(ss){var si=xml(ss).getElementsByTagName('si');for(i=0;i<si.length;i++)shared.push(joinT(si[i]));}
+  var rels={},rx=xml(rlx).getElementsByTagName('Relationship');
+  for(i=0;i<rx.length;i++)rels[rx[i].getAttribute('Id')]=rx[i].getAttribute('Target');
+  var sheets=[],sh=xml(wbx).getElementsByTagName('sheet');
+  for(i=0;i<sh.length;i++){
+    var rid=sh[i].getAttribute('r:id')||sh[i].getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id');
+    var tg=rels[rid]||'',st=sh[i].getAttribute('state');
+    sheets.push({name:sh[i].getAttribute('name')||'',hidden:!!st&&st!=='visible',path:tg.charAt(0)==='/'?tg.slice(1):'xl/'+tg});
+  }
+  // Rows of a sheet as arrays of strings, empty rows left out.
+  async function rows(s){
+    var t=await text(s.path);if(!t)return [];
+    var rs=xml(t).getElementsByTagName('row'),res=[];
+    for(var a=0;a<rs.length;a++){
+      var cs=rs[a].getElementsByTagName('c'),cells=[];
+      for(var b=0;b<cs.length;b++){
+        var c=cs[b],m=/^[A-Z]+/.exec(c.getAttribute('r')||''),ci=b;
+        if(m){ci=0;for(var q=0;q<m[0].length;q++)ci=ci*26+m[0].charCodeAt(q)-64;ci--;}
+        var ty=c.getAttribute('t'),vn=c.getElementsByTagName('v')[0];
+        cells[ci]=ty==='inlineStr'?joinT(c):vn?(ty==='s'?(shared[+vn.textContent]||''):vn.textContent):'';
+      }
+      if(cells.length)res.push(cells);
+    }
+    return res;
+  }
+  return {sheets:sheets,rows:rows};
+}
+function impCell(r,i){return String(i<0||r[i]===undefined||r[i]===null?'':r[i]).trim();}
+// Excel stores dates as day counts; a typed dd/mm/yyyy is accepted too.
+function impDate(v){
+  v=String(v||'').trim();if(!v)return '';
+  if(/^\d+(\.\d+)?$/.test(v)){var n=parseFloat(v);if(n>20000&&n<80000)return new Date(Math.round((n-25569)*864e5)).toISOString().slice(0,10);}
+  var m=/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/.exec(v);
+  if(m)return m[3]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2);
+  m=/^(\d{4})-(\d{2})-(\d{2})/.exec(v);return m?m[0]:'';
+}
+function impNum(v){var n=parseFloat(String(v||'').replace(',','.'));return isFinite(n)?Math.round(n*10)/10:0;}
+function impNk(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[^a-z]/g,'');}
+function impLev(a,b){
+  var p=[],i,j;for(j=0;j<=b.length;j++)p[j]=j;
+  for(i=1;i<=a.length;i++){var c=[i];for(j=1;j<=b.length;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a.charAt(i-1)===b.charAt(j-1)?0:1));p=c;}
+  return p[b.length];
+}
+
+// ── Projects: the visible "SEO nn" and "Content nn" sheets ──
+var IMP_COLS={jobId:'JOB ID',name:'Progetto',status:'Status',client:'Cliente',start:'Data inizio JOB',end:'Data chiusura JOB',PL4:'PL 4',PL3:'PL 3',PL2:'PL 2',PL1:'PL 1'};
+async function impReadProjects(file){
+  var wb=await xlsxOpen(file),out=[],skipped=0,dups=0,used=[];
+  var want=[['SEO',/^seo\s*\d{2}$/i],['Content',/^content\s*\d{2}$/i]];
+  for(var w=0;w<want.length;w++){
+    var sh=wb.sheets.filter(function(s){return !s.hidden&&want[w][1].test(s.name.trim());})[0];
+    if(!sh)throw new Error('Sheet not found: a visible sheet named "'+want[w][0]+' 26" (or another year) is expected.');
+    used.push(sh.name);
+    var rows=await wb.rows(sh),hi=-1,i,hdr=null;
+    for(i=0;i<Math.min(rows.length,30);i++){
+      var t=rows[i].map(function(x){return String(x||'').trim();});
+      if(t.indexOf('JOB ID')>=0&&t.indexOf('Progetto')>=0){hi=i;hdr=t;break;}
+    }
+    if(hi<0)throw new Error('Header row not found in sheet "'+sh.name+'": a row holding "JOB ID" and "Progetto" is expected.');
+    var col={};
+    Object.keys(IMP_COLS).forEach(function(k){
+      col[k]=hdr.indexOf(IMP_COLS[k]);
+      if(col[k]<0)throw new Error('Column "'+IMP_COLS[k]+'" not found in sheet "'+sh.name+'".');
+    });
+    var seen={};
+    for(i=hi+1;i<rows.length;i++){
+      var r=rows[i],jid=impCell(r,col.jobId),nm=impCell(r,col.name),sd=impDate(impCell(r,col.start));
+      // totals and notes under the table carry no job id or no start date
+      if(!/^\d{5,7}$/.test(jid)||!nm||!sd){skipped++;continue;}
+      if(seen[jid]){dups++;continue;}
+      seen[jid]=1;
+      var d={PL4:impNum(impCell(r,col.PL4)),PL3:impNum(impCell(r,col.PL3)),PL2:impNum(impCell(r,col.PL2)),PL1:impNum(impCell(r,col.PL1))};
+      out.push({jobId:jid,stream:want[w][0],name:nm,client:impCell(r,col.client),status:impCell(r,col.status),
+                startDate:sd,endDate:impDate(impCell(r,col.end)),daysByRole:d,totalDays:Math.round((d.PL4+d.PL3+d.PL2+d.PL1)*10)/10});
+    }
+  }
+  if(!out.length)throw new Error('No project rows found under the header.');
+  return {rows:out,skipped:skipped,dups:dups,sheets:used};
+}
+function impChanges(p,r){
+  var ch=[],q=p.daysByRole||{};
+  if((p.name||'')!==r.name)ch.push('name');
+  if((p.client||'')!==r.client)ch.push('client');
+  if((p.startDate||'')!==r.startDate)ch.push('start '+(p.startDate||'-')+' → '+r.startDate);
+  if((p.endDate||'')!==r.endDate)ch.push('end '+(p.endDate||'-')+' → '+(r.endDate||'-'));
+  if(PLkeys.some(function(k){return Math.abs((q[k]||0)-r.daysByRole[k])>0.05;}))ch.push('days '+_d1(p.totalDays)+' → '+_d1(r.totalDays));
+  if(!p.stream)ch.push('linked to the '+r.stream+' sheet');
+  return ch;
+}
+// What the file would change. Recomputed on every draw, so it always reflects
+// the list as it is now, even if somebody else saved in the meantime.
+function impDiffProjects(data){
+  var add=[],upd=[],close=[],reopen=[],same=0,count={},seenP={};
+  data.rows.forEach(function(r){count[r.jobId]=(count[r.jobId]||0)+1;});
+  var match=function(list,r){
+    return list.find(function(p){return !p.nb&&p.jobId===r.jobId&&p.stream===r.stream;})
+      ||(count[r.jobId]===1?list.find(function(p){return !p.nb&&p.jobId===r.jobId&&!p.stream;}):null)||null;
+  };
+  data.rows.forEach(function(r){
+    var fin=/^finished$/i.test(r.status),cur=match(S.p,r);
+    if(cur)seenP[cur.id]=1;
+    if(fin){if(cur)close.push({p:cur,why:'finished in the file'});return;}
+    if(cur){var ch=impChanges(cur,r);if(ch.length)upd.push({p:cur,r:r,ch:ch});else same++;return;}
+    var old=match(S.px||[],r);
+    if(old)reopen.push({p:old,r:r});else add.push(r);
+  });
+  // Only projects that came from a workbook are closed for being absent:
+  // the ones created by hand in the app are left alone.
+  S.p.forEach(function(p){if(!p.nb&&p.stream&&!seenP[p.id])close.push({p:p,why:'no longer in the file'});});
+  return {add:add,upd:upd,close:close,reopen:reopen,same:same};
+}
+function impBackup(kind){
+  var b={kind:kind,at:new Date().toISOString(),by:(_user&&_user.email)||'',file:S.imp.file};
+  if(kind==='projects'){b.p=JSON.parse(JSON.stringify(S.p));b.px=JSON.parse(JSON.stringify(S.px||[]));}
+  else b.m=JSON.parse(JSON.stringify(S.m));
+  S.bak=b;
+}
+function impApplyProjects(){
+  if(!isAdmin()||!S.imp||S.imp.kind!=='projects')return;
+  var d=impDiffProjects(S.imp.data),today=new Date().toISOString().slice(0,10);
+  impBackup('projects');
+  var set=function(p,r){p.name=r.name;p.client=r.client;p.startDate=r.startDate;p.endDate=r.endDate;p.daysByRole=r.daysByRole;p.totalDays=r.totalDays;p.stream=r.stream;};
+  d.upd.forEach(function(u){set(u.p,u.r);});
+  d.add.forEach(function(r){
+    var id='j'+r.jobId+(r.stream==='Content'?'c':'s');
+    if(projById(id))id+='_'+Math.random().toString(36).slice(2,6);
+    var p={id:id,jobId:r.jobId,asgn:{}};set(p,r);S.p.push(p);
+  });
+  S.px=S.px||[];
+  d.reopen.forEach(function(u){
+    S.px=S.px.filter(function(x){return x.id!==u.p.id;});
+    set(u.p,u.r);delete u.p.closed;delete u.p.closedOn;u.p.asgn={};S.p.push(u.p);
+  });
+  // Closing releases the current assignments; past weeks keep theirs.
+  var gone={};
+  d.close.forEach(function(c){gone[c.p.id]=1;c.p.closed=true;c.p.closedOn=today;c.p.asgn={};S.px.push(c.p);});
+  S.p=S.p.filter(function(p){return !gone[p.id];});
+  if(gone[S.sp])S.sp=null;if(gone[S.aP])S.aP=null;if(gone[S.dSel])S.dSel=null;
+  S.impDone='Projects updated from '+S.imp.file+': '+d.add.length+' added, '+d.upd.length+' updated, '+d.close.length+' closed, '+d.reopen.length+' reopened.';
+  S.imp=null;sv();R();
+}
+
+// ── Team: first visible sheet, "Name <email>" in the first column, rank in the second ──
+function impRank(v){
+  var s=String(v||'').trim().toLowerCase().replace(/^(seo|content)\s+/,'');
+  if(!s)return '';
+  return RH.find(function(r){return r.toLowerCase()===s;})||null;      // null: a rank the app does not know
+}
+async function impReadTeam(file){
+  var wb=await xlsxOpen(file),sh=wb.sheets.filter(function(s){return !s.hidden;})[0];
+  if(!sh)throw new Error('The workbook has no visible sheet.');
+  var rows=await wb.rows(sh),out=[],bad=[],seen={};
+  rows.forEach(function(r){
+    var a=impCell(r,0),b=impCell(r,1);
+    if(!a||/^(name|nome|nominativo|persona)$/i.test(a))return;
+    var m=/^(.*?)\s*<([^<>\s]+@[^<>\s]+)>\s*$/.exec(a),name=(m?m[1]:a).trim(),email=m?m[2].toLowerCase():'';
+    if(!m&&/^[^\s@]+@[^\s@]+$/.test(a)){email=a.toLowerCase();name=displayNameFromEmail(a);}
+    var rank=impRank(b);
+    if(rank===null){bad.push({name:name,rank:b});return;}
+    var k=email||impNk(name);if(!name||seen[k])return;seen[k]=1;
+    out.push({name:name,email:email,role:rank});
+  });
+  if(!out.length&&!bad.length)throw new Error('No people found: the first column should hold "Name <email>", the second the rank.');
+  return {rows:out,bad:bad,sheet:sh.name};
+}
+// Pair every row with a member: by email, then by name, then by a name that
+// starts the same. What is left is new, unless the admin links it by hand; a
+// near-identical name is proposed as the same person.
+function impDiffTeam(data,link){
+  link=link||{};
+  var free=S.m.slice(),take=function(m){free.splice(free.indexOf(m),1);return m;};
+  var pairs=data.rows.map(function(r){
+    var m=r.email?free.find(function(x){return (x.email||'').toLowerCase()===r.email;}):null;
+    if(!m){
+      var k=impNk(r.name);
+      m=free.find(function(x){return impNk(x.name)===k;})
+        ||free.find(function(x){var q=impNk(x.name);return q.length>5&&k.length>5&&(q.indexOf(k)===0||k.indexOf(q)===0);});
+    }
+    return {r:r,m:m?take(m):null};
+  });
+  pairs.forEach(function(pr,i){
+    if(pr.m)return;
+    pr.fresh=true;
+    var k=impNk(pr.r.name),g=free.find(function(x){return impLev(impNk(x.name),k)<=2;});
+    pr.guess=g?g.id:'';
+    var pick=link[i]===undefined?pr.guess:link[i];
+    pr.linked=pick?free.find(function(x){return x.id===pick;})||null:null;
+  });
+  var used={};pairs.forEach(function(pr){if(pr.linked)used[pr.linked.id]=1;});
+  pairs.forEach(function(pr){
+    var m=pr.m||pr.linked;pr.ch=[];
+    if(!m)return;
+    if(m.name!==pr.r.name)pr.ch.push('name '+m.name+' → '+pr.r.name);
+    if(pr.r.role&&m.role!==pr.r.role)pr.ch.push('rank '+m.role+' → '+pr.r.role);
+    if(pr.r.email&&(m.email||'').toLowerCase()!==pr.r.email)pr.ch.push('email → '+pr.r.email);
+    if(m.active===false)pr.ch.push('back in the team');
+  });
+  return {pairs:pairs,free:free,absent:free.filter(function(m){return isActive(m)&&!used[m.id];})};
+}
+function impApplyTeam(){
+  if(!isAdmin()||!S.imp||S.imp.kind!=='team')return;
+  var d=impDiffTeam(S.imp.data,S.imp.link),ranks=S.imp.rank||{},added=0,changed=0;
+  var need=d.pairs.filter(function(pr,i){return pr.fresh&&!pr.linked&&!pr.r.role&&!ranks[i];});
+  if(need.length){alert('Choose a rank for the new people first: '+need.map(function(pr){return pr.r.name;}).join(', '));return;}
+  impBackup('team');
+  d.pairs.forEach(function(pr,i){
+    var m=pr.m||pr.linked,r=pr.r;
+    if(m){
+      if(pr.ch.length)changed++;
+      m.name=r.name;if(r.role)m.role=r.role;if(r.email)m.email=r.email;
+      if(m.active===false){m.active=true;delete m.leftOn;}
+    } else {
+      S.m.push({id:'m_'+Math.random().toString(36).slice(2,8),name:r.name,role:r.role||ranks[i],cap:220,email:r.email||_emailFromName(r.name)});
+      added++;
+    }
+  });
+  S.impDone='Team updated from '+S.imp.file+': '+added+' added, '+changed+' updated.';
+  S.imp=null;sv();R();
+}
+// One step back. Filings made since the import are kept: only the lists return.
+function impUndo(){
+  var b=S.bak;if(!b||!isAdmin())return;
+  if(!confirm('Undo the '+b.kind+' update of '+b.at.slice(0,16).replace('T',' ')+'?\n\nThe '+(b.kind==='projects'?'project list':'team list')+' goes back to what it was before that file was loaded.'))return;
+  if(b.kind==='projects'){
+    var now={},was={};
+    S.p.forEach(function(p){now[p.id]=p;});
+    (b.p||[]).forEach(function(p){was[p.id]=1;if(now[p.id])p.asgn=now[p.id].asgn||{};});
+    S.p=(b.p||[]).concat(S.p.filter(function(p){return !was[p.id]&&!p.stream;}));   // keep what was created by hand since
+    S.px=b.px||[];
+  } else S.m=b.m||S.m;
+  S.bak=null;S.imp=null;S.impDone='The '+b.kind+' update was undone.';sv();R();
+}
+async function impPick(kind,input){
+  var f=input.files&&input.files[0];if(!f||!isAdmin())return;
+  S.impDone='';S.imp={kind:kind,file:f.name,busy:true};R();
+  try{
+    var data=kind==='projects'?await impReadProjects(f):await impReadTeam(f);
+    S.imp={kind:kind,file:f.name,data:data,link:{},rank:{}};
+  }catch(ex){
+    console.error('Import error:',ex);
+    S.imp={kind:kind,file:f.name,error:(ex&&ex.message)||'The file could not be read.'};
+  }
+  R();
+}
+function impChip(n,label,col){return '<span class="impchip" style="color:'+col+';border-color:'+col+'44"><b>'+n+'</b> '+label+'</span>';}
+function impList(head,rowsHtml){
+  return '<div class="implist"><table class="utbl"><thead><tr>'+head.map(function(x){return '<th'+(x[1]?' class="r"':'')+'>'+x[0]+'</th>';}).join('')+'</tr></thead><tbody>'+rowsHtml+'</tbody></table></div>';
+}
+function impPreviewProjects(){
+  var data=S.imp.data,d=impDiffProjects(data),nothing=!(d.add.length+d.upd.length+d.close.length+d.reopen.length);
+  var h='<div class="impsum">'+impChip(d.add.length,'new',GRN)+impChip(d.upd.length,'updated',BLU)+impChip(d.close.length,'to close',RED)
+    +(d.reopen.length?impChip(d.reopen.length,'reopened',AMB):'')+impChip(d.same,'unchanged',GRY)+'</div>'
+    +'<div class="ucs" style="margin:0 0 8px">Read from the sheets '+data.sheets.map(esc).join(' and ')+': '+data.rows.length+' projects. '
+    +data.skipped+' rows without a job id or a start date were left out'+(data.dups?', and '+data.dups+' repeated job ids':'')+'.</div>';
+  var days=function(r){return _d1(r.totalDays);};
+  if(d.add.length)h+='<div class="psc">New projects, nobody assigned yet</div>'+impList([['Job'],['Project'],['Client'],['Sheet'],['Days sold',1]],
+    d.add.map(function(r){return '<tr><td>'+esc(r.jobId)+'</td><td>'+esc(r.name)+'</td><td>'+esc(r.client)+'</td><td>'+r.stream+'</td><td class="r">'+days(r)+'</td></tr>';}).join(''));
+  if(d.upd.length)h+='<div class="psc">Updated, assignments kept</div>'+impList([['Job'],['Project'],['What changes']],
+    d.upd.map(function(u){return '<tr><td>'+esc(u.p.jobId)+'</td><td>'+esc(u.r.name)+'</td><td style="font-size:11.5px;color:var(--t2)">'+esc(u.ch.join(' · '))+'</td></tr>';}).join(''));
+  if(d.reopen.length)h+='<div class="psc">Closed before, ongoing again</div>'+impList([['Job'],['Project'],['Client']],
+    d.reopen.map(function(u){return '<tr><td>'+esc(u.r.jobId)+'</td><td>'+esc(u.r.name)+'</td><td>'+esc(u.r.client)+'</td></tr>';}).join(''));
+  if(d.close.length)h+='<div class="psc">To close: hidden from lists and measures, history kept, current assignments released</div>'+impList([['Job'],['Project'],['Why'],['People on it',1]],
+    d.close.map(function(c){var n=Object.keys(c.p.asgn||{}).filter(function(k){return c.p.asgn[k]>0;}).length;
+      return '<tr><td>'+esc(c.p.jobId)+'</td><td>'+esc(c.p.name)+'</td><td style="font-size:11.5px;color:var(--t2)">'+c.why+'</td><td class="r">'+(n||'-')+'</td></tr>';}).join(''));
+  return h+'<div class="impact">'+(nothing?'<span class="ucs" style="margin:0">The project list already matches this file.</span>'
+    :'<button class="b bg" onclick="impApplyProjects()">Apply to the project list</button>')
+    +'<button class="b bo" onclick="S.imp=null;R()">'+(nothing?'Close':'Cancel')+'</button></div>';
+}
+function impPreviewTeam(){
+  var data=S.imp.data,d=impDiffTeam(data,S.imp.link),ranks=S.imp.rank||{};
+  var fresh=[],upd=[],same=0;
+  d.pairs.forEach(function(pr,i){if(pr.fresh)fresh.push([pr,i]);else if(pr.ch.length)upd.push(pr);else same++;});
+  var linked=fresh.filter(function(x){return x[0].linked;}).length;
+  var h='<div class="impsum">'+impChip(fresh.length-linked,'new',GRN)+impChip(upd.length+linked,'updated',BLU)+impChip(same,'unchanged',GRY)
+    +impChip(d.absent.length,'not in the file',AMB)+(data.bad.length?impChip(data.bad.length,'rank not recognised',RED):'')+'</div>'
+    +'<div class="ucs" style="margin:0 0 8px">Read from the sheet '+esc(data.sheet)+': '+data.rows.length+' people.</div>';
+  if(fresh.length){
+    var opts=d.free.filter(function(m){return isActive(m);}).sort(function(a,b){return a.name.localeCompare(b.name);});
+    h+='<div class="psc">Not found in the app: new, unless they are somebody already listed under another spelling</div>'
+     +impList([['Name in the file'],['Email'],['This is'],['Rank']],fresh.map(function(x){
+        var pr=x[0],i=x[1],sel=pr.linked?pr.linked.id:'';
+        return '<tr><td style="font-weight:600">'+esc(pr.r.name)+'</td><td style="font-size:11.5px;color:var(--t2)">'+esc(pr.r.email||'-')+'</td>'
+          +'<td><select class="si" style="width:230px" onchange="S.imp.link['+i+']=this.value;R()"><option value="">a new person</option>'
+          +opts.map(function(m){return '<option value="'+m.id+'"'+(m.id===sel?' selected':'')+'>the same as '+esc(m.name)+'</option>';}).join('')+'</select></td>'
+          +'<td>'+(pr.r.role?esc(pr.r.role):pr.linked?'<span style="color:var(--t3)">keeps '+esc(pr.linked.role)+'</span>'
+            :'<select class="si" style="width:170px" onchange="S.imp.rank['+i+']=this.value;R()"><option value="">choose a rank</option>'
+              +RH.map(function(r){return '<option'+(ranks[i]===r?' selected':'')+'>'+r+'</option>';}).join('')+'</select>')+'</td></tr>';}).join(''));
+  }
+  if(upd.length)h+='<div class="psc">Updated, assignments kept</div>'+impList([['Name'],['What changes']],
+    upd.map(function(pr){return '<tr><td style="font-weight:600">'+esc(pr.r.name)+'</td><td style="font-size:11.5px;color:var(--t2)">'+esc(pr.ch.join(' · '))+'</td></tr>';}).join(''));
+  if(d.absent.length)h+='<div class="psc">In the app but not in the file: left as they are, archive them from People if they left</div>'+impList([['Name'],['Rank']],
+    d.absent.map(function(m){return '<tr><td>'+esc(m.name)+'</td><td style="font-size:11.5px;color:var(--t2)">'+esc(m.role)+'</td></tr>';}).join(''));
+  if(data.bad.length)h+='<div class="psc">Left out: the rank is not one the app knows</div>'+impList([['Name'],['Rank in the file']],
+    data.bad.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td style="color:#b32a1c">'+esc(x.rank)+'</td></tr>';}).join(''));
+  var nothing=!(fresh.length+upd.length);
+  return h+'<div class="impact">'+(nothing?'<span class="ucs" style="margin:0">The team list already matches this file.</span>'
+    :'<button class="b bg" onclick="impApplyTeam()">Apply to the team list</button>')
+    +'<button class="b bo" onclick="S.imp=null;R()">'+(nothing?'Close':'Cancel')+'</button></div>';
+}
+function admDataTab(){
+  var b=S.bak,im=S.imp;
+  var box=function(kind,title,what,format){
+    return '<div class="impbox"><div class="uct" style="font-size:15px">'+title+'</div><div class="ucs">'+what+'</div>'
+      +'<div style="font-size:11.5px;color:var(--t3);margin-bottom:12px">'+format+'</div>'
+      +'<input type="file" accept=".xlsx" id="impf_'+kind+'" style="display:none" onchange="impPick(\''+kind+'\',this)">'
+      +'<button class="b bg" onclick="document.getElementById(\'impf_'+kind+'\').click()">Choose the Excel file</button></div>';
+  };
+  var h='<div class="ucard"><div class="uct">Update from Excel</div>'
+   +'<div class="ucs">Load a workbook to bring the team or the project list in line with it. The file is read on this computer and is not uploaded: only the resulting list is saved. You see what would change before anything is applied. Who works on what is never touched: that stays with each person, in My week.</div>'
+   +'<div class="impgrid">'
+   +box('team','Update team','Adds the people who joined and updates names, emails and ranks. People missing from the file are only listed, never removed.',
+        'First visible sheet · column A "Name &lt;email&gt;" · column B the rank')
+   +box('projects','Update projects','Adds new projects, updates dates and days sold, and closes the ones that are finished or no longer in the file.',
+        'Visible sheets "SEO 26" and "Content 26" · header row with JOB ID, Progetto, Status, Cliente, dates and PL 4 to PL 1')
+   +'</div>'
+   +(S.impDone?'<div class="admnote" style="margin-top:14px;border-left-color:#2f6e12;background:#f0f7ea">'+esc(S.impDone)+'</div>':'')
+   +(b?'<div class="impundo"><span>Last update: <b>'+esc(b.kind)+'</b> from '+esc(b.file||'a file')+', '+esc(b.at.slice(0,16).replace('T',' '))+(b.by?' by '+esc(b.by):'')+'.</span>'
+        +'<button class="b bo" onclick="impUndo()">Undo this update</button></div>':'')
+   +'</div>';
+  if(im){
+    h+='<div class="ucard"><div class="uct" style="font-size:15px">'+(im.kind==='projects'?'Projects':'Team')+': what '+esc(im.file)+' would change</div>';
+    if(im.busy)h+='<div class="ucs" style="margin:0">Reading the file...</div>';
+    else if(im.error)h+='<div class="admnote" style="border-left-color:#b32a1c;background:#fdf1f0">'+esc(im.error)+'</div><div class="impact"><button class="b bo" onclick="S.imp=null;R()">Close</button></div>';
+    else h+=im.kind==='projects'?impPreviewProjects():impPreviewTeam();
+    h+='</div>';
+  }
+  if((S.px||[]).length)h+='<div class="ucard"><div class="uct" style="font-size:15px">Closed projects</div><div class="ucs">'+S.px.length+' projects closed by an update. They are out of every list and measure; past weeks still show them. They reopen by themselves if a later file lists them as ongoing.</div>'
+    +impList([['Job'],['Project'],['Client'],['Closed on']],S.px.slice().sort(function(a,b){return String(b.closedOn||'').localeCompare(String(a.closedOn||''));}).map(function(p){
+      return '<tr style="opacity:.8"><td>'+esc(p.jobId)+'</td><td>'+esc(p.name)+'</td><td>'+esc(p.client)+'</td><td style="font-size:11.5px;color:var(--t2)">'+esc(p.closedOn||'-')+'</td></tr>';}).join(''))+'</div>';
+  return h;
+}
+"""
+ADMIN_ENTRY = 'function renderAdmin(){'
+assert html.count(ADMIN_ENTRY) == 1, 'renderAdmin: %d' % html.count(ADMIN_ENTRY)
+html = html.replace(ADMIN_ENTRY, IMPORT_JS + ADMIN_ENTRY, 1)
+for old, new, n in [
+    # the tab and its view
+    ("+admSub('projects','Projects')+admSub('users','Users')+'</div>';",
+     "+admSub('projects','Projects')+admSub('data','Data')+admSub('users','Users')+'</div>';", 1),
+    ("  else if(t==='people')h+=admPeople();", "  else if(t==='people')h+=admPeople();\n  else if(t==='data')h+=admDataTab();", 1),
+    # closed projects and the undo copy travel with the rest of the data
+    ("dbRef.set({m:S.m,p:S.p,t:S.t,wk:S.wk,hist:S.hist,touched:S.touched||{}})",
+     "dbRef.set({m:S.m,p:S.p,t:S.t,wk:S.wk,hist:S.hist,touched:S.touched||{},px:S.px||[],bak:S.bak||null})", 1),
+    ("S.touched=d.touched||S.touched||{};}", "S.touched=d.touched||S.touched||{};S.px=d.px||[];S.bak=d.bak||null;}", 3),
+    # past weeks still name a project that was closed since
+    ("      var p=S.p.find(function(x){return x.id===pid;});\n      if(!p)return;\n      any=true;",
+     "      var p=projById(pid);\n      if(!p)return;\n      any=true;", 1),
+    ("    var p=S.p.find(function(x){return x.id===pid;});if(!p)return;\n    h+='<tr><td><div style=\"font-weight:600\">'+(p.nb?",
+     "    var p=projById(pid);if(!p)return;\n    h+='<tr><td><div style=\"font-weight:600\">'+(p.closed?'<span class=\"nbtag\" style=\"background:#eee;color:#666\">closed</span> ':'')+(p.nb?", 1),
+]:
+    assert html.count(old) == n, 'import wiring %r: %d' % (old[:50], html.count(old))
+    html = html.replace(old, new)
+IMP_CSS = ('.impgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}'
+           '@media(max-width:760px){.impgrid{grid-template-columns:1fr}}'
+           '.impbox{border:1px solid var(--bd);border-radius:10px;padding:16px;background:var(--s2)}'
+           '.impsum{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px}'
+           '.impchip{border:1px solid;border-radius:999px;padding:3px 11px;font-size:12px;background:#fff}'
+           '.implist{max-height:300px;overflow:auto;border:1px solid var(--bd);border-radius:8px;margin:4px 0 12px}'
+           '.implist .utbl{margin:0}'
+           '.impact{display:flex;gap:10px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)}'
+           '.impundo{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:14px;'
+           'padding:10px 14px;border:1px dashed var(--bd);border-radius:8px;font-size:12.5px;color:var(--t2)}')
+html = html.replace('</style>', IMP_CSS + '</style>', 1)
+
 with io.open(OUT, 'w', encoding='utf-8') as f:
     f.write(html)
 print('OK', len(html), 'chars written')

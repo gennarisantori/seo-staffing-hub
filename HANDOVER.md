@@ -52,13 +52,43 @@ Tell users to hard-refresh (Ctrl+F5) after a deploy.
 
 - **Firebase Realtime Database** `staffing/v1` — the app's own data:
   `{m: members, p: projects, t: targets, wk: current week, hist: weekly archive,
-  touched: who filed when}`.
+  touched: who filed when, px: closed projects, bak: the lists as they were
+  before the last Excel update}`.
 - **Firestore** — auth only: `users/{uid}` (role, displayName, active) and
   `config/access` (the invite allowlist). Rules live in `firestore.rules`.
 - **Firebase Auth** — email/password, restricted to `@jakala.com`.
 
 The Firebase web config is inline in `index.html` and public by design; access is
 enforced by Auth plus the database rules, not by hiding the key.
+
+## Updating the team and the projects from Excel
+
+Admin > Data has two buttons, **Update team** and **Update projects**. The admin
+picks a workbook, sees what would change, and applies it. Assignments are never
+written by an update: who works on what stays with each person.
+
+- **The workbook is read in the browser** (`xlsxOpen`: an .xlsx is a zip of XML,
+  unzipped with `DecompressionStream`). No library, nothing uploaded. Only
+  `.xlsx` is supported.
+- **Projects** come from the visible sheets `SEO nn` and `Content nn`, header row
+  holding `JOB ID`, `Progetto`, `Status`, `Cliente`, the two dates and `PL 4` to
+  `PL 1`. Hidden sheets (margins, costs) are ignored. A renamed column stops the
+  update with a message naming it, rather than importing something wrong.
+- **The key is JOB ID + sheet**, not JOB ID alone: the same job often has an SEO
+  part and a Content part, and they are two projects in the app.
+- **Finished or missing projects are closed, not deleted**: they move from `p` to
+  `px`, out of every list and measure, their current assignments released. Past
+  weeks still name them (`projById`). They reopen if a later file lists them as
+  ongoing. Projects created by hand in the app (no `stream`) are never closed.
+- **Team** comes from the first visible sheet: column A `Name <email>`, column B
+  the rank. People are matched by email, then by name; a near-identical name is
+  proposed as the same person and the admin can change that. People missing from
+  the file are only listed: the file has never held the externals.
+- **One step of undo** (`bak`). Undoing a projects update restores the list but
+  keeps the assignments filed since.
+
+`gen_seed.py`, `seed.json` and `xl.json` are how the very first data was built in
+July; they invent the percentages at random and are not part of this flow.
 
 ## The measures
 
