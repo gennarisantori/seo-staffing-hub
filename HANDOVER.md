@@ -83,7 +83,8 @@ written by an update: who works on what stays with each person.
 - **Team** comes from the first visible sheet: column A `Name <email>`, column B
   the rank. People are matched by email, then by name; a near-identical name is
   proposed as the same person and the admin can change that. People missing from
-  the file are only listed: the file has never held the externals.
+  the file are listed with a tick box: only the ticked ones are archived, because
+  the file has never held the externals. New people get today as their first day.
 - **One step of undo** (`bak`). Undoing a projects update restores the list but
   keeps the assignments filed since.
 
@@ -189,6 +190,21 @@ current allocations so projects can be reassigned. Deleting used to strand their
 percentages on projects, which then read as covered when nobody was doing the
 work. Allocations left behind by the old behaviour are detected and reported in
 Admin > People with a one-click clean-up.
+
+**People join and leave on a date.** A person can carry a first day (`from`) and
+a last day (`leftOn`), both optional, set in the Team edit dialog:
+
+- Somebody with a first day ahead is out of the team views until then.
+- Somebody with a last day ahead stays in everything until that day and is
+  archived on the first load after it (`expireLeavers`), assignments released.
+- **Capacity counts each person only for the part of the measuring window they
+  are in the team** (`memShare`). Over "Full year", somebody who left in
+  September still counts January to September, and somebody who joined in
+  October counts from October.
+- Allocation, Effectiveness and Efficiency are weekly rates over the people in
+  the team today. They do not rebuild past weeks with the team of the time.
+
+Any new cache keyed on people must be cleared in `dlvReset()` (`_MSH` is).
 
 ## Invitations do not send email
 

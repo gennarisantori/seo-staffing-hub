@@ -2360,11 +2360,22 @@ function impApplyTeam(){
       m.name=r.name;if(r.role)m.role=r.role;if(r.email)m.email=r.email;
       if(m.active===false){m.active=true;delete m.leftOn;}
     } else {
-      S.m.push({id:'m_'+Math.random().toString(36).slice(2,8),name:r.name,role:r.role||ranks[i],cap:220,email:r.email||_emailFromName(r.name)});
+      // counted from the day they are loaded; the date can be changed in Team
+      S.m.push({id:'m_'+Math.random().toString(36).slice(2,8),name:r.name,role:r.role||ranks[i],cap:220,email:r.email||_emailFromName(r.name),from:todayISO()});
       added++;
     }
   });
-  S.impDone='Team updated from '+S.imp.file+': '+added+' added, '+changed+' updated.';
+  // People missing from the file leave only if the admin ticked them. What they
+  // were assigned to is remembered, so undoing the update gives it back.
+  var out=S.imp.out||{},rel={},gone=0;
+  d.absent.forEach(function(m){
+    if(!out[m.id])return;
+    gone++;rel[m.id]={};
+    S.p.forEach(function(p){if(p.asgn&&p.asgn[m.id]!==undefined){if(p.asgn[m.id]>0)rel[m.id][p.id]=p.asgn[m.id];delete p.asgn[m.id];}});
+    m.active=false;m.leftOn=todayISO();
+  });
+  S.bak.rel=rel;
+  S.impDone='Team updated from '+S.imp.file+': '+added+' added, '+changed+' updated, '+gone+' archived.';
   S.imp=null;sv();R();
 }
 // One step back. Filings made since the import are kept: only the lists return.
@@ -2377,7 +2388,13 @@ function impUndo(){
     (b.p||[]).forEach(function(p){was[p.id]=1;if(now[p.id])p.asgn=now[p.id].asgn||{};});
     S.p=(b.p||[]).concat(S.p.filter(function(p){return !was[p.id]&&!p.stream;}));   // keep what was created by hand since
     S.px=b.px||[];
-  } else S.m=b.m||S.m;
+  } else {
+    S.m=b.m||S.m;
+    var rel=b.rel||{};
+    S.p.forEach(function(p){Object.keys(rel).forEach(function(mid){
+      if(rel[mid][p.id]&&!(p.asgn&&p.asgn[mid]>0)){p.asgn=p.asgn||{};p.asgn[mid]=rel[mid][p.id];}
+    });});
+  }
   S.bak=null;S.imp=null;S.impDone='The '+b.kind+' update was undone.';sv();R();
 }
 async function impPick(kind,input){
@@ -2385,7 +2402,7 @@ async function impPick(kind,input){
   S.impDone='';S.imp={kind:kind,file:f.name,busy:true};R();
   try{
     var data=kind==='projects'?await impReadProjects(f):await impReadTeam(f);
-    S.imp={kind:kind,file:f.name,data:data,link:{},rank:{}};
+    S.imp={kind:kind,file:f.name,data:data,link:{},rank:{},out:{}};
   }catch(ex){
     console.error('Import error:',ex);
     S.imp={kind:kind,file:f.name,error:(ex&&ex.message)||'The file could not be read.'};
@@ -2438,11 +2455,13 @@ function impPreviewTeam(){
   }
   if(upd.length)h+='<div class="psc">Updated, assignments kept</div>'+impList([['Name'],['What changes']],
     upd.map(function(pr){return '<tr><td style="font-weight:600">'+esc(pr.r.name)+'</td><td style="font-size:11.5px;color:var(--t2)">'+esc(pr.ch.join(' · '))+'</td></tr>';}).join(''));
-  if(d.absent.length)h+='<div class="psc">In the app but not in the file: left as they are, archive them from People if they left</div>'+impList([['Name'],['Rank']],
-    d.absent.map(function(m){return '<tr><td>'+esc(m.name)+'</td><td style="font-size:11.5px;color:var(--t2)">'+esc(m.role)+'</td></tr>';}).join(''));
+  var out=S.imp.out||{},nOut=d.absent.filter(function(m){return out[m.id];}).length;
+  if(d.absent.length)h+='<div class="psc">In the app but not in the file: tick the ones who left, the others stay as they are'+(nOut?' · '+nOut+' to archive':'')+'</div>'+impList([['Left the team'],['Name'],['Rank']],
+    d.absent.map(function(m){return '<tr><td style="width:110px"><label style="cursor:pointer"><input type="checkbox"'+(out[m.id]?' checked':'')+' onchange="S.imp.out[\''+m.id+'\']=this.checked;R()"> archive</label></td>'
+      +'<td'+(out[m.id]?' style="text-decoration:line-through;color:var(--t3)"':'')+'>'+esc(m.name)+'</td><td style="font-size:11.5px;color:var(--t2)">'+esc(m.role)+'</td></tr>';}).join(''));
   if(data.bad.length)h+='<div class="psc">Left out: the rank is not one the app knows</div>'+impList([['Name'],['Rank in the file']],
     data.bad.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td style="color:#b32a1c">'+esc(x.rank)+'</td></tr>';}).join(''));
-  var nothing=!(fresh.length+upd.length);
+  var nothing=!(fresh.length+upd.length+nOut);
   return h+'<div class="impact">'+(nothing?'<span class="ucs" style="margin:0">The team list already matches this file.</span>'
     :'<button class="b bg" onclick="impApplyTeam()">Apply to the team list</button>')
     +'<button class="b bo" onclick="S.imp=null;R()">'+(nothing?'Close':'Cancel')+'</button></div>';
@@ -2511,6 +2530,103 @@ IMP_CSS = ('.impgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-
            '.impundo{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:14px;'
            'padding:10px 14px;border:1px dashed var(--bd);border-radius:8px;font-size:12.5px;color:var(--t2)}')
 html = html.replace('</style>', IMP_CSS + '</style>', 1)
+
+# ── T. People join and leave on a date. Capacity counts each person only for the
+#     part of the measuring window they are in the team; somebody not yet arrived
+#     is out of the team views until their first day, somebody past their last
+#     day is archived on the next load.
+MEMBER_DATES_JS = r"""// A person is in the team from the day they join to their last day. Both dates
+// are optional: without them only the archive flag counts.
+function todayISO(){return new Date().toISOString().slice(0,10);}
+function memState(m){
+  if(!m||m.active===false)return 'left';
+  var t=todayISO();
+  if(m.leftOn&&m.leftOn<t)return 'left';
+  if(m.from&&m.from>t)return 'soon';
+  return 'in';
+}
+function isActive(m){return memState(m)==='in';}
+function joiners(){return S.m.filter(function(m){return memState(m)==='soon';});}
+// Past their last day: archived exactly as by hand, assignments released.
+function expireLeavers(){
+  var t=todayISO(),any=false;
+  (S.m||[]).forEach(function(m){
+    if(m.active===false||!m.leftOn||m.leftOn>=t)return;
+    m.active=false;any=true;
+    (S.p||[]).forEach(function(p){if(p.asgn&&p.asgn[m.id]!==undefined)delete p.asgn[m.id];});
+  });
+  return any;
+}
+// Share of a person's yearly capacity that falls inside the measuring window
+// while they are in the team.
+var _MSH={};
+function memShare(m){
+  if(m.active===false&&!m.leftOn)return 0;                 // archived before dates existed
+  if(!m.from&&!m.leftOn)return horizonShare();
+  var k=m.id+'|'+(m.from||'')+'|'+(m.leftOn||'')+'|'+(m.active===false);
+  if(_MSH[k]!==undefined)return _MSH[k];
+  var a=S.hor==='year'?_yStart():horizonStart(),b=_yEnd(),y=yearWorkingDays();
+  if(m.from){var f=new Date(m.from+'T00:00:00Z');if(!isNaN(f)&&f>a)a=f;}
+  if(m.leftOn){
+    var l=new Date(m.leftOn+'T00:00:00Z');
+    // archived by hand: out from that day; a planned last day is still worked
+    if(!isNaN(l)){if(m.active===false)l.setUTCDate(l.getUTCDate()-1);if(l<b)b=l;}
+  }
+  var r=(y>0&&b>=a)?workingDays(a,b)/y:0;
+  _MSH[k]=r;return r;
+}
+function movesCard(){
+  var soon=joiners(),going=roster().filter(function(m){return m.leftOn;});
+  if(!soon.length&&!going.length)return '';
+  var row=function(m,what,when){
+    return '<tr><td style="font-weight:600">'+esc(m.name)+'</td><td style="font-size:11px;color:var(--t2)">'+esc(m.role)+'</td><td>'+what+'</td>'
+      +'<td style="font-size:12px;color:var(--t2)">'+esc(when)+'</td>'
+      +'<td class="r">'+(isAdmin()?'<button class="b bo" onclick="emM(\''+m.id+'\')">Edit</button>':'')+'</td></tr>';
+  };
+  return '<div class="ucard"><div class="uct" style="font-size:15px">Joining and leaving</div>'
+   +'<div class="ucs">People with a date ahead. Somebody joining appears in the team, and counts in capacity, from their first day. Somebody leaving counts until their last day and is archived the day after.</div>'
+   +'<table class="utbl"><thead><tr><th>Name</th><th>HR rank</th><th>What</th><th>When</th><th class="r">Action</th></tr></thead><tbody>'
+   +soon.map(function(m){return row(m,'Joins',m.from);}).join('')
+   +going.map(function(m){return row(m,'Leaves','last day '+m.leftOn);}).join('')
+   +'</tbody></table></div>';
+}
+"""
+for old, new, n in [
+    ("function isActive(m){return m&&m.active!==false;}\n", MEMBER_DATES_JS, 1),
+    ("function leavers(){return S.m.filter(function(m){return !isActive(m);});}",
+     "function leavers(){return S.m.filter(function(m){return memState(m)==='left';});}", 1),
+    ("function dlvReset(){_DLV=null;_PDLV={};_PSH={};_SIH={};_HSHARE=null;allocReset();}",
+     "function dlvReset(){_DLV=null;_PDLV={};_PSH={};_SIH={};_HSHARE=null;_MSH={};allocReset();}", 1),
+    ("try{if(rollWeek())sv();}catch(e){}", "try{var _rw=rollWeek(),_ex=expireLeavers();if(_rw||_ex)sv();}catch(e){}", 2),
+    # capacity: everyone, for the part of the window they are in the team
+    ("  var hs=horizonShare();\n  roster().forEach(function(m){var r=rows[m.role];if(!r)return;var c=(m.cap||220)*hs;var sh=periodShares(m.id);r.n++;r.cap+=c;r.bill+=sh.bill/100*c;r.nb+=sh.nb/100*c;});",
+     "  // Somebody leaving in a month counts until then, somebody joining counts from then.\n"
+     "  S.m.forEach(function(m){var r=rows[m.role];if(!r)return;var ms=memShare(m);if(ms<=0)return;var c=(m.cap||220)*ms,now=isActive(m);"
+     "var sh=now?periodShares(m.id):{bill:0,nb:0};if(now)r.n++;r.cap+=c;r.bill+=sh.bill/100*c;r.nb+=sh.nb/100*c;});", 1),
+    ("  return m?projShare(mid,pid)/100*(m.cap||220)*horizonShare():0;", "  return m?projShare(mid,pid)/100*(m.cap||220)*memShare(m):0;", 1),
+    ("           F:wy*horizonShare(),", "           F:wy*memShare(m),", 1),
+    # the two dates in the add and edit dialogs
+    ('<label>Capacity (days/year)</label><input id="xc" type="number" value="220">',
+     '<label>Capacity (days/year)</label><input id="xc" type="number" value="220">'
+     '<label>In the team from (optional)</label><input id="xf" type="date">', 1),
+    ('email:(document.getElementById("xe").value||"").trim().toLowerCase()||_emailFromName(n)});cm();sv();R()}',
+     'email:(document.getElementById("xe").value||"").trim().toLowerCase()||_emailFromName(n),from:document.getElementById("xf").value||null});cm();sv();R()}', 1),
+    ('<label>Capacity (days/year)</label><input id="xc" type="number" value="${m.cap}">',
+     '<label>Capacity (days/year)</label><input id="xc" type="number" value="${m.cap}">'
+     '<label>In the team from (optional)</label><input id="xf" type="date" value="${esc(m.from||\'\')}">'
+     '<label>Last day in the team (optional)</label><input id="xl" type="date" value="${esc(m.active===false?\'\':(m.leftOn||\'\'))}">', 1),
+    ('m.cap=parseInt(document.getElementById("xc").value)||220;cm();sv();R()}',
+     'm.cap=parseInt(document.getElementById("xc").value)||220;'
+     'var _f=document.getElementById("xf").value,_l=document.getElementById("xl").value;'
+     'if(_f)m.from=_f;else delete m.from;'
+     'if(m.active!==false){if(_l)m.leftOn=_l;else delete m.leftOn;}'
+     'expireLeavers();cm();sv();R()}', 1),
+    ("  var h=orphanCard()+leaverCard()+", "  var h=orphanCard()+movesCard()+leaverCard()+", 1),
+    ("Archived people: out of capacity, targets and weekly filing, with their past weeks still readable in History.",
+     "Archived people: out of the team views and the weekly filing from the day they left, with their past weeks still readable in History. Over the full year they still count in capacity up to that day.", 1),
+]:
+    assert html.count(old) == n, 'member dates %r: %d' % (old[:50], html.count(old))
+    html = html.replace(old, new)
 
 with io.open(OUT, 'w', encoding='utf-8') as f:
     f.write(html)

@@ -352,13 +352,13 @@ let S={m:JSON.parse(JSON.stringify(IM)),p:JSON.parse(JSON.stringify(IP)),t:Objec
 function ld(cb){
   dbRef.once('value').then(snap=>{
     const d=snap.val();
-    if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}}if(d&&d.t)S.t=Object.assign({},DEFT,d.t);if(d){S.wk=d.wk||S.wk;S.hist=d.hist||S.hist||{};S.touched=d.touched||S.touched||{};S.px=d.px||[];S.bak=d.bak||null;}try{if(rollWeek())sv();}catch(e){}
+    if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}}if(d&&d.t)S.t=Object.assign({},DEFT,d.t);if(d){S.wk=d.wk||S.wk;S.hist=d.hist||S.hist||{};S.touched=d.touched||S.touched||{};S.px=d.px||[];S.bak=d.bak||null;}try{var _rw=rollWeek(),_ex=expireLeavers();if(_rw||_ex)sv();}catch(e){}
     _fbReady=true;
     if(cb)cb();
   }).catch(e=>{
     console.error('Firebase load error:',e);
     // Fallback to localStorage
-    try{const d=JSON.parse(localStorage.getItem("sfv11"));if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}}if(d&&d.t)S.t=Object.assign({},DEFT,d.t);if(d){S.wk=d.wk||S.wk;S.hist=d.hist||S.hist||{};S.touched=d.touched||S.touched||{};S.px=d.px||[];S.bak=d.bak||null;}try{if(rollWeek())sv();}catch(e){}}catch(ex){}
+    try{const d=JSON.parse(localStorage.getItem("sfv11"));if(d?.m&&d?.p){S.m=d.m;S.p=d.p;try{_migrateTeam();}catch(e){}}if(d&&d.t)S.t=Object.assign({},DEFT,d.t);if(d){S.wk=d.wk||S.wk;S.hist=d.hist||S.hist||{};S.touched=d.touched||S.touched||{};S.px=d.px||[];S.bak=d.bak||null;}try{var _rw=rollWeek(),_ex=expireLeavers();if(_rw||_ex)sv();}catch(e){}}catch(ex){}
     _fbReady=true;
     if(cb)cb();
   });
@@ -1373,10 +1373,10 @@ function autoCalcPerson(mid){
 }
 
 // MODALS
-function amM(){if(!isAdmin())return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Add person</h2><label>Name</label><input id="xn"><label>Email</label><input id="xe" type="email" placeholder="name.surname@jakala.com"><label>Role</label><select id="xr">${RH.map(r=>`<option value="${r}">${r}</option>`).join('')}</select><label>Capacity (days/year)</label><input id="xc" type="number" value="220"><div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doAM()">Add</button></div></div></div>`}
-function doAM(){if(!isAdmin())return;const n=document.getElementById("xn").value.trim();if(!n)return alert("Name!");S.m.push({id:"m_"+Math.random().toString(36).slice(2,8),name:n,role:document.getElementById("xr").value,cap:parseInt(document.getElementById("xc").value)||220,email:(document.getElementById("xe").value||"").trim().toLowerCase()||_emailFromName(n)});cm();sv();R()}
-function emM(id){if(!isAdmin())return;const m=S.m.find(x=>x.id===id);if(!m)return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Edit person</h2><label>Name</label><input id="xn" value="${esc(m.name)}"><label>Email</label><input id="xe" type="email" value="${esc(m.email||_emailFromName(m.name))}"><label>Role</label><select id="xr">${RH.map(r=>`<option value="${r}"${m.role===r?' selected':''}>${r}</option>`).join('')}</select><label>Capacity (days/year)</label><input id="xc" type="number" value="${m.cap}"><div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doEM('${id}')">Save</button></div></div></div>`}
-function doEM(id){const m=S.m.find(x=>x.id===id);if(!m)return;m.name=document.getElementById("xn").value;m.email=(document.getElementById("xe").value||"").trim().toLowerCase()||_emailFromName(m.name);m.role=document.getElementById("xr").value;m.cap=parseInt(document.getElementById("xc").value)||220;cm();sv();R()}
+function amM(){if(!isAdmin())return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Add person</h2><label>Name</label><input id="xn"><label>Email</label><input id="xe" type="email" placeholder="name.surname@jakala.com"><label>Role</label><select id="xr">${RH.map(r=>`<option value="${r}">${r}</option>`).join('')}</select><label>Capacity (days/year)</label><input id="xc" type="number" value="220"><label>In the team from (optional)</label><input id="xf" type="date"><div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doAM()">Add</button></div></div></div>`}
+function doAM(){if(!isAdmin())return;const n=document.getElementById("xn").value.trim();if(!n)return alert("Name!");S.m.push({id:"m_"+Math.random().toString(36).slice(2,8),name:n,role:document.getElementById("xr").value,cap:parseInt(document.getElementById("xc").value)||220,email:(document.getElementById("xe").value||"").trim().toLowerCase()||_emailFromName(n),from:document.getElementById("xf").value||null});cm();sv();R()}
+function emM(id){if(!isAdmin())return;const m=S.m.find(x=>x.id===id);if(!m)return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Edit person</h2><label>Name</label><input id="xn" value="${esc(m.name)}"><label>Email</label><input id="xe" type="email" value="${esc(m.email||_emailFromName(m.name))}"><label>Role</label><select id="xr">${RH.map(r=>`<option value="${r}"${m.role===r?' selected':''}>${r}</option>`).join('')}</select><label>Capacity (days/year)</label><input id="xc" type="number" value="${m.cap}"><label>In the team from (optional)</label><input id="xf" type="date" value="${esc(m.from||'')}"><label>Last day in the team (optional)</label><input id="xl" type="date" value="${esc(m.active===false?'':(m.leftOn||''))}"><div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doEM('${id}')">Save</button></div></div></div>`}
+function doEM(id){const m=S.m.find(x=>x.id===id);if(!m)return;m.name=document.getElementById("xn").value;m.email=(document.getElementById("xe").value||"").trim().toLowerCase()||_emailFromName(m.name);m.role=document.getElementById("xr").value;m.cap=parseInt(document.getElementById("xc").value)||220;var _f=document.getElementById("xf").value,_l=document.getElementById("xl").value;if(_f)m.from=_f;else delete m.from;if(m.active!==false){if(_l)m.leftOn=_l;else delete m.leftOn;}expireLeavers();cm();sv();R()}
 function amP(){document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Add project</h2><label>Name</label><input id="yn"><label>Client</label><input id="yc"><label>Job ID</label><input id="yj"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><label>Start</label><input id="ys" type="date"></div><div><label>End</label><input id="ye" type="date"></div></div><label>Quoted days per Price Level</label>${PLkeys.map(k=>`<div style="display:flex;align-items:center;gap:6px;margin-top:3px"><span style="width:100px;font-size:10px;color:var(--t2);text-align:right">${k.replace('PL','Price Level ')}</span><input id="yr_${k}" type="number" value="0" min="0" style="width:70px"></div>`).join('')}<div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doAP()">Add</button></div></div></div>`}
 function doAP(){const n=document.getElementById("yn").value.trim();if(!n)return alert("Name!");const dr={};let t=0;PLkeys.forEach(k=>{const v=parseFloat(document.getElementById("yr_"+k).value)||0;dr[k]=v;t+=v});S.p.push({id:"p_"+Math.random().toString(36).slice(2,8),jobId:document.getElementById("yj").value||String(Date.now()).slice(-6),name:n,client:document.getElementById("yc").value.trim(),startDate:document.getElementById("ys").value,endDate:document.getElementById("ye").value,totalDays:t,daysByRole:dr,asgn:{},createdBy:(_user&&_user.uid)||null});cm();sv();R()}
 function epM(id){if(!canEditProjectId(id))return;const p=S.p.find(x=>x.id===id);if(!p)return;document.getElementById("mr").innerHTML=`<div class="mo" onclick="if(event.target===this)cm()"><div class="md"><h2>Edit project</h2><label>Name</label><input id="yn" value="${esc(p.name)}"><label>Client</label><input id="yc" value="${esc(p.client)}"><label>Job ID</label><input id="yj" value="${p.jobId}"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><label>Start</label><input id="ys" type="date" value="${p.startDate}"></div><div><label>End</label><input id="ye" type="date" value="${p.endDate}"></div></div><label>Quoted days per Price Level</label>${PLkeys.map(k=>`<div style="display:flex;align-items:center;gap:6px;margin-top:3px"><span style="width:100px;font-size:10px;color:var(--t2);text-align:right">${k.replace('PL','Price Level ')}</span><input id="yr_${k}" type="number" value="${p.daysByRole[k]||0}" min="0" style="width:70px"></div>`).join('')}<div class="ma"><button class="b bo" onclick="cm()">Cancel</button><button class="b ba" onclick="doEP('${id}')">Save</button></div></div></div>`}
@@ -1489,8 +1489,8 @@ function yearShare(p){
 function admData(){
   var rows={},order=[];
   RH.forEach(function(r){rows[r]={rank:r,pl:rPL(r),n:0,cap:0,bill:0,nb:0};order.push(r);});
-  var hs=horizonShare();
-  roster().forEach(function(m){var r=rows[m.role];if(!r)return;var c=(m.cap||220)*hs;var sh=periodShares(m.id);r.n++;r.cap+=c;r.bill+=sh.bill/100*c;r.nb+=sh.nb/100*c;});
+  // Somebody leaving in a month counts until then, somebody joining counts from then.
+  S.m.forEach(function(m){var r=rows[m.role];if(!r)return;var ms=memShare(m);if(ms<=0)return;var c=(m.cap||220)*ms,now=isActive(m);var sh=now?periodShares(m.id):{bill:0,nb:0};if(now)r.n++;r.cap+=c;r.bill+=sh.bill/100*c;r.nb+=sh.nb/100*c;});
   var quoted={PL4:0,PL3:0,PL2:0,PL1:0},quotedAll={PL4:0,PL3:0,PL2:0,PL1:0},np=0;
   S.p.forEach(function(p){
     if(p.nb)return;
@@ -1544,13 +1544,67 @@ function periodPicker(){
 // Billability asks whether someone spends enough time on client work.
 // Utilization asks whether that time turns into delivery that was actually sold.
 var _DLV=null;
-function dlvReset(){_DLV=null;_PDLV={};_PSH={};_SIH={};_HSHARE=null;allocReset();}
+function dlvReset(){_DLV=null;_PDLV={};_PSH={};_SIH={};_HSHARE=null;_MSH={};allocReset();}
 // -- Leavers -----------------------------------------------------------------
 // People who leave are archived, never deleted, so their past weeks stay
 // readable. They drop out of capacity, targets and the weekly filing.
-function isActive(m){return m&&m.active!==false;}
+// A person is in the team from the day they join to their last day. Both dates
+// are optional: without them only the archive flag counts.
+function todayISO(){return new Date().toISOString().slice(0,10);}
+function memState(m){
+  if(!m||m.active===false)return 'left';
+  var t=todayISO();
+  if(m.leftOn&&m.leftOn<t)return 'left';
+  if(m.from&&m.from>t)return 'soon';
+  return 'in';
+}
+function isActive(m){return memState(m)==='in';}
+function joiners(){return S.m.filter(function(m){return memState(m)==='soon';});}
+// Past their last day: archived exactly as by hand, assignments released.
+function expireLeavers(){
+  var t=todayISO(),any=false;
+  (S.m||[]).forEach(function(m){
+    if(m.active===false||!m.leftOn||m.leftOn>=t)return;
+    m.active=false;any=true;
+    (S.p||[]).forEach(function(p){if(p.asgn&&p.asgn[m.id]!==undefined)delete p.asgn[m.id];});
+  });
+  return any;
+}
+// Share of a person's yearly capacity that falls inside the measuring window
+// while they are in the team.
+var _MSH={};
+function memShare(m){
+  if(m.active===false&&!m.leftOn)return 0;                 // archived before dates existed
+  if(!m.from&&!m.leftOn)return horizonShare();
+  var k=m.id+'|'+(m.from||'')+'|'+(m.leftOn||'')+'|'+(m.active===false);
+  if(_MSH[k]!==undefined)return _MSH[k];
+  var a=S.hor==='year'?_yStart():horizonStart(),b=_yEnd(),y=yearWorkingDays();
+  if(m.from){var f=new Date(m.from+'T00:00:00Z');if(!isNaN(f)&&f>a)a=f;}
+  if(m.leftOn){
+    var l=new Date(m.leftOn+'T00:00:00Z');
+    // archived by hand: out from that day; a planned last day is still worked
+    if(!isNaN(l)){if(m.active===false)l.setUTCDate(l.getUTCDate()-1);if(l<b)b=l;}
+  }
+  var r=(y>0&&b>=a)?workingDays(a,b)/y:0;
+  _MSH[k]=r;return r;
+}
+function movesCard(){
+  var soon=joiners(),going=roster().filter(function(m){return m.leftOn;});
+  if(!soon.length&&!going.length)return '';
+  var row=function(m,what,when){
+    return '<tr><td style="font-weight:600">'+esc(m.name)+'</td><td style="font-size:11px;color:var(--t2)">'+esc(m.role)+'</td><td>'+what+'</td>'
+      +'<td style="font-size:12px;color:var(--t2)">'+esc(when)+'</td>'
+      +'<td class="r">'+(isAdmin()?'<button class="b bo" onclick="emM(\''+m.id+'\')">Edit</button>':'')+'</td></tr>';
+  };
+  return '<div class="ucard"><div class="uct" style="font-size:15px">Joining and leaving</div>'
+   +'<div class="ucs">People with a date ahead. Somebody joining appears in the team, and counts in capacity, from their first day. Somebody leaving counts until their last day and is archived the day after.</div>'
+   +'<table class="utbl"><thead><tr><th>Name</th><th>HR rank</th><th>What</th><th>When</th><th class="r">Action</th></tr></thead><tbody>'
+   +soon.map(function(m){return row(m,'Joins',m.from);}).join('')
+   +going.map(function(m){return row(m,'Leaves','last day '+m.leftOn);}).join('')
+   +'</tbody></table></div>';
+}
 function roster(){return S.m.filter(isActive);}
-function leavers(){return S.m.filter(function(m){return !isActive(m);});}
+function leavers(){return S.m.filter(function(m){return memState(m)==='left';});}
 function archiveMember(id){
   if(!isAdmin())return;
   var m=S.m.find(function(x){return x.id===id;});if(!m)return;
@@ -1605,7 +1659,7 @@ function projShare(mid,pid){
 }
 function declaredDays(mid,pid){
   var m=S.m.find(function(x){return x.id===mid;});
-  return m?projShare(mid,pid)/100*(m.cap||220)*horizonShare():0;
+  return m?projShare(mid,pid)/100*(m.cap||220)*memShare(m):0;
 }
 function dataWeeks(){
   var per=S.aPer===undefined?1:S.aPer,ws=weeksAvailable();
@@ -1688,7 +1742,7 @@ function personDelivery(mid){
   });
   var target=cap*tgtOf('PL'+rPL(m.role))/100/wy;
   var res={plan:plan,planQ:planQ,quota:quota,covered:covered,notQuoted:notQ,target:target,
-           F:wy*horizonShare(),                       // days a week -> days in the measuring window
+           F:wy*memShare(m),                       // days a week -> days in the measuring window
            allocation:target>0?covered/target*100:null,
            effectiveness:target>0?plan/target*100:null,
            efficiency:quota>0?100-planQ/quota*100:null,
@@ -2042,11 +2096,22 @@ function impApplyTeam(){
       m.name=r.name;if(r.role)m.role=r.role;if(r.email)m.email=r.email;
       if(m.active===false){m.active=true;delete m.leftOn;}
     } else {
-      S.m.push({id:'m_'+Math.random().toString(36).slice(2,8),name:r.name,role:r.role||ranks[i],cap:220,email:r.email||_emailFromName(r.name)});
+      // counted from the day they are loaded; the date can be changed in Team
+      S.m.push({id:'m_'+Math.random().toString(36).slice(2,8),name:r.name,role:r.role||ranks[i],cap:220,email:r.email||_emailFromName(r.name),from:todayISO()});
       added++;
     }
   });
-  S.impDone='Team updated from '+S.imp.file+': '+added+' added, '+changed+' updated.';
+  // People missing from the file leave only if the admin ticked them. What they
+  // were assigned to is remembered, so undoing the update gives it back.
+  var out=S.imp.out||{},rel={},gone=0;
+  d.absent.forEach(function(m){
+    if(!out[m.id])return;
+    gone++;rel[m.id]={};
+    S.p.forEach(function(p){if(p.asgn&&p.asgn[m.id]!==undefined){if(p.asgn[m.id]>0)rel[m.id][p.id]=p.asgn[m.id];delete p.asgn[m.id];}});
+    m.active=false;m.leftOn=todayISO();
+  });
+  S.bak.rel=rel;
+  S.impDone='Team updated from '+S.imp.file+': '+added+' added, '+changed+' updated, '+gone+' archived.';
   S.imp=null;sv();R();
 }
 // One step back. Filings made since the import are kept: only the lists return.
@@ -2059,7 +2124,13 @@ function impUndo(){
     (b.p||[]).forEach(function(p){was[p.id]=1;if(now[p.id])p.asgn=now[p.id].asgn||{};});
     S.p=(b.p||[]).concat(S.p.filter(function(p){return !was[p.id]&&!p.stream;}));   // keep what was created by hand since
     S.px=b.px||[];
-  } else S.m=b.m||S.m;
+  } else {
+    S.m=b.m||S.m;
+    var rel=b.rel||{};
+    S.p.forEach(function(p){Object.keys(rel).forEach(function(mid){
+      if(rel[mid][p.id]&&!(p.asgn&&p.asgn[mid]>0)){p.asgn=p.asgn||{};p.asgn[mid]=rel[mid][p.id];}
+    });});
+  }
   S.bak=null;S.imp=null;S.impDone='The '+b.kind+' update was undone.';sv();R();
 }
 async function impPick(kind,input){
@@ -2067,7 +2138,7 @@ async function impPick(kind,input){
   S.impDone='';S.imp={kind:kind,file:f.name,busy:true};R();
   try{
     var data=kind==='projects'?await impReadProjects(f):await impReadTeam(f);
-    S.imp={kind:kind,file:f.name,data:data,link:{},rank:{}};
+    S.imp={kind:kind,file:f.name,data:data,link:{},rank:{},out:{}};
   }catch(ex){
     console.error('Import error:',ex);
     S.imp={kind:kind,file:f.name,error:(ex&&ex.message)||'The file could not be read.'};
@@ -2120,11 +2191,13 @@ function impPreviewTeam(){
   }
   if(upd.length)h+='<div class="psc">Updated, assignments kept</div>'+impList([['Name'],['What changes']],
     upd.map(function(pr){return '<tr><td style="font-weight:600">'+esc(pr.r.name)+'</td><td style="font-size:11.5px;color:var(--t2)">'+esc(pr.ch.join(' · '))+'</td></tr>';}).join(''));
-  if(d.absent.length)h+='<div class="psc">In the app but not in the file: left as they are, archive them from People if they left</div>'+impList([['Name'],['Rank']],
-    d.absent.map(function(m){return '<tr><td>'+esc(m.name)+'</td><td style="font-size:11.5px;color:var(--t2)">'+esc(m.role)+'</td></tr>';}).join(''));
+  var out=S.imp.out||{},nOut=d.absent.filter(function(m){return out[m.id];}).length;
+  if(d.absent.length)h+='<div class="psc">In the app but not in the file: tick the ones who left, the others stay as they are'+(nOut?' · '+nOut+' to archive':'')+'</div>'+impList([['Left the team'],['Name'],['Rank']],
+    d.absent.map(function(m){return '<tr><td style="width:110px"><label style="cursor:pointer"><input type="checkbox"'+(out[m.id]?' checked':'')+' onchange="S.imp.out[\''+m.id+'\']=this.checked;R()"> archive</label></td>'
+      +'<td'+(out[m.id]?' style="text-decoration:line-through;color:var(--t3)"':'')+'>'+esc(m.name)+'</td><td style="font-size:11.5px;color:var(--t2)">'+esc(m.role)+'</td></tr>';}).join(''));
   if(data.bad.length)h+='<div class="psc">Left out: the rank is not one the app knows</div>'+impList([['Name'],['Rank in the file']],
     data.bad.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td style="color:#b32a1c">'+esc(x.rank)+'</td></tr>';}).join(''));
-  var nothing=!(fresh.length+upd.length);
+  var nothing=!(fresh.length+upd.length+nOut);
   return h+'<div class="impact">'+(nothing?'<span class="ucs" style="margin:0">The team list already matches this file.</span>'
     :'<button class="b bg" onclick="impApplyTeam()">Apply to the team list</button>')
     +'<button class="b bo" onclick="S.imp=null;R()">'+(nothing?'Close':'Cancel')+'</button></div>';
@@ -2536,7 +2609,7 @@ function leaverCard(){
   var L=leavers();
   if(!L.length)return '';
   var h='<div class="ucard"><div class="uct" style="font-size:15px">Former members</div>'
-   +'<div class="ucs">Archived people: out of capacity, targets and weekly filing, with their past weeks still readable in History.</div>'
+   +'<div class="ucs">Archived people: out of the team views and the weekly filing from the day they left, with their past weeks still readable in History. Over the full year they still count in capacity up to that day.</div>'
    +'<table class="utbl"><thead><tr><th>Name</th><th>HR rank</th><th>Left on</th><th class="r">Action</th></tr></thead><tbody>';
   L.forEach(function(m){
     h+='<tr style="opacity:.75"><td style="font-weight:600">'+esc(m.name)+'</td><td style="font-size:11px;color:var(--t2)">'+esc(m.role)+'</td>'
@@ -2552,7 +2625,7 @@ function admPeople(){
   rows.sort(function(a,b){return PEOPLE_BANDS.indexOf(a.band)-PEOPLE_BANDS.indexOf(b.band)||(a.effectiveness===null?999:a.effectiveness)-(b.effectiveness===null?999:b.effectiveness);});
   var counts={};roster().forEach(function(m){var x=personProfile(m.id);if(x)counts[x.band]=(counts[x.band]||0)+1;});
   var chip=function(k,label){return '<button class="perbtn'+(band===k?' on':'')+'" onclick="S.pBand=\''+k+'\';R()">'+label+'</button>';};
-  var h=orphanCard()+leaverCard()+'<div class="ucard"><div class="uct">People</div><div class="ucs">Billability: the share of their time to dedicate to projects. Allocation: how much of that is taken by days they declare that are also sold. Effectiveness: how much of their billable time they actually use. Efficiency: the days they save on what was sold for them. Days are per week.</div>'
+  var h=orphanCard()+movesCard()+leaverCard()+'<div class="ucard"><div class="uct">People</div><div class="ucs">Billability: the share of their time to dedicate to projects. Allocation: how much of that is taken by days they declare that are also sold. Effectiveness: how much of their billable time they actually use. Efficiency: the days they save on what was sold for them. Days are per week.</div>'
    +weakDataNote()
    +'<div class="perbar" style="margin-top:12px"><span>Show</span>'+chip('all','Everyone ('+roster().length+')')
    +PEOPLE_BANDS.filter(function(b){return counts[b];}).map(function(b){return chip(b,BANDS[b].t+' ('+counts[b]+')');}).join('')
