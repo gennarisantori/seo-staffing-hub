@@ -2628,6 +2628,22 @@ for old, new, n in [
     assert html.count(old) == n, 'member dates %r: %d' % (old[:50], html.count(old))
     html = html.replace(old, new)
 
+# ── U. Assign: a row must not move because of what is being done to it. People
+#     were ordered by availability including the project being staffed, so ticking
+#     one changed their availability and sent the row elsewhere in the list; the
+#     person review was ordered by percentage, so rows swapped while a slider moved.
+for old, new, n in [
+    (".sort((a,b)=>(100-mEf(a.id))-(100-mEf(b.id))).reverse();",
+     # most available first, not counting this project; names break ties
+     # (rounded: 100-100.1+0.1 is not exactly 0, and that alone moved the row)
+     ".sort((a,b)=>{const fr=m=>Math.round((100-mEf(m.id)+(ap.asgn?.[m.id]||0))*10);"
+     "return fr(b)-fr(a)||a.name.localeCompare(b.name)});", 1),
+    (".sort((a,b)=>(b.asgn[am.id]||0)-(a.asgn[am.id]||0));",
+     ".sort((a,b)=>String(a.client||a.name).localeCompare(String(b.client||b.name))||a.name.localeCompare(b.name));", 1),
+]:
+    assert html.count(old) == n, 'assign ordering %r: %d' % (old[:40], html.count(old))
+    html = html.replace(old, new)
+
 with io.open(OUT, 'w', encoding='utf-8') as f:
     f.write(html)
 print('OK', len(html), 'chars written')

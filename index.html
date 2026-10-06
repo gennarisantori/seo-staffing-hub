@@ -1085,7 +1085,7 @@ h+=`<div class="abar"><div><span style="font-weight:700;font-size:14px">${esc(ap
 <div style="display:flex;gap:6px"><button class="b ba" onclick="autoCalc('${ap.id}')">⚡ Calculate %</button><button class="b bo" onclick="S.aStep='review';R()">📋 Review</button></div></div>`;
 rn.forEach(k=>{
 const plNum=+k.replace('PL','');const plRoles=PL[plNum]||[];
-const dr=ap.daysByRole[k]||0;const cands=ms.filter(m=>isActive(m)&&plRoles.includes(m.role)).sort((a,b)=>(100-mEf(a.id))-(100-mEf(b.id))).reverse();
+const dr=ap.daysByRole[k]||0;const cands=ms.filter(m=>isActive(m)&&plRoles.includes(m.role)).sort((a,b)=>{const fr=m=>Math.round((100-mEf(m.id)+(ap.asgn?.[m.id]||0))*10);return fr(b)-fr(a)||a.name.localeCompare(b.name)});
 const adr=ca.filter(a=>plRoles.includes(a.m.role)).reduce((t,a)=>t+(a.pct/100)*(a.m.cap||220),0);
 h+=`<div class="role-sec"><div class="role-hdr"><span style="color:${PLC[plNum]||'#999'}">Price Level ${plNum} <span style="font-weight:400;color:var(--t3)">· ${dr} d · ${adr.toFixed(0)} assigned</span></span>
 <span style="font-size:10px;color:${adr>=dr?'var(--gn)':'var(--yl)'}">${dr>0?(adr/dr*100).toFixed(0):0}%</span></div>`;
@@ -1175,7 +1175,7 @@ h+=`<div class="cand" onclick="togLink('${p.id}','${am.id}')"><div class="ck${is
 h+=`</details>`}
 } else {
 // Review mode for person
-const myPs=ps.filter(p=>p.asgn?.[am.id]>0).sort((a,b)=>(b.asgn[am.id]||0)-(a.asgn[am.id]||0));
+const myPs=ps.filter(p=>p.asgn?.[am.id]>0).sort((a,b)=>String(a.client||a.name).localeCompare(String(b.client||b.name))||a.name.localeCompare(b.name));
 h+=`<div class="psc" style="margin-top:0">Assigned projects (${myPs.length})</div>`;
 myPs.forEach(p=>{const pe=p.asgn[am.id]||0;const de=(pe/100)*am.cap;
 h+=`<div class="rev-row"><span style="font-weight:600;min-width:130px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.client||p.name)}</span>
